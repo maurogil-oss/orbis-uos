@@ -39,7 +39,7 @@ export function Hero() {
             <span className="text-[#3B82F6] font-bold">|</span>
             <span className="text-[#94A3B8] font-normal flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-[#3B82F6]" />
-              Telemetria Mobile Inercial
+              Coleta Real & Inercial Mobile
             </span>
           </div>
 
@@ -116,8 +116,8 @@ export function Hero() {
               to="/cockpit"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#10B981] bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/30 hover:border-[#10B981]/60 active:scale-[0.98] transition-all min-h-[48px]"
             >
-              <Activity className="w-4 h-4" />
-              Ver Cockpit Demo
+              <Smartphone className="w-4 h-4" />
+              Ver Cockpit & Coleta Real
             </Link>
           </div>
 
@@ -131,18 +131,20 @@ export function Hero() {
                 <span className="font-bold text-[#F8FAFC] block">
                   Curitiba & RMC • Malha Viária Ativa
                 </span>
-                <span>1.482 km monitorados • Gêmeo digital inercial com ônibus URBS e coleta</span>
+                <span>
+                  1.482 km monitorados • Gêmeo digital com suporte a sensores reais de smartphones
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-4 text-xs">
-              <span className="font-mono text-[#10B981] font-semibold">
-                R$ 4,2M economizados em recapeamento
+              <span className="hidden md:inline font-mono text-[#10B981] font-semibold">
+                Modo Coleta Real via Acelerômetro
               </span>
               <Link
                 to="/cockpit"
                 className="underline text-[#3B82F6] hover:text-[#60A5FA] font-medium flex items-center gap-1"
               >
-                Abrir Mapa
+                Testar Sensores
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

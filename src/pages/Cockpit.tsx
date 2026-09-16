@@ -16,6 +16,7 @@ import {
 import { listRoadEvents, RoadEventRecord, createRoadEvent } from '@/services/roadEvents'
 import { listFleetTelemetry, FleetTelemetryRecord } from '@/services/fleet'
 import { CuritibaMap } from '@/components/CuritibaMap'
+import { RealCollectorModal } from '@/components/RealCollectorModal'
 
 export default function Cockpit() {
   const [events, setEvents] = useState<RoadEventRecord[]>([])
@@ -37,6 +38,9 @@ export default function Cockpit() {
   const [simulateTipo, setSimulateTipo] = useState<any>('buraco')
   const [simulateSeverity, setSimulateSeverity] = useState<any>('alta')
   const [isSimulating, setIsSimulating] = useState<boolean>(false)
+
+  // Modal for real sensor collection
+  const [showRealCollectorModal, setShowRealCollectorModal] = useState<boolean>(false)
 
   const loadData = async () => {
     setLoading(true)
@@ -149,7 +153,7 @@ export default function Cockpit() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
               onClick={loadData}
@@ -160,13 +164,27 @@ export default function Cockpit() {
               Atualizar
             </button>
 
+            {/* NEW: Coleta Real (DeviceMotion) Button */}
+            <button
+              type="button"
+              onClick={() => setShowRealCollectorModal(true)}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md shadow-[#10B981]/25 flex items-center gap-2 transition-all active:scale-95"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Ativar Coleta Real</span>
+              <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-black/25 text-[#A7F3D0]">
+                Acelerômetro
+              </span>
+            </button>
+
+            {/* Retained: Simulator fallback */}
             <button
               type="button"
               onClick={() => setShowSimulateModal(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 flex items-center gap-1.5 transition-all"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6]/60 flex items-center gap-1.5 transition-all"
             >
-              <Plus className="w-3.5 h-3.5" />
-              Simular Leitura Inercial (Celular)
+              <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]" />
+              Simulador Inercial
             </button>
           </div>
         </div>
@@ -498,8 +516,22 @@ export default function Cockpit() {
                     <td className="py-3 px-3 font-mono">
                       {ev.aceleracao_z ? `${ev.aceleracao_z.toFixed(2)}g` : '-'}
                     </td>
-                    <td className="py-3 px-3 text-[#94A3B8]">
-                      {ev.linha_frota || ev.veiculo_tipo || '-'}
+                    <td className="py-3 px-3">
+                      <div className="flex items-center gap-1.5">
+                        {ev.veiculo_tipo?.includes('Acelerômetro Real') ||
+                        ev.linha_frota?.includes('Real') ? (
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 font-bold shrink-0">
+                            REAL
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#3B82F6]/15 text-[#93C5FD] border border-[#3B82F6]/30 shrink-0">
+                            SIM
+                          </span>
+                        )}
+                        <span className="text-[#94A3B8] truncate max-w-[160px]">
+                          {ev.linha_frota || ev.veiculo_tipo || '-'}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-3 px-3">
                       <span className="text-[10px] uppercase font-bold text-[#10B981]">
@@ -628,6 +660,17 @@ export default function Cockpit() {
           </div>
         </div>
       )}
+
+      {/* Modal: Coleta Real via Sensor DeviceMotion do Aparelho */}
+      <RealCollectorModal
+        isOpen={showRealCollectorModal}
+        onClose={() => setShowRealCollectorModal(false)}
+        onEventCreated={(newEvent) => {
+          setEvents((prev) => [newEvent, ...prev])
+          setSelectedEvent(newEvent)
+        }}
+        onOpenSimulatorFallback={() => setShowSimulateModal(true)}
+      />
     </div>
   )
 }
