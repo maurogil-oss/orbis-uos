@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T13:50:53.263Z",
+  "generatedAt": "2026-09-16T14:02:08.614Z",
   "collections": [
     {
       "name": "users",
@@ -108,6 +108,216 @@
         }
       ],
       "indexes": ["CREATE UNIQUE INDEX idx_leads_email ON leads (email)"]
+    },
+    {
+      "name": "road_events",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "via",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "bairro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["buraco", "ondulacao", "fissura", "afundamento", "remendo_critico"]
+        },
+        {
+          "name": "severidade",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["baixa", "media", "alta", "critica"]
+        },
+        {
+          "name": "iri_score",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "aceleracao_z",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "latitude",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "longitude",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "velocidade_kmh",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["detectado", "triagem", "os_emitida", "reparado"]
+        },
+        {
+          "name": "veiculo_tipo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "linha_frota",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_road_events_severidade ON road_events (severidade)",
+        "CREATE INDEX idx_road_events_status ON road_events (status)"
+      ]
+    },
+    {
+      "name": "fleet_telemetry",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "veiculo_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "tipo",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "onibus_articulado",
+            "onibus_padron",
+            "caminhao_coleta",
+            "viatura_guarda"
+          ]
+        },
+        {
+          "name": "linha",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "latitude",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "longitude",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "velocidade",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["em_rota", "parado", "manutencao"]
+        },
+        {
+          "name": "km_percorridos_hoje",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "anomalias_detectadas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "bateria_dispositivo",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ultima_leitura",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_fleet_status ON fleet_telemetry (status)",
+        "CREATE UNIQUE INDEX idx_fleet_veiculo_id ON fleet_telemetry (veiculo_id)"
+      ]
     }
   ]
 }

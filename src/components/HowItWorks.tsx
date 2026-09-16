@@ -1,42 +1,51 @@
-import React from 'react'
-import { SearchCheck, Cpu, Activity, ArrowRight } from 'lucide-react'
+import { FileText, Coins, Award, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react'
 
 export function HowItWorks() {
   const steps = [
     {
       number: '01',
-      title: '01 | Diagnóstico',
-      subtitle: 'Mapeamento Completo',
-      description: 'Mapeamos os fluxos e gargalos da sua gestão em até 15 dias.',
-      icon: SearchCheck,
-      badge: 'Até 15 dias',
+      badge: 'LC 182/2021 • MARCO LEGAL',
+      title: 'Adesão ao Piloto CPSI (90 Dias)',
+      subtitle: 'Contratação Sem Burocracia',
+      description:
+        'Contratação ágil sem a burocracia das licitações tradicionais de 12 meses. Edital simplificado com base no Marco Legal das Startups, com escopo e prazo de 90 dias pré-definidos para teste prático em vias e corredores prioritários da cidade.',
+      icon: FileText,
       deliverables: [
-        'Auditoria de processos',
-        'Identificação de redundâncias',
-        'Matriz de economia',
+        'Sem risco para o erário municipal',
+        'Termo de Referência padronizado',
+        'Início em até 15 dias',
       ],
+      tag: 'Sem risco ao erário',
     },
     {
       number: '02',
-      title: '02 | Implantação',
-      subtitle: 'Conexão Segura',
-      description: 'Configuramos a plataforma com seus dados e integrações em 30 dias.',
-      icon: Cpu,
-      badge: '30 dias',
+      badge: 'ART. 320 DO CTB',
+      title: 'Custeio Elegível (Zero CAPEX)',
+      subtitle: 'Fundo Municipal de Multas',
+      description:
+        'Custeio 100% elegível ao saldo do Fundo Municipal de Multas (Art. 320 do CTB) na rubrica de engenharia de tráfego e sinalização, ou compensado na própria economia gerada na contratação de asfalto da Secretaria de Obras.',
+      icon: Coins,
       deliverables: [
-        'Integração com ERP público',
-        'Treinamento das equipes',
-        'Criptografia e LGPD',
+        'Autofinanciável desde a largada',
+        'Zero necessidade de dotação nova',
+        'Parecer de conformidade PGM',
       ],
+      tag: 'Autofinanciável',
     },
     {
       number: '03',
-      title: '03 | Operação',
-      subtitle: 'Monitoramento Contínuo',
-      description: 'Sua equipe opera com painéis e alertas, monitorando resultados em tempo real.',
-      icon: Activity,
-      badge: 'Tempo real',
-      deliverables: ['Alertas preventivos', 'Relatórios automatizados', 'Acompanhamento do ROI'],
+      badge: 'DOSSIÊ AUDITÁVEL TCE',
+      title: 'Auditoria & Escala Soberana',
+      subtitle: 'Gêmeo Digital & Prestação de Contas',
+      description:
+        'Ao final do piloto, o município recebe o inventário digital completo da malha viária avaliada, mapas de severidade e dossiê com nexo causal pronto para prestação de contas no Tribunal de Contas do Estado.',
+      icon: Award,
+      deliverables: [
+        'Apoio técnico e jurídico completo',
+        'Gêmeo digital e índice IRI contínuo',
+        'Transição direta para contrato de escala',
+      ],
+      tag: 'Blindagem TCE',
     },
   ]
 
@@ -51,16 +60,17 @@ export function HowItWorks() {
     <section id="como-funciona" className="py-24 relative bg-[#0A1128] scroll-mt-20">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#3B82F6]">
-            Metodologia Ágil B2G
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Agilidade Jurídica Comprovada
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight">
-            Como Funciona a Jornada de Implementação
+            Como Contratar sem o Desgaste de Licitações Complexas
           </h2>
           <p className="text-base text-[#94A3B8]">
-            Do diagnóstico inicial ao acompanhamento em tempo real, sem impacto ou interrupção na
-            rotina das secretarias.
+            O Marco Legal das Startups (Lei Complementar nº 182/2021) permite validar a tecnologia
+            de telemetria com segurança total para prefeitos, secretários e procuradorias.
           </p>
         </div>
 
@@ -78,25 +88,27 @@ export function HowItWorks() {
                   className="group relative p-8 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] hover:-translate-y-1 transition-all duration-200 shadow-xl shadow-black/20 flex flex-col justify-between"
                 >
                   <div>
-                    {/* Top row: Number marker and icon */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#1A2A5A] border border-[#1A2A5A] group-hover:border-[#3B82F6]/60 flex items-center justify-center transition-colors">
-                          <Icon className="w-5 h-5 text-[#3B82F6]" />
-                        </div>
-                        <span className="font-mono text-2xl font-black text-[#94A3B8]/40 group-hover:text-[#3B82F6] transition-colors">
-                          {step.number}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-[#0A1128] border border-[#1A2A5A] text-[#10B981]">
+                    {/* Top row: Badge and Number marker */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md bg-[#0A1128] border border-[#1A2A5A] text-[#3B82F6]">
                         {step.badge}
+                      </span>
+                      <span className="font-mono text-2xl font-black text-[#94A3B8]/30 group-hover:text-[#3B82F6] transition-colors">
+                        {step.number}
                       </span>
                     </div>
 
-                    {/* Step Title & Copy */}
-                    <h3 className="text-xl font-bold text-[#F8FAFC] tracking-tight mb-2">
-                      {step.title}
-                    </h3>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-[#1A2A5A] border border-[#1A2A5A] group-hover:border-[#3B82F6]/60 flex items-center justify-center transition-colors">
+                        <Icon className="w-5 h-5 text-[#3B82F6]" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#F8FAFC] tracking-tight leading-snug">
+                          {step.title}
+                        </h3>
+                        <span className="text-xs text-[#94A3B8]">{step.subtitle}</span>
+                      </div>
+                    </div>
 
                     <p className="text-sm text-[#94A3B8] leading-relaxed mb-6">
                       {step.description}
@@ -105,16 +117,16 @@ export function HowItWorks() {
                     {/* Deliverables checklist */}
                     <ul className="space-y-2 border-t border-[#1A2A5A]/60 pt-4">
                       {step.deliverables.map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+                        <li key={idx} className="flex items-center gap-2 text-xs text-[#F8FAFC]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
                           <span>{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="mt-8 pt-4 border-t border-[#1A2A5A]/40 flex items-center justify-between text-xs font-semibold text-[#94A3B8] group-hover:text-[#F8FAFC]">
-                    <span>Etapa validada</span>
+                  <div className="mt-8 pt-4 border-t border-[#1A2A5A]/40 flex items-center justify-between text-xs font-semibold text-[#10B981]">
+                    <span>{step.tag}</span>
                     <ArrowRight className="w-4 h-4 text-[#3B82F6] group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -130,7 +142,7 @@ export function HowItWorks() {
             onClick={scrollToPilot}
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#3B82F6] hover:text-[#60A5FA] transition-colors"
           >
-            <span>Deseja um cronograma customizado para o seu município ou estado?</span>
+            <span>Deseja receber a minuta do Termo de Referência do CPSI para análise da PGM?</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

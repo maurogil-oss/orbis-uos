@@ -1,12 +1,15 @@
 import React from 'react'
-import { Shield, Mail, MapPin } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Shield, Mail, MapPin, Activity } from 'lucide-react'
 
 export function Footer() {
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
-    const target = document.querySelector(href)
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' })
+    if (href.startsWith('#')) {
+      e.preventDefault()
+      const target = document.querySelector(href)
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' })
+      }
     }
   }
 
@@ -69,12 +72,21 @@ export function Footer() {
                 </a>
               </li>
               <li>
+                <Link
+                  to="/cockpit"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#3B82F6]"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                  Cockpit de Mobilidade (Curitiba)
+                </Link>
+              </li>
+              <li>
                 <a
                   href="#piloto"
                   onClick={(e) => handleAnchorClick(e, '#piloto')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
-                  Solicitar Piloto Gratuito (60 dias)
+                  Solicitar Piloto CPSI (90 dias)
                 </a>
               </li>
             </ul>

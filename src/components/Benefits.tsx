@@ -1,28 +1,63 @@
-import React from 'react'
-import { ShieldCheck, BarChart3, TrendingDown, ArrowRight } from 'lucide-react'
+import {
+  Activity,
+  TrafficCone,
+  ShieldCheck,
+  EyeOff,
+  ArrowRight,
+  TrendingDown,
+  Clock,
+  Sparkles,
+} from 'lucide-react'
 
 export function Benefits() {
-  const benefits = [
+  const pillars = [
     {
-      title: 'Transparência Total',
-      description: 'Auditoria completa de cada decisão e gasto, com trilhas de dados imutáveis.',
-      icon: ShieldCheck,
-      tag: 'Auditoria & Compliance',
+      title: 'Zeladoria Asfáltica Preditiva & Índice IRI',
+      tag: 'Zero Cratera & Telemetria',
+      badge: 'Frota Existente',
+      description:
+        'A frota pública (ônibus do transporte coletivo e caminhões de coleta) atua como um laboratório inercial ambulante. Sensores do celular (acelerômetro eixo Z e GPS) identificam microfissuras e perda de rugosidade meses antes da cratera se formar, gerando ordens de serviço automatizadas e calculando o índice IRI contínuo da malha.',
+      metric: 'Até 40%',
+      metricLabel: 'de economia em recapeamento',
+      submetric: '4 Meses de antecipação antes de virar buraco',
+      icon: Activity,
       accent: '#3B82F6',
     },
     {
-      title: 'Decisão Baseada em Dados',
-      description: 'Painéis inteligentes que transformam dados brutos em ações concretas.',
-      icon: BarChart3,
-      tag: 'Inteligência Pública',
+      title: 'Google Green Light Ready',
+      tag: 'Engenharia Semafórica',
+      badge: 'Zero Obras',
+      description:
+        'Ondas verdes sincronizadas por inteligência artificial. Acelere a fluidez e reduza paradas em cruzamentos movimentados sem necessidade de quebrar o asfalto para passar cabeamento ótico ou instalar laços indutivos caros.',
+      metric: '-20%',
+      metricLabel: 'de redução em filas de trânsito',
+      submetric: 'Até 30 toneladas de CO₂ poupadas anualmente por corredor',
+      icon: TrafficCone,
+      accent: '#10B981',
+    },
+    {
+      title: 'Artigo 320 do CTB & Blindagem no TCE',
+      tag: 'Respaldo Jurídico B2G',
+      badge: '100% Auditável',
+      description:
+        'Utilize as receitas do Fundo Municipal de Multas com segurança total. Dossiês com nexo causal georreferenciado que comprovam a destinação exclusiva para engenharia e segurança viária, prontos para pareceres de Procuradorias e aprovação em Cortes de Contas.',
+      metric: '100%',
+      metricLabel: 'elegível para custeio via multas CTB',
+      submetric: 'Adesão simplificada via CPSI (LC 182/2021)',
+      icon: ShieldCheck,
       accent: '#60A5FA',
     },
     {
-      title: 'Redução de Custos',
-      description: 'Automação de processos que reduz a burocracia e o desperdício de recursos.',
-      icon: TrendingDown,
-      tag: 'Economia Fiscal',
-      accent: '#10B981',
+      title: '100% LGPD • Sem Vigilância de Cidadãos',
+      tag: 'Privacidade por Design',
+      badge: 'Zero Câmeras',
+      description:
+        'Auditoria da via, nunca das pessoas. Ao contrário de sistemas com reconhecimento de placas ou biometria facial que trazem sérios riscos na ANPD e no Ministério Público, o Orbis mede exclusivamente vibrações mecânicas verticais (eixo Z) e atrito do pavimento através de smartphones embarcados.',
+      metric: '0 Placas',
+      metricLabel: 'Zero biometria ou dados automotivos coletados',
+      submetric: 'Telemetria Z inercial pura da física do asfalto',
+      icon: EyeOff,
+      accent: '#F59E0B',
     },
   ]
 
@@ -40,26 +75,27 @@ export function Benefits() {
     >
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#3B82F6]">
-            Pilares Estratégicos
+            <Sparkles className="w-3.5 h-3.5" />
+            Arquitetura de Valor Público
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight">
-            Projetado para os desafios da máquina pública
+            Quatro Pilares. Uma Única Plataforma Soberana.
           </h2>
           <p className="text-base text-[#94A3B8]">
-            Conectamos tecnologia de ponta com a conformidade estrita às leis orçamentárias e
-            regulatórias do setor público brasileiro.
+            Desenvolvido para eliminar gargalos de gestão urbana com tecnologia inercial de ponta,
+            dados viários auditáveis e zero necessidade de compra de hardware caro.
           </p>
         </div>
 
-        {/* 3-card grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((b) => {
-            const Icon = b.icon
+        {/* 4 Pillars Grid (2x2) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {pillars.map((p) => {
+            const Icon = p.icon
             return (
               <div
-                key={b.title}
+                key={p.title}
                 className="group p-8 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between shadow-lg shadow-black/20"
               >
                 <div>
@@ -67,21 +103,37 @@ export function Benefits() {
                     <div className="w-12 h-12 rounded-xl bg-[#1A2A5A] group-hover:bg-[#3B82F6]/20 border border-[#1A2A5A] group-hover:border-[#3B82F6]/50 flex items-center justify-center transition-colors">
                       <Icon className="w-6 h-6 text-[#3B82F6] group-hover:scale-110 transition-transform" />
                     </div>
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#94A3B8] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A]">
-                      {b.tag}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#10B981] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A]">
+                        {p.badge}
+                      </span>
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#94A3B8] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A]">
+                        {p.tag}
+                      </span>
+                    </div>
                   </div>
 
                   <h3 className="text-xl font-bold text-[#F8FAFC] tracking-tight mb-3">
-                    {b.title}
+                    {p.title}
                   </h3>
 
-                  <p className="text-sm text-[#94A3B8] leading-relaxed">{b.description}</p>
+                  <p className="text-sm text-[#94A3B8] leading-relaxed mb-6">{p.description}</p>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-[#1A2A5A]/50 flex items-center text-xs font-semibold text-[#3B82F6] group-hover:text-[#60A5FA]">
-                  <span>Saiba como aplicamos</span>
-                  <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                <div className="pt-6 border-t border-[#1A2A5A]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="text-2xl font-black text-[#F8FAFC] font-mono">{p.metric}</div>
+                    <div className="text-xs text-[#94A3B8]">{p.metricLabel}</div>
+                    <div className="text-[11px] text-[#3B82F6] mt-0.5">{p.submetric}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={scrollToPilot}
+                    className="inline-flex items-center text-xs font-semibold text-[#3B82F6] group-hover:text-[#60A5FA]"
+                  >
+                    <span>Solicitar Minuta Técnica</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </div>
               </div>
             )
@@ -90,20 +142,23 @@ export function Benefits() {
 
         {/* CTA banner below cards */}
         <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-[#101B3A] via-[#1A2A5A] to-[#101B3A] border border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-          <div>
-            <h4 className="text-lg font-bold text-[#F8FAFC]">
-              Pronto para transformar a gestão fiscal do seu órgão?
+          <div className="space-y-1">
+            <h4 className="text-lg font-bold text-[#F8FAFC] flex items-center justify-center sm:justify-start gap-2">
+              <TrendingDown className="w-5 h-5 text-[#10B981]" />
+              Validação Rápida: Piloto CPSI de 90 Dias
             </h4>
-            <p className="text-xs sm:text-sm text-[#94A3B8] mt-1">
-              Participe do programa de pilotos e teste a plataforma em ambiente real.
+            <p className="text-xs sm:text-sm text-[#94A3B8]">
+              Implante em corredores prioritários da sua cidade com Zero CAPEX e comprove a economia
+              asfáltica antes de qualquer contratação de escala.
             </p>
           </div>
           <button
             type="button"
             onClick={scrollToPilot}
-            className="shrink-0 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all"
+            className="shrink-0 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all flex items-center gap-2"
           >
-            Iniciar Piloto de 60 Dias
+            <Clock className="w-4 h-4" />
+            Solicitar Proposta CPSI (90 Dias)
           </button>
         </div>
       </div>

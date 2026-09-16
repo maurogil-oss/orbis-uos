@@ -168,16 +168,17 @@ export function PilotForm() {
           <div className="lg:col-span-5 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#10B981]">
               <Calendar className="w-3.5 h-3.5" />
-              Programa Piloto 60 Dias
+              Programa de Piloto CPSI (90 Dias)
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.15]">
-              Leve a Orbis UOS para o seu órgão
+              Leve a Orbis UOS para a sua cidade
             </h2>
 
             <p className="text-base text-[#94A3B8] leading-relaxed">
-              Solicite um piloto gratuito de 60 dias. Nossa equipe entra em contato em até 2 dias
-              úteis.
+              Solicite a validação prática do Piloto CPSI de 90 dias com base na Lei Complementar nº
+              182/2021 (Marco Legal das Startups). Zero CAPEX e custeio elegível pelo Art. 320 do
+              CTB.
             </p>
 
             <div className="space-y-4 pt-2">

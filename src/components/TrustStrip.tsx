@@ -3,13 +3,15 @@ import { Building2 } from 'lucide-react'
 
 export function TrustStrip() {
   const institutions = [
-    'Prefeitura de São Paulo',
-    'Governo do Paraná',
-    'Secretaria da Fazenda',
-    'Ministério da Gestão',
     'Prefeitura de Curitiba',
-    'Governo de Minas Gerais',
-    'Secretaria de Planejamento',
+    'Governo do Estado do Paraná',
+    'Marco Legal Startups (LC 182/21)',
+    'Artigo 320 do CTB',
+    'Parceria Técnica UFPR',
+    'Google Green Light Ready',
+    '100% LGPD & Anonimização',
+    'URBS Curitiba & RMC',
+    'Prefeitura de São Paulo',
     'Prefeitura de Belo Horizonte',
   ]
 
