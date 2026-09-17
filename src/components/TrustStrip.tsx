@@ -5,11 +5,13 @@ export function TrustStrip() {
   const institutions = [
     'Prefeitura de Curitiba',
     'Governo do Estado do Paraná',
-    'Marco Legal Startups (LC 182/21)',
+    'Validação Científica UFPR',
+    'Alinhamento Técnico CEMADEN',
+    'Marco Legal da Inovação (LC 182/21)',
     'Artigo 320 do CTB',
-    'Parceria Técnica UFPR',
+    'Consórcios Intermunicipais',
     'Google Green Light Ready',
-    '100% LGPD & Anonimização',
+    '100% LGPD & Auditoria Inercial',
     'URBS Curitiba & RMC',
     'Prefeitura de São Paulo',
     'Prefeitura de Belo Horizonte',
@@ -30,7 +32,7 @@ export function TrustStrip() {
       <div className="max-w-[1200px] mx-auto px-4 mb-2 flex items-center justify-center">
         <span className="text-[11px] uppercase tracking-wider font-semibold text-[#94A3B8]/70 flex items-center gap-2">
           <Building2 className="w-3.5 h-3.5 text-[#3B82F6]" />
-          Confiança institucional comprovada em órgãos de todo o Brasil
+          Cooperação federativa, respaldo científico e conformidade institucional
         </span>
       </div>
 

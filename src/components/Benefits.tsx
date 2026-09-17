@@ -145,11 +145,11 @@ export function Benefits() {
           <div className="space-y-1">
             <h4 className="text-lg font-bold text-[#F8FAFC] flex items-center justify-center sm:justify-start gap-2">
               <TrendingDown className="w-5 h-5 text-[#10B981]" />
-              Validação Rápida: Piloto CPSI de 90 Dias
+              Validação Institucional: Piloto CPSI (LC 182/2021)
             </h4>
             <p className="text-xs sm:text-sm text-[#94A3B8]">
-              Implante em corredores prioritários da sua cidade com Zero CAPEX e comprove a economia
-              asfáltica antes de qualquer contratação de escala.
+              Implante em corredores prioritários do seu município sem obra, sem custo de entrada e
+              comprove a eficiência fiscal antes de qualquer expansão contratual.
             </p>
           </div>
           <button
@@ -158,7 +158,7 @@ export function Benefits() {
             className="shrink-0 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all flex items-center gap-2"
           >
             <Clock className="w-4 h-4" />
-            Solicitar Proposta CPSI (90 Dias)
+            Avaliar a sua cidade
           </button>
         </div>
       </div>

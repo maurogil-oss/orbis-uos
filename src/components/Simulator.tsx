@@ -120,39 +120,39 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // Argumentos específicos por porte de cidade
+  // Argumentos específicos por porte de cidade - Enquadramento Institucional e Marco Legal
   const tierArguments = {
     pequena: {
-      title: 'Argumento para Cidade Pequena (até 50k hab.)',
-      badge: 'Zero Custo de Entrada • CPSI em 90 dias • Sem Licitação',
+      title: 'Enquadramento Institucional para Municípios até 50k hab.',
+      badge: 'Sem obra • Sem novos equipamentos • LC 182/2021 (CPSI)',
       highlight:
-        'A prefeitura pequena não tem equipe de TI nem verba para hardware. O pacote único pré-calibrado entrega mapa de asfalto, one-page do prefeito e dossiê pronto para aprovação no TCE.',
+        'A gestão municipal prioriza o uso eficiente de cada centavo público. Com a frota que já circula pela cidade (coleta, fiscalização, vans escolares), o município audita o pavimento sem comprar hardware e gera o diagnóstico preliminar com respaldo para as Cortes de Contas.',
       pills: [
-        'Sem licitação tradicional (CPSI LC 182/2021)',
-        'Zero obras e zero novos equipamentos',
-        'Piloto operacional em 30 dias na frota atual',
+        'Adesão por Contrato Público para Solução Inovadora (LC 182/2021)',
+        'Zero intervenção física ou obras de infraestrutura',
+        'Diagnóstico preliminar em 30 dias na frota existente',
       ],
     },
     media: {
-      title: 'Argumento para Cidade Média (50k–300k hab.)',
-      badge: 'Recupere o Fundo de Multas com Dossiê Blindado',
+      title: 'Enquadramento Institucional para Municípios de 50k–300k hab.',
+      badge: 'Aplicação Legal do Fundo de Multas • Art. 320 CTB',
       highlight:
-        'A cidade média arrecada multas de trânsito, mas teme apontamentos do TCE. O ORBIS.UOS gera o nexo causal georreferenciado exigido pelo Art. 320 do CTB para custear a zeladoria.',
+        'Recursos do Fundo Municipal de Multas empregados com comprovação estrita de nexo causal georreferenciado na engenharia viária. O município reduz o tempo de resposta da zeladoria e atende com presteza as demandas de bairros populosos.',
       pills: [
-        'Central 156+ Preditiva conectada à zeladoria',
-        'Sincronização semafórica Green Light Bridge',
-        'Proteção contra glosa nas Cortes de Contas',
+        'Zeladoria integrada e preditiva conectada ao canal 156',
+        'Sincronização semafórica para corredores de transporte coletivo',
+        'Segurança jurídica e nexo causal para o Tribunal de Contas',
       ],
     },
     grande: {
-      title: 'Argumento para Metrópoles (300k+ hab.)',
-      badge: 'Padrão Global ISO • Dados para Financiamentos BID/BNDES',
+      title: 'Enquadramento para Metrópoles e Consórcios Intermunicipais',
+      badge: 'Padrão Global ISO • Governança Federativa e Cooperação',
       highlight:
-        'Cidades grandes e regiões metropolitanas necessitam de padrões internacionais e dados estruturados para alavancar linhas de crédito externo e consórcios intermunicipais.',
+        'Malha viária estrutural integrada com protocolos abertos, governança de corredores de alta demanda e dados para alavancar linhas de financiamento de desenvolvimento urbano (BNDES/BID) e consórcios intermunicipais.',
       pills: [
-        'Conformidade ISO 37120, ISO 37122 e ISO 37125',
-        'Interoperabilidade GTFS, GTFS-RT, MDS e GBFS',
-        'Governança climática ESG e dados para BID/BNDES',
+        'Conformidade técnica às normas ISO 37120, ISO 37122 e ISO 37125',
+        'Integração federativa e cooperação intermunicipal',
+        'Gêmeo digital e transparência ativa para o cidadão e a imprensa',
       ],
     },
   }
@@ -169,16 +169,17 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
           <div className="lg:col-span-6 xl:col-span-5 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#3B82F6]">
               <Sparkles className="w-3.5 h-3.5" />
-              Simulador por Porte de Cidade
+              Dimensionamento Institucional
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.15]">
-              Simule a Economia e o Retorno para o Seu Município
+              Dimensione o Impacto do Piloto no Seu Município
             </h2>
 
             <p className="text-base text-[#94A3B8] leading-relaxed">
-              Selecione o porte da cidade e veja a economia projetada na manutenção do asfalto, o
-              resgate de horas em engarrafamentos e a blindagem jurídica pelo Art. 320 do CTB.
+              Consulte a projeção de recursos públicos recuperados na manutenção do pavimento, o
+              impacto positivo no orçamento municipal e a viabilidade estrita dentro do marco legal
+              da Lei Complementar nº 182/2021 e do Art. 320 do CTB.
             </p>
 
             {/* Caixa de Argumento Estratégico por Porte */}
@@ -324,23 +325,23 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold uppercase tracking-wider text-[#3B82F6] flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
-                    Economia Anual Projetada em Obras Viárias
+                    Impacto no Orçamento Público Municipal
                   </h4>
-                  <span className="text-[11px] text-[#94A3B8] font-mono">Retorno Imediato</span>
+                  <span className="text-[11px] text-[#94A3B8] font-mono">Recursos Recuperados</span>
                 </div>
 
                 {/* Big Metric */}
                 <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#10B981]/40 text-center">
                   <span className="text-xs uppercase tracking-wider text-[#94A3B8] block mb-1">
-                    Economia Estimada no Orçamento de Asfalto
+                    Recursos Públicos Recuperados com Manutenção Preventiva
                   </span>
                   <div className="text-3xl sm:text-4xl font-black text-[#10B981] font-mono">
                     {formatBRL(animatedSavings)}/ ano
                   </div>
                   <p className="text-xs text-[#94A3B8] mt-2 max-w-md mx-auto">
                     {selectedTier === 'pequena'
-                      ? 'Eliminação de compra emergencial de asfalto frio e substituição por microrrevestimento programado.'
-                      : 'Auditoria contínua da malha viária combinada a ordens de serviço preventivas e otimização semafórica.'}
+                      ? 'Substituição gradual de compras emergenciais de massa asfáltica por intervenções programadas com microrrevestimento e nexo causal.'
+                      : 'Auditoria contínua da malha viária, ordens de serviço preventivas e otimização de rotas com evidências técnicas.'}
                   </p>
                 </div>
 
@@ -348,26 +349,28 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
                     <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-                      <span>Tempo Poupado no Trânsito</span>
+                      <span>Tempo Poupado pela População</span>
                       <Clock className="w-3.5 h-3.5 text-[#3B82F6]" />
                     </div>
                     <div className="text-2xl font-bold text-[#F8FAFC] font-mono">
                       {formatNumberBR(animatedHours)} h
                     </div>
                     <p className="text-[11px] text-[#94A3B8] mt-1">
-                      horas/ano devolvidas à população
+                      horas anuais devolvidas aos cidadãos no trânsito
                     </p>
                   </div>
 
                   <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
                     <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-                      <span>Descarbonização</span>
+                      <span>Descarbonização Urbana</span>
                       <Leaf className="w-3.5 h-3.5 text-[#10B981]" />
                     </div>
                     <div className="text-2xl font-bold text-[#10B981] font-mono">
                       -{formatNumberBR(animatedCO2)} ton
                     </div>
-                    <p className="text-[11px] text-[#94A3B8] mt-1">emissões de CO₂ evitadas/ano</p>
+                    <p className="text-[11px] text-[#94A3B8] mt-1">
+                      emissões de CO₂ evitadas por ano
+                    </p>
                   </div>
                 </div>
 
@@ -377,11 +380,11 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     <ShieldCheck className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold text-[#F8FAFC] block">
-                        Viabilidade Orçamentária 100% Assegurada (Art. 320 CTB)
+                        Viabilidade Dentro do Marco Legal (LC 182/2021 & Art. 320 CTB)
                       </span>
                       <span className="text-[#94A3B8]">
-                        Piloto estimado em {formatBRL(cpsiPilotCost)}, integralmente elegível para
-                        custeio pelo Fundo Municipal de Multas (Lei nº 9.503/1997).
+                        Piloto estimado em {formatBRL(cpsiPilotCost)}, 100% elegível ao Fundo
+                        Municipal de Multas ou compensado nos ganhos de zeladoria preventiva.
                       </span>
                     </div>
                   </div>
@@ -390,7 +393,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     onClick={scrollToPilot}
                     className="shrink-0 px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors"
                   >
-                    Solicitar Proposta
+                    Manifestar Interesse
                   </button>
                 </div>
               </div>

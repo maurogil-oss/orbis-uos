@@ -157,11 +157,14 @@ export function PilotForm() {
 
   return (
     <section
-      id="piloto"
+      id="manifesto"
       className="py-24 sm:py-32 relative bg-[#070D1F] border-t border-[#1A2A5A]/50 scroll-mt-20"
     >
       {/* Background glow */}
       <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-[#3B82F6]/5 blur-[140px] rounded-full pointer-events-none" />
+
+      {/* Anchor compatível */}
+      <span id="piloto" className="block -mt-20 pt-20" aria-hidden="true" />
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -169,17 +172,17 @@ export function PilotForm() {
           <div className="lg:col-span-5 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#10B981]">
               <Calendar className="w-3.5 h-3.5" />
-              Programa de Piloto CPSI (90 Dias)
+              Marco Legal da Inovação • LC 182/2021 (CPSI)
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.15]">
-              Leve a Orbis UOS para a sua cidade
+              Manifesto de Interesse Institucional
             </h2>
 
             <p className="text-base text-[#94A3B8] leading-relaxed">
-              Solicite a validação prática do Piloto CPSI de 90 dias com base na Lei Complementar nº
-              182/2021 (Marco Legal das Startups). Zero CAPEX e custeio elegível pelo Art. 320 do
-              CTB.
+              Manifeste o interesse formal do seu órgão público em conduzir o piloto de validação
+              técnica da plataforma ORBIS.UOS. Sem obra civil, sem compra de novos equipamentos e
+              sem custo de entrada, com amparo no Contrato Público para Solução Inovadora (CPSI).
             </p>
 
             <div className="space-y-4 pt-2">
@@ -188,9 +191,12 @@ export function PilotForm() {
                   <CheckCircle2 className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#F8FAFC]">Implantação assistida</h4>
+                  <h4 className="text-sm font-bold text-[#F8FAFC]">
+                    Protocolo Institucional Assistido
+                  </h4>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    Consultores especializados em gestão pública acompanham todo o onboarding.
+                    Assessoria técnica para o enquadramento ao Marco Legal e fornecimento de minuta
+                    padronizada para a Procuradoria Geral do Município (PGM).
                   </p>
                 </div>
               </div>
@@ -200,9 +206,12 @@ export function PilotForm() {
                   <Lock className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#F8FAFC]">Dados reais do seu órgão</h4>
+                  <h4 className="text-sm font-bold text-[#F8FAFC]">
+                    Soberania e Sigilo de Dados Públicos
+                  </h4>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    Ambiente isolado, seguro e homologado conforme normas do Governo Digital.
+                    Ambiente institucional exclusivo, aderente às diretrizes da LGPD pública,
+                    Governo Digital e com integridade criptográfica.
                   </p>
                 </div>
               </div>
@@ -212,9 +221,12 @@ export function PilotForm() {
                   <Headphones className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#F8FAFC]">Suporte prioritário</h4>
+                  <h4 className="text-sm font-bold text-[#F8FAFC]">
+                    Cooperação Federativa & Consórcios
+                  </h4>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    Canal direto com o time de engenharia e SLA de resposta em até 2 horas.
+                    Elegível para contratação individual ou consórcios públicos intermunicipais,
+                    potencializando a escala e a padronização regional.
                   </p>
                 </div>
               </div>
@@ -223,7 +235,8 @@ export function PilotForm() {
             <div className="p-4 rounded-xl bg-[#101B3A]/40 border border-[#1A2A5A] text-xs text-[#94A3B8] flex items-center gap-3">
               <Shield className="w-5 h-5 text-[#3B82F6] shrink-0" />
               <span>
-                Sem custos de instalação. Sem necessidade de licitação prévia para a fase piloto.
+                <b>Sem risco fiscal:</b> Fase piloto sem antecipação de desembolso ou necessidade de
+                licitação ordinária de longo prazo.
               </span>
             </div>
           </div>
@@ -270,16 +283,17 @@ export function PilotForm() {
 
                   <div className="space-y-2">
                     <h3 className="text-2xl font-extrabold text-[#F8FAFC]">
-                      Solicitação enviada com sucesso!
+                      Manifesto Registrado com Sucesso!
                     </h3>
                     <p className="text-base text-[#94A3B8] max-w-md mx-auto">
-                      Retornaremos em até 2 dias úteis.
+                      Protocolo formal recebido. O departamento de relações governamentais entrará
+                      em contato em até 2 dias úteis.
                     </p>
                   </div>
 
                   <p className="text-xs text-[#94A3B8]/80 max-w-sm mx-auto">
-                    Nossa equipe de especialistas preparou um protocolo de diagnóstico preliminar
-                    para o seu órgão.
+                    Encaminharemos o modelo de despacho preliminar e a minuta do Termo de Referência
+                    CPSI ajustados ao porte do seu município.
                   </p>
 
                   <div className="pt-4">
@@ -289,7 +303,7 @@ export function PilotForm() {
                       className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-[#F8FAFC] bg-[#1A2A5A] hover:bg-[#2563EB]/20 border border-[#1A2A5A] hover:border-[#3B82F6] transition-colors"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      Enviar outra solicitação
+                      Registrar outro manifesto
                     </button>
                   </div>
                 </div>
@@ -297,20 +311,21 @@ export function PilotForm() {
                 <form onSubmit={handleSubmit} noValidate className="space-y-5">
                   <div className="border-b border-[#1A2A5A] pb-4 mb-2">
                     <h3 className="text-xl font-bold text-[#F8FAFC] tracking-tight">
-                      Formulário de Adesão ao Piloto
+                      Manifesto de Interesse Institucional
                     </h3>
                     <p className="text-xs text-[#94A3B8] mt-1">
-                      Preencha os dados institucionais para validação da equipe de implantação
+                      Formalização do interesse técnico do ente federativo para fins de avaliação e
+                      planejamento de piloto CPSI
                     </p>
                   </div>
 
-                  {/* Field: Nome Completo */}
+                  {/* Field: Responsável Institucional */}
                   <div>
                     <label
                       htmlFor="form-nome"
                       className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                     >
-                      Nome Completo <span className="text-[#EF4444]">*</span>
+                      Responsável Institucional <span className="text-[#EF4444]">*</span>
                     </label>
                     <input
                       id="form-nome"
@@ -322,7 +337,7 @@ export function PilotForm() {
                       aria-describedby={errors.nome ? 'error-nome' : undefined}
                       value={formData.nome}
                       onChange={handleChange}
-                      placeholder="Ex: Carlos Eduardo de Oliveira"
+                      placeholder="Nome do(a) gestor(a) ou secretário(a)"
                       className={`w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border transition-all ${
                         errors.nome
                           ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/40'
@@ -343,7 +358,7 @@ export function PilotForm() {
                         htmlFor="form-email"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        E-mail Institucional <span className="text-[#EF4444]">*</span>
+                        E-mail Institucional Oficial <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
                         id="form-email"
@@ -355,7 +370,7 @@ export function PilotForm() {
                         aria-describedby={errors.email ? 'error-email' : undefined}
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="nome@orgao.gov.br"
+                        placeholder="gestor@municipio.gov.br"
                         className={`w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border transition-all ${
                           errors.email
                             ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/40'
@@ -374,7 +389,7 @@ export function PilotForm() {
                         htmlFor="form-cargo"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        Cargo <span className="text-[#EF4444]">*</span>
+                        Cargo / Função Pública <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
                         id="form-cargo"
@@ -386,7 +401,7 @@ export function PilotForm() {
                         aria-describedby={errors.cargo ? 'error-cargo' : undefined}
                         value={formData.cargo}
                         onChange={handleChange}
-                        placeholder="Secretário de Administração"
+                        placeholder="Ex: Secretário(a) de Obras e Mobilidade"
                         className={`w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border transition-all ${
                           errors.cargo
                             ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/40'
@@ -401,14 +416,14 @@ export function PilotForm() {
                     </div>
                   </div>
 
-                  {/* Row: Órgão / Instituição + Porte da Cidade / Esfera */}
+                  {/* Row: Órgão / Município + Esfera de Governo */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label
                         htmlFor="form-orgao"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        Órgão / Município <span className="text-[#EF4444]">*</span>
+                        Órgão Público / Município <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
                         id="form-orgao"
@@ -420,7 +435,7 @@ export function PilotForm() {
                         aria-describedby={errors.orgao ? 'error-orgao' : undefined}
                         value={formData.orgao}
                         onChange={handleChange}
-                        placeholder="Ex: Prefeitura Municipal de Pato Branco"
+                        placeholder="Ex: Prefeitura Municipal de Maringá"
                         className={`w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border transition-all ${
                           errors.orgao
                             ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/40'
@@ -439,7 +454,7 @@ export function PilotForm() {
                         htmlFor="form-porte"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        Esfera de Governo <span className="text-[#EF4444]">*</span>
+                        Esfera Institucional <span className="text-[#EF4444]">*</span>
                       </label>
                       <select
                         id="form-porte"
@@ -456,9 +471,15 @@ export function PilotForm() {
                             : 'border-[#1A2A5A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/30'
                         }`}
                       >
-                        <option value="Municipal">Municipal (Prefeitura / Secretaria)</option>
-                        <option value="Estadual">Estadual (DER / DETRAN / Consórcio)</option>
-                        <option value="Federal">Federal (DNIT / Ministério)</option>
+                        <option value="Municipal">
+                          Municipal (Prefeitura / Secretaria / Autarquia)
+                        </option>
+                        <option value="Estadual">
+                          Estadual (DER / DETRAN / Consórcio Intermunicipal)
+                        </option>
+                        <option value="Federal">
+                          Federal (DNIT / Ministério / Agência Reguladora)
+                        </option>
                       </select>
                       {errors.porte && (
                         <p id="error-porte" className="text-xs text-[#EF4444] mt-1 font-medium">
@@ -468,10 +489,10 @@ export function PilotForm() {
                     </div>
                   </div>
 
-                  {/* Seletor do Porte da Cidade para o Piloto */}
+                  {/* Seletor do Enquadramento por Porte */}
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5">
-                      Pacote do Piloto por Porte
+                      Enquadramento Inicial do Município
                     </label>
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <button
@@ -483,9 +504,9 @@ export function PilotForm() {
                             : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
                         }`}
                       >
-                        Pequena (Até 50k)
+                        Até 50k habitantes
                         <span className="block text-[10px] text-[#10B981] font-normal">
-                          30 dias • Zero CAPEX
+                          Diagnóstico 30 dias
                         </span>
                       </button>
                       <button
@@ -497,9 +518,9 @@ export function PilotForm() {
                             : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
                         }`}
                       >
-                        Média (50k–300k)
+                        50k a 300k hab.
                         <span className="block text-[10px] text-[#3B82F6] font-normal">
-                          Art. 320 CTB
+                          Zeladoria + Art. 320
                         </span>
                       </button>
                       <button
@@ -511,22 +532,22 @@ export function PilotForm() {
                             : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
                         }`}
                       >
-                        Grande (300k+)
+                        Metrópole / Consórcio
                         <span className="block text-[10px] text-[#818CF8] font-normal">
-                          Padrão ISO
+                          Padrão Global ISO
                         </span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Field: Telefone (opcional, máscara BR) */}
+                  {/* Field: Telefone Institucional */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label
                         htmlFor="form-telefone"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC]"
                       >
-                        Telefone
+                        Telefone Institucional de Gabinete
                       </label>
                       <span className="text-[11px] text-[#94A3B8]">Opcional</span>
                     </div>
@@ -536,7 +557,7 @@ export function PilotForm() {
                       type="tel"
                       value={formData.telefone}
                       onChange={handleChange}
-                      placeholder="(11) 98765-4321"
+                      placeholder="(XX) XXXX-XXXX"
                       className="w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border border-[#1A2A5A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/30 transition-all font-mono"
                     />
                   </div>
@@ -551,20 +572,20 @@ export function PilotForm() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Processando solicitação...</span>
+                          <span>Processando manifesto institucional...</span>
                         </>
                       ) : (
                         <>
                           <Send className="w-4 h-4" />
-                          <span>Solicitar Piloto</span>
+                          <span>Registrar Manifesto de Interesse</span>
                         </>
                       )}
                     </button>
                   </div>
 
                   <p className="text-[11px] text-center text-[#94A3B8]/80 pt-1">
-                    Ao solicitar, você concorda com nossos termos de confidencialidade e tratamento
-                    ético de dados govtech.
+                    Este manifesto não gera obrigações orçamentárias imediatas e preserva
+                    integralmente o sigilo institucional previsto na legislação.
                   </p>
                 </form>
               )}

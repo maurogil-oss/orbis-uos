@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Hero, CityTier } from '@/components/Hero'
 import { TrustStrip } from '@/components/TrustStrip'
+import { Accountability } from '@/components/Accountability'
 import { Simulator } from '@/components/Simulator'
 import { Benefits } from '@/components/Benefits'
 import { IntegrationArchitecture } from '@/components/IntegrationArchitecture'
@@ -23,31 +24,34 @@ export default function Index() {
 
   return (
     <div className="w-full flex flex-col">
-      {/* 1. Hero Section com Seletor por Porte de Cidade, Narrativa SDK Edge & Dados Vivos */}
+      {/* 1. Hero Section com Narrativa de Gestão Pública, Responsabilidade e Dados Vivos */}
       <Hero selectedTier={selectedTier} onSelectTier={setSelectedTier} liveMetrics={liveMetrics} />
 
       {/* 2. Trust Strip (Marquee com respaldo institucional e órgãos) */}
       <TrustStrip />
 
-      {/* 3. Simulator Adaptativo com Seletor de Porte e Argumentos Fiscais */}
+      {/* 3. Nova Seção de Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}
+      <Accountability />
+
+      {/* 4. Simulator com Nova Moldura Institucional (Recursos Recuperados & Orçamento) */}
       <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 4. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
+      {/* 5. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
       <Benefits />
 
-      {/* 5. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
+      {/* 6. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
       <IntegrationArchitecture selectedTier={selectedTier} />
 
-      {/* 6. Comparativo (Modelo Convencional Reativo vs. ORBIS.UOS SDK Edge) */}
+      {/* 7. Comparativo (Modelo Convencional Reativo vs. ORBIS.UOS Governança Preditiva) */}
       <Comparison />
 
-      {/* 7. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
+      {/* 8. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
       <HowItWorks />
 
-      {/* 8. FAQ (Dúvidas estratégicas sobre FFT, portes de cidade e Art. 320 CTB) */}
+      {/* 9. FAQ (Dúvidas dos Gestores, Secretários e Procuradorias) */}
       <FAQ />
 
-      {/* 9. Formulário de Adesão ao Piloto (30 a 90 dias / captação) */}
+      {/* 10. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) */}
       <PilotForm />
     </div>
   )

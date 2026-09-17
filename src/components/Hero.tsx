@@ -32,40 +32,40 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
     }
   }
 
-  // Narrativas por porte de cidade
+  // Narrativas por porte de cidade - Foco em Gestão Pública, Responsabilidade e Sociedade Atendida
   const tierConfig = {
     pequena: {
-      badge: 'CIDADE PEQUENA (ATÉ ~50 MIL HAB) • ONDA DA CIDADE PEQUENA',
-      headlinePrefix: 'A revolução do asfalto para cidades pequenas: ',
-      headlineHighlight: 'sem obra, sem hardware e com o celular que você já tem',
+      badge: 'MUNICÍPIOS ATÉ 50 MIL HAB. • COOPERAÇÃO & EFICIÊNCIA FISCAL',
+      headlinePrefix: 'Cada quilômetro do seu asfalto, ',
+      headlineHighlight: 'auditado com precisão científica e prestado em contas à sociedade',
       description:
-        'Não compre equipamentos caros nem contrate consultorias lentas. O SDK Edge ORBIS.UOS roda no aplicativo que sua frota já usa, analisa o asfalto com FFT embarcada no celular do motorista e entrega o mapa de buracos e o dossiê pronto para o prefeito em 30 dias.',
-      honestCoverage: '100% da sua frota auditando 100% do seu asfalto',
-      entryArg: 'Zero custo de entrada • CPSI em 90 dias • Sem licitação',
+        'Decisão pública mais rápida, transparente e responsável: o gestor decide com base em evidências e o sistema documenta. A frota que já circula pela cidade afere o pavimento em tempo real, garantindo vias seguras ao pedestre, socorro ágil a serviços essenciais e resposta direta aos anseios da população.',
+      honestCoverage: '100% da frota pública aferindo o pavimento em rotinas regulares',
+      entryArg: 'Adesão institucional simplificada • Marco Legal CPSI (LC 182/2021)',
       batteryTrust: '1,2–1,8%/h de bateria',
-      pilotDays: 'Piloto em 30 dias',
+      pilotDays: 'Diagnóstico preliminar em 30 dias',
     },
     media: {
-      badge: 'CIDADE MÉDIA (~50–300 MIL HAB) • CENTRAL 156+ PREDITIVA',
-      headlinePrefix: 'O Sistema Operacional Urbano para cidades médias: ',
-      headlineHighlight: 'recupere o Fundo de Multas com dossiê blindado',
+      badge: 'MUNICÍPIOS DE 50 A 300 MIL HAB. • ACCOUNTABILITY & ZELADORIA INTEGRADA',
+      headlinePrefix: 'Cada quilômetro da malha viária, ',
+      headlineHighlight: 'monitorado para a tomada de decisão pública e prestação de contas',
       description:
-        'Conecte o atendimento 156 à zeladoria preditiva, sincronize corredores semafóricos com Green Light Bridge e blinde o Art. 320 do CTB para custear obras viárias com as receitas de trânsito.',
-      honestCoverage: `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km monitorados continuamente`,
-      entryArg: 'Recupere o Fundo de Multas (Art. 320 CTB) com nexo causal georreferenciado',
+        'Integração institucional entre zeladoria viária, engenharia de tráfego e resposta direta ao cidadão. O cidadão acompanha o reparo da sua rua com transparência, enquanto a gestão aplica recursos com nexo causal georreferenciado e total conformidade com as Cortes de Contas.',
+      honestCoverage: `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km monitorados com integridade`,
+      entryArg: 'Conformidade plena ao Art. 320 do CTB com nexo causal auditável',
       batteryTrust: '1,2–1,8%/h de bateria',
-      pilotDays: 'Piloto em 60 dias',
+      pilotDays: 'Piloto institucional em 60 dias',
     },
     grande: {
-      badge: 'CIDADE GRANDE (300 MIL+ HAB) • PADRÃO GLOBAL ISO & METRÓPOLES',
-      headlinePrefix: 'Plataforma Soberana de Mobilidade para metrópoles: ',
-      headlineHighlight: 'padrão ISO 37120/37122/37125 e dados para BID/BNDES',
+      badge: 'METRÓPOLES E CONSÓRCIOS INTERMUNICIPAIS • GOVERNANÇA FEDERATIVA ISO',
+      headlinePrefix: 'Gestão urbana transparente e baseada em evidências: ',
+      headlineHighlight: 'infraestrutura auditada para atender a população com dignidade',
       description:
-        'Interoperabilidade completa com GTFS, GTFS-RT, MDS, GBFS e semáforos legados. KPIs por corredor estrutural, governança climática ESG e arquitetura interfederativa para consórcios intermunicipais.',
-      honestCoverage: 'Malha metropolitana completa com gêmeo digital em tempo real',
-      entryArg: 'Padrão ISO 37120/37122/37125 • Elegibilidade para financiamentos BID/BNDES',
+        'Interoperabilidade para corredores estruturais, integração metropolitana e governança alinhada às normas ISO 37120/37122/37125. Redução de acidentes, menos tempo perdido no trânsito e máxima integridade nas relações com Tribunais de Contas, órgãos de controle e cooperação federativa.',
+      honestCoverage: 'Gêmeo digital e auditoria contínua da malha metropolitana',
+      entryArg: 'Padrão ISO 37120/37122/37125 • Instrumento de cooperação federativa',
       batteryTrust: '1,2–1,8%/h de bateria',
-      pilotDays: 'Piloto em 90 dias',
+      pilotDays: 'Acordo de cooperação em 90 dias',
     },
   }
 
@@ -155,23 +155,23 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
             {current.description}
           </p>
 
-          {/* BANNER TÉCNICO DE CONFIANÇA DO SDK EDGE */}
+          {/* BANNER TÉCNICO DE CONFIANÇA E AUDITORIA INSTITUCIONAL */}
           <div className="p-3.5 rounded-2xl bg-[#101B3A]/80 border border-[#1A2A5A] max-w-2xl w-full mb-8 flex flex-wrap items-center justify-around gap-4 text-xs font-mono">
             <div className="flex items-center gap-2">
-              <BatteryCharging className="w-4 h-4 text-[#10B981]" />
-              <span className="text-[#94A3B8]">Consumo Medido:</span>
-              <b className="text-[#10B981] font-bold">1,2–1,8% / hora</b>
+              <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+              <span className="text-[#94A3B8]">Auditoria Inercial:</span>
+              <b className="text-[#10B981] font-bold">100% LGPD (Sem imagens de pessoas)</b>
+            </div>
+            <div className="flex items-center gap-2">
+              <BatteryCharging className="w-4 h-4 text-[#3B82F6]" />
+              <span className="text-[#94A3B8]">Consumo Aferido:</span>
+              <b className="text-[#F8FAFC]">1,2–1,8% / hora</b>
               <span className="text-[10px] text-[#94A3B8]">(Turno 8h = 10–15%)</span>
             </div>
             <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[#3B82F6]" />
-              <span className="text-[#94A3B8]">Processamento:</span>
-              <b className="text-[#F8FAFC]">FFT Banda 1–20 Hz</b>
-            </div>
-            <div className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-[#60A5FA]" />
-              <span className="text-[#94A3B8]">Arquitetura:</span>
-              <b className="text-[#60A5FA]">SDK Edge (Não requer novo app)</b>
+              <Cpu className="w-4 h-4 text-[#60A5FA]" />
+              <span className="text-[#94A3B8]">Processamento Local:</span>
+              <b className="text-[#60A5FA]">FFT Banda 1–20 Hz na Borda</b>
             </div>
           </div>
 
@@ -184,7 +184,9 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
                   : `${liveMetrics ? liveMetrics.totalKmMonitored : 1482} km`}
               </div>
               <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                {selectedTier === 'pequena' ? 'Frota auditando asfalto' : 'Auditados passivamente'}
+                {selectedTier === 'pequena'
+                  ? 'Frota municipal ativa'
+                  : 'Malha auditada continuamente'}
               </div>
             </div>
 
@@ -193,7 +195,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
                 {liveMetrics ? `${liveMetrics.totalEventsDetected}` : '14'}
               </div>
               <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Eventos vivos catalogados
+                Ocorrências catalogadas
               </div>
             </div>
 
@@ -202,7 +204,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
                 {liveMetrics ? `${liveMetrics.activeSensors}` : '6'}
               </div>
               <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Veículos transmitindo ao vivo
+                Veículos transmitindo telemetria
               </div>
             </div>
 
@@ -211,34 +213,34 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
                 Art. 320
               </div>
               <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Custeio via fundo de multas
+                Custeio legal via engenharia viária
               </div>
             </div>
           </div>
 
-          {/* CTAs */}
+          {/* CTAs COM ENQUADRAMENTO DE GESTÃO PÚBLICA */}
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center mb-8">
             <button
               type="button"
-              onClick={() => scrollTo('piloto')}
+              onClick={() => scrollTo('simulador')}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl text-base font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] hover:scale-[1.02] transition-all duration-150 shadow-lg shadow-[#3B82F6]/30 min-h-[48px]"
             >
-              Solicitar Proposta ({selectedTier === 'pequena' ? 'Piloto 30 Dias' : 'CPSI 90 Dias'})
+              Avaliar a sua cidade
               <ArrowRight className="w-4 h-4 ml-1" />
             </button>
             <button
               type="button"
-              onClick={() => scrollTo('simulador')}
+              onClick={() => scrollTo('prestacao-contas')}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#F8FAFC] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6]/50 active:scale-[0.98] transition-all min-h-[48px]"
             >
-              Simulador por Porte
+              Conhecer a plataforma
             </button>
             <Link
               to="/cockpit"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#10B981] bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/30 hover:border-[#10B981]/60 active:scale-[0.98] transition-all min-h-[48px]"
             >
               <Smartphone className="w-4 h-4" />
-              Modo Gabinete & Coleta Real
+              Modo Gabinete & Cockpit
             </Link>
           </div>
 

@@ -16,10 +16,11 @@ export function Navbar() {
   }, [])
 
   const navLinks = [
-    { label: 'Simulador', href: '/#simulador' },
-    { label: 'Benefícios', href: '/#beneficios' },
-    { label: 'Como Funciona', href: '/#como-funciona' },
-    { label: 'Piloto CPSI', href: '/#piloto' },
+    { label: 'Accountability', href: '/#prestacao-contas' },
+    { label: 'Dimensionamento', href: '/#simulador' },
+    { label: 'Pilares Públicos', href: '/#beneficios' },
+    { label: 'Marco Legal', href: '/#como-funciona' },
+    { label: 'Manifesto de Interesse', href: '/#manifesto' },
   ]
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -94,11 +95,11 @@ export function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="/#piloto"
-            onClick={(e) => handleLinkClick(e, '/#piloto')}
+            href="/#manifesto"
+            onClick={(e) => handleLinkClick(e, '/#manifesto')}
             className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all duration-150 shadow-md shadow-[#3B82F6]/25 hover:shadow-[#3B82F6]/40 hover:scale-[1.02]"
           >
-            Solicitar Piloto CPSI
+            Avaliar a sua cidade
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </a>
         </div>
@@ -140,11 +141,11 @@ export function Navbar() {
               Acessar Cockpit de Telemetria
             </Link>
             <a
-              href="/#piloto"
-              onClick={(e) => handleLinkClick(e, '/#piloto')}
+              href="/#manifesto"
+              onClick={(e) => handleLinkClick(e, '/#manifesto')}
               className="w-full min-h-[48px] flex items-center justify-center px-6 py-3.5 rounded-lg text-base font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-lg shadow-[#3B82F6]/30 active:scale-95 transition-all"
             >
-              Solicitar Piloto CPSI
+              Avaliar a sua cidade
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
           </div>

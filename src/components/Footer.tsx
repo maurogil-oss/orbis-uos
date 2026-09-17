@@ -41,16 +41,25 @@ export function Footer() {
           {/* Column 2: Navigation */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#F8FAFC] mb-4">
-              Navegação
+              Navegação Institucional
             </h4>
             <ul className="space-y-2.5 text-sm">
+              <li>
+                <a
+                  href="#prestacao-contas"
+                  onClick={(e) => handleAnchorClick(e, '#prestacao-contas')}
+                  className="hover:text-[#F8FAFC] transition-colors inline-block"
+                >
+                  Accountability & Sociedade Atendida
+                </a>
+              </li>
               <li>
                 <a
                   href="#simulador"
                   onClick={(e) => handleAnchorClick(e, '#simulador')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
-                  Simulador de Economia
+                  Dimensionamento do Município
                 </a>
               </li>
               <li>
@@ -59,7 +68,7 @@ export function Footer() {
                   onClick={(e) => handleAnchorClick(e, '#beneficios')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
-                  Benefícios da Plataforma
+                  Pilares de Governança Pública
                 </a>
               </li>
               <li>
@@ -68,7 +77,7 @@ export function Footer() {
                   onClick={(e) => handleAnchorClick(e, '#como-funciona')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
-                  Como Funciona
+                  Marco Legal CPSI (LC 182/2021)
                 </a>
               </li>
               <li>
@@ -77,16 +86,16 @@ export function Footer() {
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#3B82F6]"
                 >
                   <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-                  Cockpit de Mobilidade (Curitiba)
+                  Cockpit de Telemetria & Modo Gabinete
                 </Link>
               </li>
               <li>
                 <a
-                  href="#piloto"
-                  onClick={(e) => handleAnchorClick(e, '#piloto')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block"
+                  href="#manifesto"
+                  onClick={(e) => handleAnchorClick(e, '#manifesto')}
+                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#10B981]"
                 >
-                  Solicitar Piloto CPSI (90 dias)
+                  Manifesto de Interesse Institucional
                 </a>
               </li>
             </ul>
