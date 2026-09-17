@@ -144,7 +144,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
           {/* Headline Adaptada por Porte */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.12] mb-6 text-balance">
             {current.headlinePrefix}
-            <span className="bg-gradient-to-r from-[#3B82F6] via-[#60A5FA] to-[#10B981] bg-clip-text text-transparent underline decoration-[#3B82F6]/40 decoration-wavy">
+            <span className="bg-gradient-to-r from-[#3B82F6] via-[#60A5FA] to-[#10B981] bg-clip-text text-transparent">
               {current.headlineHighlight}
             </span>
             .

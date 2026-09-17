@@ -12,7 +12,7 @@ import { PilotForm } from '@/components/PilotForm'
 import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
-  // Estado central do porte de cidade: 'pequena' (padrão estratégico acordado: onda da cidade pequena)
+  // Estado central do porte de cidade: 'pequena' (padrão estratégico acordado)
   const [selectedTier, setSelectedTier] = useState<CityTier>('pequena')
   const [liveMetrics, setLiveMetrics] = useState<PlatformLiveMetrics | null>(null)
 
