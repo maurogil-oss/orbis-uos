@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { RoadAnomalyType, RoadSeverity, CreateRoadEventPayload } from '@/services/roadEvents'
+import { computeZAccelerationSpectrum, SpectrumAnalysisResult } from '@/lib/fft'
 
 export interface MotionSample {
   timestamp: number
@@ -17,6 +18,8 @@ export interface DetectedAnomaly {
   latitude: number
   longitude: number
   isApproxLocation: boolean
+  dominantFreq?: number
+  spectralSignature?: string
   persisted?: boolean
 }
 
@@ -53,6 +56,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   const [currentZ, setCurrentZ] = useState<number>(0) // in g
   const [peakSessionG, setPeakSessionG] = useState<number>(0)
   const [recentSamples, setRecentSamples] = useState<MotionSample[]>([])
+  const [spectrumAnalysis, setSpectrumAnalysis] = useState<SpectrumAnalysisResult | null>(null)
   const [anomalies, setAnomalies] = useState<DetectedAnomaly[]>([])
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null)
   const [elapsedMs, setElapsedMs] = useState<number>(0)
@@ -214,8 +218,17 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
       setRecentSamples((prev) => {
         const next = [...prev, sample]
-        // Keep last 30 samples for sparkline
-        return next.length > 30 ? next.slice(-30) : next
+        // Keep last 64 samples for FFT windowing and sparkline
+        const trimmed = next.length > 64 ? next.slice(-64) : next
+
+        // Executar FFT em janelas a cada poucas amostras (~10Hz de atualização visual)
+        if (trimmed.length >= 16 && trimmed.length % 3 === 0) {
+          const zValues = trimmed.map((s) => s.calibratedZ)
+          const spec = computeZAccelerationSpectrum(zValues, 50, 20)
+          setSpectrumAnalysis(spec)
+        }
+
+        return trimmed
       })
 
       // If in collecting status and peak exceeds threshold, trigger anomaly detection
@@ -227,6 +240,10 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
           const tipo = deriveAnomalyType(absG)
           const coords = coordsRef.current
 
+          // Calcular assinatura espectral rápida para o impacto
+          const recentZ = [absG, absG * 0.8, absG * 0.5, 0.2, 0.1]
+          const quickSpec = computeZAccelerationSpectrum(recentZ, 50, 16)
+
           const newAnomaly: DetectedAnomaly = {
             id: `real-${now}-${Math.random().toString(36).substr(2, 5)}`,
             timestamp: now,
@@ -236,6 +253,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             latitude: coords.latitude,
             longitude: coords.longitude,
             isApproxLocation: coords.isApprox,
+            dominantFreq: quickSpec.dominantFrequency,
+            spectralSignature: quickSpec.spectralSignature,
           }
 
           setAnomalies((prev) => [newAnomaly, ...prev])
@@ -337,6 +356,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
     // Reset session metrics
     setRecentSamples([])
+    setSpectrumAnalysis(null)
     setAnomalies([])
     setPeakSessionG(0)
     setCurrentZ(0)
@@ -421,6 +441,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     currentZ,
     peakSessionG,
     recentSamples,
+    spectrumAnalysis,
     anomalies,
     elapsedMs,
     calculatedIRI,

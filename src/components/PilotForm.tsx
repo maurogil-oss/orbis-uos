@@ -31,6 +31,7 @@ export function PilotForm() {
     porte: 'Municipal',
     telefone: '',
   })
+  const [tierIntention, setTierIntention] = useState<'pequena' | 'media' | 'grande'>('pequena')
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -400,14 +401,14 @@ export function PilotForm() {
                     </div>
                   </div>
 
-                  {/* Row: Órgão / Instituição + Porte */}
+                  {/* Row: Órgão / Instituição + Porte da Cidade / Esfera */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label
                         htmlFor="form-orgao"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        Órgão / Instituição <span className="text-[#EF4444]">*</span>
+                        Órgão / Município <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
                         id="form-orgao"
@@ -419,7 +420,7 @@ export function PilotForm() {
                         aria-describedby={errors.orgao ? 'error-orgao' : undefined}
                         value={formData.orgao}
                         onChange={handleChange}
-                        placeholder="Prefeitura Municipal de Santos"
+                        placeholder="Ex: Prefeitura Municipal de Pato Branco"
                         className={`w-full h-11 px-3.5 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] placeholder:text-[#94A3B8]/50 border transition-all ${
                           errors.orgao
                             ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/40'
@@ -438,7 +439,7 @@ export function PilotForm() {
                         htmlFor="form-porte"
                         className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5"
                       >
-                        Porte do Órgão <span className="text-[#EF4444]">*</span>
+                        Esfera de Governo <span className="text-[#EF4444]">*</span>
                       </label>
                       <select
                         id="form-porte"
@@ -455,15 +456,66 @@ export function PilotForm() {
                             : 'border-[#1A2A5A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/30'
                         }`}
                       >
-                        <option value="Municipal">Municipal</option>
-                        <option value="Estadual">Estadual</option>
-                        <option value="Federal">Federal</option>
+                        <option value="Municipal">Municipal (Prefeitura / Secretaria)</option>
+                        <option value="Estadual">Estadual (DER / DETRAN / Consórcio)</option>
+                        <option value="Federal">Federal (DNIT / Ministério)</option>
                       </select>
                       {errors.porte && (
                         <p id="error-porte" className="text-xs text-[#EF4444] mt-1 font-medium">
                           {errors.porte}
                         </p>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Seletor do Porte da Cidade para o Piloto */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5">
+                      Pacote do Piloto por Porte
+                    </label>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setTierIntention('pequena')}
+                        className={`p-2.5 rounded-xl border text-center transition-all ${
+                          tierIntention === 'pequena'
+                            ? 'bg-[#10B981]/20 border-[#10B981] text-white font-bold'
+                            : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                        }`}
+                      >
+                        Pequena (Até 50k)
+                        <span className="block text-[10px] text-[#10B981] font-normal">
+                          30 dias • Zero CAPEX
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTierIntention('media')}
+                        className={`p-2.5 rounded-xl border text-center transition-all ${
+                          tierIntention === 'media'
+                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white font-bold'
+                            : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                        }`}
+                      >
+                        Média (50k–300k)
+                        <span className="block text-[10px] text-[#3B82F6] font-normal">
+                          Art. 320 CTB
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTierIntention('grande')}
+                        className={`p-2.5 rounded-xl border text-center transition-all ${
+                          tierIntention === 'grande'
+                            ? 'bg-[#6366F1]/20 border-[#6366F1] text-white font-bold'
+                            : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                        }`}
+                      >
+                        Grande (300k+)
+                        <span className="block text-[10px] text-[#818CF8] font-normal">
+                          Padrão ISO
+                        </span>
+                      </button>
                     </div>
                   </div>
 

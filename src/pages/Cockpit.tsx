@@ -17,12 +17,18 @@ import { listRoadEvents, RoadEventRecord, createRoadEvent } from '@/services/roa
 import { listFleetTelemetry, FleetTelemetryRecord } from '@/services/fleet'
 import { CuritibaMap } from '@/components/CuritibaMap'
 import { RealCollectorModal } from '@/components/RealCollectorModal'
+import { ModoGabineteView } from '@/components/ModoGabineteView'
+import { TceDossierModal } from '@/components/TceDossierModal'
 
 export default function Cockpit() {
   const [events, setEvents] = useState<RoadEventRecord[]>([])
   const [fleet, setFleet] = useState<FleetTelemetryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedEvent, setSelectedEvent] = useState<RoadEventRecord | null>(null)
+
+  // View Mode: 'gabinete' (default prefeitos) vs 'tecnico' (engenharia)
+  const [activeTab, setActiveTab] = useState<'gabinete' | 'tecnico'>('gabinete')
+  const [showTceDossierModal, setShowTceDossierModal] = useState<boolean>(false)
 
   // Filters
   const [severityFilter, setSeverityFilter] = useState<string>('all')
@@ -153,7 +159,43 @@ export default function Cockpit() {
             </p>
           </div>
 
+          {/* View Mode Toggle: Modo Gabinete vs Cockpit Técnico */}
           <div className="flex flex-wrap items-center gap-2.5">
+            <div className="bg-[#101B3A] p-1 rounded-xl border border-[#1A2A5A] flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab('gabinete')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'gabinete'
+                    ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/30'
+                    : 'text-[#94A3B8] hover:text-white'
+                }`}
+              >
+                Modo Gabinete (Prefeito)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('tecnico')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'tecnico'
+                    ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/30'
+                    : 'text-[#94A3B8] hover:text-white'
+                }`}
+              >
+                Cockpit Técnico (Engenharia)
+              </button>
+            </div>
+
+            {/* Dossiê TCE em 1 clique */}
+            <button
+              type="button"
+              onClick={() => setShowTceDossierModal(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] shadow-md shadow-[#10B981]/20 flex items-center gap-1.5 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Dossiê TCE</span>
+            </button>
+
             <button
               type="button"
               onClick={loadData}
@@ -189,374 +231,399 @@ export default function Cockpit() {
           </div>
         </div>
 
-        {/* 4 Metric Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
-            <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-              <span>Anomalias Catalogadas</span>
-              <Activity className="w-4 h-4 text-[#3B82F6]" />
-            </div>
-            <div className="text-2xl font-black font-mono text-[#F8FAFC]">{totalEvents}</div>
-            <span className="text-[10px] text-[#94A3B8]">Na malha prioritária de Curitiba</span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#EF4444]/40">
-            <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-              <span>Severidade Crítica</span>
-              <Flame className="w-4 h-4 text-[#EF4444]" />
-            </div>
-            <div className="text-2xl font-black font-mono text-[#EF4444]">{criticalCount}</div>
-            <span className="text-[10px] text-[#EF4444]/80">Risco imediato de acidente</span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
-            <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-              <span>Índice IRI Médio</span>
-              <Sparkles className="w-4 h-4 text-[#10B981]" />
-            </div>
-            <div className="text-2xl font-black font-mono text-[#10B981]">{averageIRI} m/km</div>
-            <span className="text-[10px] text-[#94A3B8]">Regularidade do pavimento</span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
-            <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
-              <span>Veículos Ativos na Frota</span>
-              <Bus className="w-4 h-4 text-[#60A5FA]" />
-            </div>
-            <div className="text-2xl font-black font-mono text-[#60A5FA]">{fleet.length}</div>
-            <span className="text-[10px] text-[#94A3B8]">Ônibus e caminhões transmitindo</span>
-          </div>
-        </div>
-
-        {/* Main Content: Map (Left/Center) + Sidebar Details (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Map Column (8 cols) */}
-          <div className="lg:col-span-8 space-y-4">
-            {/* Map Controls */}
-            <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-[#94A3B8] font-semibold">Camadas:</span>
-                <button
-                  type="button"
-                  onClick={() => setShowHeatmap(!showHeatmap)}
-                  className={`px-3 py-1.5 rounded-lg border transition-all ${
-                    showHeatmap
-                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6] font-bold'
-                      : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
-                  }`}
-                >
-                  <Flame className="w-3.5 h-3.5 inline mr-1" />
-                  Mapa de Calor de Severidade
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowFleet(!showFleet)}
-                  className={`px-3 py-1.5 rounded-lg border transition-all ${
-                    showFleet
-                      ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold'
-                      : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
-                  }`}
-                >
-                  <Bus className="w-3.5 h-3.5 inline mr-1" />
-                  Frota de Ônibus & Coleta
-                </button>
+        {/* CONDITIONAL RENDERING: MODO GABINETE VS TÉCNICO */}
+        {activeTab === 'gabinete' ? (
+          <ModoGabineteView
+            roadEvents={events}
+            onOpenDossier={() => setShowTceDossierModal(true)}
+            onOpenTechnicalCockpit={() => setActiveTab('tecnico')}
+            onSelectEvent={(ev) => {
+              setSelectedEvent(ev)
+              setActiveTab('tecnico')
+            }}
+          />
+        ) : (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* 4 Metric Summary Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
+                <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
+                  <span>Anomalias Catalogadas</span>
+                  <Activity className="w-4 h-4 text-[#3B82F6]" />
+                </div>
+                <div className="text-2xl font-black font-mono text-[#F8FAFC]">{totalEvents}</div>
+                <span className="text-[10px] text-[#94A3B8]">Na malha prioritária de Curitiba</span>
               </div>
 
-              {/* Filter by severity */}
-              <div className="flex items-center gap-2">
-                <span className="text-[#94A3B8]">Severidade:</span>
-                <select
-                  value={severityFilter}
-                  onChange={(e) => setSeverityFilter(e.target.value)}
-                  className="bg-[#0A1128] border border-[#1A2A5A] text-[#F8FAFC] rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-[#3B82F6]"
-                >
-                  <option value="all">Todas as severidades</option>
-                  <option value="critica">Crítica (Buraco grave)</option>
-                  <option value="alta">Alta</option>
-                  <option value="media">Média</option>
-                  <option value="baixa">Baixa</option>
-                </select>
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#EF4444]/40">
+                <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
+                  <span>Severidade Crítica</span>
+                  <Flame className="w-4 h-4 text-[#EF4444]" />
+                </div>
+                <div className="text-2xl font-black font-mono text-[#EF4444]">{criticalCount}</div>
+                <span className="text-[10px] text-[#EF4444]/80">Risco imediato de acidente</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
+                <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
+                  <span>Índice IRI Médio</span>
+                  <Sparkles className="w-4 h-4 text-[#10B981]" />
+                </div>
+                <div className="text-2xl font-black font-mono text-[#10B981]">
+                  {averageIRI} m/km
+                </div>
+                <span className="text-[10px] text-[#94A3B8]">Regularidade do pavimento</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
+                <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-1">
+                  <span>Veículos Ativos na Frota</span>
+                  <Bus className="w-4 h-4 text-[#60A5FA]" />
+                </div>
+                <div className="text-2xl font-black font-mono text-[#60A5FA]">{fleet.length}</div>
+                <span className="text-[10px] text-[#94A3B8]">Ônibus e caminhões transmitindo</span>
               </div>
             </div>
 
-            {/* Map Canvas Component */}
-            <div className="h-[520px] w-full">
-              <CuritibaMap
-                roadEvents={events}
-                fleet={fleet}
-                selectedEventId={selectedEvent?.id}
-                onSelectEvent={(ev) => setSelectedEvent(ev)}
-                showHeatmap={showHeatmap}
-                showFleet={showFleet}
-                severityFilter={severityFilter}
-              />
-            </div>
-          </div>
-
-          {/* Details & Live Telemetry Feed Column (4 cols) */}
-          <div className="lg:col-span-4 space-y-4">
-            {/* Selected Anomaly Card */}
-            {selectedEvent ? (
-              <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#3B82F6]/50 shadow-xl space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
+            {/* Main Content: Map (Left/Center) + Sidebar Details (Right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Map Column (8 cols) */}
+              <div className="lg:col-span-8 space-y-4">
+                {/* Map Controls */}
+                <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2">
-                    <Smartphone className="w-4 h-4 text-[#3B82F6]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#3B82F6]">
-                      Detecção Selecionada
-                    </span>
+                    <span className="text-[#94A3B8] font-semibold">Camadas:</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowHeatmap(!showHeatmap)}
+                      className={`px-3 py-1.5 rounded-lg border transition-all ${
+                        showHeatmap
+                          ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6] font-bold'
+                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                      }`}
+                    >
+                      <Flame className="w-3.5 h-3.5 inline mr-1" />
+                      Mapa de Calor de Severidade
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowFleet(!showFleet)}
+                      className={`px-3 py-1.5 rounded-lg border transition-all ${
+                        showFleet
+                          ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold'
+                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                      }`}
+                    >
+                      <Bus className="w-3.5 h-3.5 inline mr-1" />
+                      Frota de Ônibus & Coleta
+                    </button>
                   </div>
-                  <span
-                    className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
-                      selectedEvent.severidade === 'critica'
-                        ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40'
-                        : selectedEvent.severidade === 'alta'
-                          ? 'bg-[#F97316]/20 text-[#F97316] border border-[#F97316]/40'
-                          : 'bg-[#FBBF24]/20 text-[#FBBF24] border border-[#FBBF24]/40'
-                    }`}
-                  >
-                    {selectedEvent.severidade}
-                  </span>
-                </div>
 
-                <div>
-                  <h3 className="text-base font-bold text-[#F8FAFC] leading-snug">
-                    {selectedEvent.via}
-                  </h3>
-                  <span className="text-xs text-[#94A3B8]">
-                    {selectedEvent.bairro || 'Curitiba'} • {selectedEvent.tipo.toUpperCase()}
-                  </span>
-                </div>
-
-                {/* Telemetry Metric Pills */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A]">
-                    <span className="text-[#94A3B8] block text-[10px]">Índice IRI</span>
-                    <span className="text-base font-bold font-mono text-[#F8FAFC]">
-                      {selectedEvent.iri_score
-                        ? `${selectedEvent.iri_score.toFixed(1)} m/km`
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A]">
-                    <span className="text-[#94A3B8] block text-[10px]">Aceleração Eixo Z</span>
-                    <span className="text-base font-bold font-mono text-[#10B981]">
-                      {selectedEvent.aceleracao_z
-                        ? `${selectedEvent.aceleracao_z.toFixed(2)} g`
-                        : 'N/A'}
-                    </span>
+                  {/* Filter by severity */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#94A3B8]">Severidade:</span>
+                    <select
+                      value={severityFilter}
+                      onChange={(e) => setSeverityFilter(e.target.value)}
+                      className="bg-[#0A1128] border border-[#1A2A5A] text-[#F8FAFC] rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-[#3B82F6]"
+                    >
+                      <option value="all">Todas as severidades</option>
+                      <option value="critica">Crítica (Buraco grave)</option>
+                      <option value="alta">Alta</option>
+                      <option value="media">Média</option>
+                      <option value="baixa">Baixa</option>
+                    </select>
                   </div>
                 </div>
 
-                <div className="text-xs text-[#94A3B8] space-y-1.5 pt-1">
-                  <div className="flex justify-between">
-                    <span>Veículo sensor:</span>
-                    <span className="text-[#F8FAFC] font-medium">
-                      {selectedEvent.veiculo_tipo || 'Frota Municipal'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Linha / Rota:</span>
-                    <span className="text-[#F8FAFC] font-medium">
-                      {selectedEvent.linha_frota || 'Regular'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status de Zeladoria:</span>
-                    <span className="font-semibold text-[#10B981] uppercase">
-                      {selectedEvent.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-[#1A2A5A] flex items-center justify-between">
-                  <span className="text-[11px] text-[#94A3B8]">
-                    {osEmitidaCount} Ordens de Serviço emitidas no total
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert(
-                        `Ordem de Serviço gerada para: ${selectedEvent.via} (Prioridade: ${selectedEvent.severidade})`,
-                      )
-                    }}
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#10B981] hover:bg-[#059669] text-white transition-colors"
-                  >
-                    Gerar OS Automática
-                  </button>
+                {/* Map Canvas Component */}
+                <div className="h-[520px] w-full">
+                  <CuritibaMap
+                    roadEvents={events}
+                    fleet={fleet}
+                    selectedEventId={selectedEvent?.id}
+                    onSelectEvent={(ev) => setSelectedEvent(ev)}
+                    showHeatmap={showHeatmap}
+                    showFleet={showFleet}
+                    severityFilter={severityFilter}
+                  />
                 </div>
               </div>
-            ) : (
-              <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] text-center text-xs text-[#94A3B8]">
-                Selecione uma anomalia no mapa para visualizar a telemetria do smartphone
-              </div>
-            )}
 
-            {/* Live Fleet Telemetry List */}
-            <div className="p-4 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
-                <div className="flex items-center gap-2">
-                  <Bus className="w-4 h-4 text-[#3B82F6]" />
-                  <span className="text-xs font-bold text-[#F8FAFC]">Frota em Circulação</span>
-                </div>
-                <span className="text-[10px] font-mono text-[#94A3B8]">
-                  {fleet.length} sensores ativos
-                </span>
-              </div>
-
-              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                {fleet.map((v) => (
-                  <div
-                    key={v.id}
-                    className="p-2.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] text-xs flex items-center justify-between hover:border-[#3B82F6]/50 transition-colors"
-                  >
-                    <div>
-                      <div className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                        <span>{v.veiculo_id}</span>
-                      </div>
-                      <span className="text-[11px] text-[#94A3B8]">{v.linha}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono font-semibold text-[#60A5FA]">
-                        {v.velocidade} km/h
-                      </span>
-                      <span className="block text-[10px] text-[#94A3B8]">
-                        {v.anomalias_detectadas || 0} anomalias
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Table: Feed of Road Events */}
-        <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">
-            <div>
-              <h3 className="text-lg font-bold text-[#F8FAFC]">
-                Feed de Eventos Inerciais (Smartphones)
-              </h3>
-              <p className="text-xs text-[#94A3B8]">
-                Registro cronológico das anomalias captadas pelos sensores embarcados na frota
-              </p>
-            </div>
-
-            {/* Quick search input */}
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                placeholder="Buscar via ou bairro..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-[#0A1128] border border-[#1A2A5A] text-xs text-[#F8FAFC] rounded-lg px-3 py-2 placeholder:text-[#94A3B8]/60 focus:ring-1 focus:ring-[#3B82F6] min-w-[200px]"
-              />
-
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-[#0A1128] border border-[#1A2A5A] text-xs text-[#F8FAFC] rounded-lg px-2.5 py-2 focus:ring-1 focus:ring-[#3B82F6]"
-              >
-                <option value="all">Todos os status</option>
-                <option value="detectado">Detectado</option>
-                <option value="triagem">Triagem</option>
-                <option value="os_emitida">OS Emitida</option>
-                <option value="reparado">Reparado</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="text-[11px] uppercase font-mono text-[#94A3B8] border-b border-[#1A2A5A] bg-[#0A1128]/50">
-                <tr>
-                  <th className="py-3 px-3">Via / Trecho</th>
-                  <th className="py-3 px-3">Bairro</th>
-                  <th className="py-3 px-3">Tipo</th>
-                  <th className="py-3 px-3">Severidade</th>
-                  <th className="py-3 px-3">Índice IRI</th>
-                  <th className="py-3 px-3">Acel. Z</th>
-                  <th className="py-3 px-3">Veículo Coletor</th>
-                  <th className="py-3 px-3">Status</th>
-                  <th className="py-3 px-3 text-right">Ação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1A2A5A]/50">
-                {filteredEvents.map((ev) => (
-                  <tr
-                    key={ev.id}
-                    onClick={() => setSelectedEvent(ev)}
-                    className={`cursor-pointer transition-colors ${
-                      selectedEvent?.id === ev.id
-                        ? 'bg-[#3B82F6]/10 text-white'
-                        : 'hover:bg-[#1A2A5A]/30 text-[#CBD5E1]'
-                    }`}
-                  >
-                    <td className="py-3 px-3 font-semibold text-[#F8FAFC]">{ev.via}</td>
-                    <td className="py-3 px-3 text-[#94A3B8]">{ev.bairro || 'Curitiba'}</td>
-                    <td className="py-3 px-3 uppercase text-[11px] font-mono">{ev.tipo}</td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
-                          ev.severidade === 'critica'
-                            ? 'bg-[#EF4444]/20 text-[#EF4444]'
-                            : ev.severidade === 'alta'
-                              ? 'bg-[#F97316]/20 text-[#F97316]'
-                              : 'bg-[#FBBF24]/20 text-[#FBBF24]'
-                        }`}
-                      >
-                        {ev.severidade}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-mono font-semibold">
-                      {ev.iri_score ? ev.iri_score.toFixed(1) : '-'}
-                    </td>
-                    <td className="py-3 px-3 font-mono">
-                      {ev.aceleracao_z ? `${ev.aceleracao_z.toFixed(2)}g` : '-'}
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1.5">
-                        {ev.veiculo_tipo?.includes('Acelerômetro Real') ||
-                        ev.linha_frota?.includes('Real') ? (
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 font-bold shrink-0">
-                            REAL
-                          </span>
-                        ) : (
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#3B82F6]/15 text-[#93C5FD] border border-[#3B82F6]/30 shrink-0">
-                            SIM
-                          </span>
-                        )}
-                        <span className="text-[#94A3B8] truncate max-w-[160px]">
-                          {ev.linha_frota || ev.veiculo_tipo || '-'}
+              {/* Details & Live Telemetry Feed Column (4 cols) */}
+              <div className="lg:col-span-4 space-y-4">
+                {/* Selected Anomaly Card */}
+                {selectedEvent ? (
+                  <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#3B82F6]/50 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-4 h-4 text-[#3B82F6]" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#3B82F6]">
+                          Detecção Selecionada
                         </span>
                       </div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className="text-[10px] uppercase font-bold text-[#10B981]">
-                        {ev.status}
+                      <span
+                        className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
+                          selectedEvent.severidade === 'critica'
+                            ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40'
+                            : selectedEvent.severidade === 'alta'
+                              ? 'bg-[#F97316]/20 text-[#F97316] border border-[#F97316]/40'
+                              : 'bg-[#FBBF24]/20 text-[#FBBF24] border border-[#FBBF24]/40'
+                        }`}
+                      >
+                        {selectedEvent.severidade}
                       </span>
-                    </td>
-                    <td className="py-3 px-3 text-right">
+                    </div>
+
+                    <div>
+                      <h3 className="text-base font-bold text-[#F8FAFC] leading-snug">
+                        {selectedEvent.via}
+                      </h3>
+                      <span className="text-xs text-[#94A3B8]">
+                        {selectedEvent.bairro || 'Curitiba'} • {selectedEvent.tipo.toUpperCase()}
+                      </span>
+                    </div>
+
+                    {/* Telemetry Metric Pills */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A]">
+                        <span className="text-[#94A3B8] block text-[10px]">Índice IRI</span>
+                        <span className="text-base font-bold font-mono text-[#F8FAFC]">
+                          {selectedEvent.iri_score
+                            ? `${selectedEvent.iri_score.toFixed(1)} m/km`
+                            : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A]">
+                        <span className="text-[#94A3B8] block text-[10px]">Aceleração Eixo Z</span>
+                        <span className="text-base font-bold font-mono text-[#10B981]">
+                          {selectedEvent.aceleracao_z
+                            ? `${selectedEvent.aceleracao_z.toFixed(2)} g`
+                            : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-[#94A3B8] space-y-1.5 pt-1">
+                      <div className="flex justify-between">
+                        <span>Veículo sensor:</span>
+                        <span className="text-[#F8FAFC] font-medium">
+                          {selectedEvent.veiculo_tipo || 'Frota Municipal'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Linha / Rota:</span>
+                        <span className="text-[#F8FAFC] font-medium">
+                          {selectedEvent.linha_frota || 'Regular'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Status de Zeladoria:</span>
+                        <span className="font-semibold text-[#10B981] uppercase">
+                          {selectedEvent.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#1A2A5A] flex items-center justify-between">
+                      <span className="text-[11px] text-[#94A3B8]">
+                        {osEmitidaCount} Ordens de Serviço emitidas no total
+                      </span>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedEvent(ev)
+                        onClick={() => {
+                          alert(
+                            `Ordem de Serviço gerada para: ${selectedEvent.via} (Prioridade: ${selectedEvent.severidade})`,
+                          )
                         }}
-                        className="text-xs text-[#3B82F6] hover:text-[#60A5FA] underline font-medium"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#10B981] hover:bg-[#059669] text-white transition-colors"
                       >
-                        Focar no Mapa
+                        Gerar OS Automática
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] text-center text-xs text-[#94A3B8]">
+                    Selecione uma anomalia no mapa para visualizar a telemetria do smartphone
+                  </div>
+                )}
+
+                {/* Live Fleet Telemetry List */}
+                <div className="p-4 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
+                    <div className="flex items-center gap-2">
+                      <Bus className="w-4 h-4 text-[#3B82F6]" />
+                      <span className="text-xs font-bold text-[#F8FAFC]">Frota em Circulação</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-[#94A3B8]">
+                      {fleet.length} sensores ativos
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    {fleet.map((v) => (
+                      <div
+                        key={v.id}
+                        className="p-2.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] text-xs flex items-center justify-between hover:border-[#3B82F6]/50 transition-colors"
+                      >
+                        <div>
+                          <div className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                            <span>{v.veiculo_id}</span>
+                          </div>
+                          <span className="text-[11px] text-[#94A3B8]">{v.linha}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-mono font-semibold text-[#60A5FA]">
+                            {v.velocidade} km/h
+                          </span>
+                          <span className="block text-[10px] text-[#94A3B8]">
+                            {v.anomalias_detectadas || 0} anomalias
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Table: Feed of Road Events */}
+            <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">
+                <div>
+                  <h3 className="text-lg font-bold text-[#F8FAFC]">
+                    Feed de Eventos Inerciais (Smartphones)
+                  </h3>
+                  <p className="text-xs text-[#94A3B8]">
+                    Registro cronológico das anomalias captadas pelos sensores embarcados na frota
+                  </p>
+                </div>
+
+                {/* Quick search input */}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="Buscar via ou bairro..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-[#0A1128] border border-[#1A2A5A] text-xs text-[#F8FAFC] rounded-lg px-3 py-2 placeholder:text-[#94A3B8]/60 focus:ring-1 focus:ring-[#3B82F6] min-w-[200px]"
+                  />
+
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="bg-[#0A1128] border border-[#1A2A5A] text-xs text-[#F8FAFC] rounded-lg px-2.5 py-2 focus:ring-1 focus:ring-[#3B82F6]"
+                  >
+                    <option value="all">Todos os status</option>
+                    <option value="detectado">Detectado</option>
+                    <option value="triagem">Triagem</option>
+                    <option value="os_emitida">OS Emitida</option>
+                    <option value="reparado">Reparado</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="text-[11px] uppercase font-mono text-[#94A3B8] border-b border-[#1A2A5A] bg-[#0A1128]/50">
+                    <tr>
+                      <th className="py-3 px-3">Via / Trecho</th>
+                      <th className="py-3 px-3">Bairro</th>
+                      <th className="py-3 px-3">Tipo</th>
+                      <th className="py-3 px-3">Severidade</th>
+                      <th className="py-3 px-3">Índice IRI</th>
+                      <th className="py-3 px-3">Acel. Z</th>
+                      <th className="py-3 px-3">Veículo Coletor</th>
+                      <th className="py-3 px-3">Status</th>
+                      <th className="py-3 px-3 text-right">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1A2A5A]/50">
+                    {filteredEvents.map((ev) => (
+                      <tr
+                        key={ev.id}
+                        onClick={() => setSelectedEvent(ev)}
+                        className={`cursor-pointer transition-colors ${
+                          selectedEvent?.id === ev.id
+                            ? 'bg-[#3B82F6]/10 text-white'
+                            : 'hover:bg-[#1A2A5A]/30 text-[#CBD5E1]'
+                        }`}
+                      >
+                        <td className="py-3 px-3 font-semibold text-[#F8FAFC]">{ev.via}</td>
+                        <td className="py-3 px-3 text-[#94A3B8]">{ev.bairro || 'Curitiba'}</td>
+                        <td className="py-3 px-3 uppercase text-[11px] font-mono">{ev.tipo}</td>
+                        <td className="py-3 px-3">
+                          <span
+                            className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
+                              ev.severidade === 'critica'
+                                ? 'bg-[#EF4444]/20 text-[#EF4444]'
+                                : ev.severidade === 'alta'
+                                  ? 'bg-[#F97316]/20 text-[#F97316]'
+                                  : 'bg-[#FBBF24]/20 text-[#FBBF24]'
+                            }`}
+                          >
+                            {ev.severidade}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 font-mono font-semibold">
+                          {ev.iri_score ? ev.iri_score.toFixed(1) : '-'}
+                        </td>
+                        <td className="py-3 px-3 font-mono">
+                          {ev.aceleracao_z ? `${ev.aceleracao_z.toFixed(2)}g` : '-'}
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-1.5">
+                            {ev.veiculo_tipo?.includes('Acelerômetro Real') ||
+                            ev.linha_frota?.includes('Real') ? (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 font-bold shrink-0">
+                                REAL
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#3B82F6]/15 text-[#93C5FD] border border-[#3B82F6]/30 shrink-0">
+                                SIM
+                              </span>
+                            )}
+                            <span className="text-[#94A3B8] truncate max-w-[160px]">
+                              {ev.linha_frota || ev.veiculo_tipo || '-'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className="text-[10px] uppercase font-bold text-[#10B981]">
+                            {ev.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedEvent(ev)
+                            }}
+                            className="text-xs text-[#3B82F6] hover:text-[#60A5FA] underline font-medium"
+                          >
+                            Focar no Mapa
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Modal: Dossiê TCE em 1 Clique */}
+      <TceDossierModal
+        isOpen={showTceDossierModal}
+        onClose={() => setShowTceDossierModal(false)}
+        roadEvents={events}
+        fleet={fleet}
+      />
 
       {/* Modal: Simular Leitura Inercial do Smartphone */}
       {showSimulateModal && (

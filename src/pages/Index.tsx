@@ -1,37 +1,53 @@
-import { Hero } from '@/components/Hero'
+import { useState, useEffect } from 'react'
+import { Hero, CityTier } from '@/components/Hero'
 import { TrustStrip } from '@/components/TrustStrip'
 import { Simulator } from '@/components/Simulator'
 import { Benefits } from '@/components/Benefits'
+import { IntegrationArchitecture } from '@/components/IntegrationArchitecture'
 import { Comparison } from '@/components/Comparison'
 import { HowItWorks } from '@/components/HowItWorks'
 import { FAQ } from '@/components/FAQ'
 import { PilotForm } from '@/components/PilotForm'
+import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
+  // Estado central do porte de cidade: 'pequena' (padrão estratégico acordado: onda da cidade pequena)
+  const [selectedTier, setSelectedTier] = useState<CityTier>('pequena')
+  const [liveMetrics, setLiveMetrics] = useState<PlatformLiveMetrics | null>(null)
+
+  useEffect(() => {
+    getPlatformLiveMetrics()
+      .then((data) => setLiveMetrics(data))
+      .catch((err) => console.warn('Erro ao carregar métricas vivas da landing:', err))
+  }, [])
+
   return (
     <div className="w-full flex flex-col">
-      {/* 1. Hero Section com telemetria inercial & badges */}
-      <Hero />
+      {/* 1. Hero Section com Seletor por Porte de Cidade, Narrativa SDK Edge & Dados Vivos */}
+      <Hero selectedTier={selectedTier} onSelectTier={setSelectedTier} liveMetrics={liveMetrics} />
 
       {/* 2. Trust Strip (Marquee com respaldo institucional e órgãos) */}
       <TrustStrip />
 
-      {/* 3. Simulator (Simulador instantâneo de retorno público & frota) */}
-      <Simulator />
+      {/* 3. Simulator Adaptativo com Seletor de Porte e Argumentos Fiscais */}
+      <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 4. Benefits (4 pilares da arquitetura de valor público Orbis UOS) */}
+      {/* 4. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
       <Benefits />
 
-      {/* 5. Comparativo (Modelo Convencional Reativo vs. Orbis GovTech) */}
+      {/* 5. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
+      <IntegrationArchitecture selectedTier={selectedTier} />
+
+      {/* 6. Comparativo (Modelo Convencional Reativo vs. ORBIS.UOS SDK Edge) */}
       <Comparison />
 
-      {/* 6. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
+      {/* 7. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
       <HowItWorks />
 
-      {/* 7. FAQ (Dúvidas estratégicas frequentes dos prefeitos e secretários) */}
+      {/* 8. FAQ (Dúvidas estratégicas sobre FFT, portes de cidade e Art. 320 CTB) */}
       <FAQ />
 
-      {/* 8. Formulário de Adesão ao Piloto (90 dias / captação) */}
+      {/* 9. Formulário de Adesão ao Piloto (30 a 90 dias / captação) */}
       <PilotForm />
     </div>
   )

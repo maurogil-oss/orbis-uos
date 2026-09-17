@@ -3,34 +3,34 @@ import { XCircle, CheckCircle2, ArrowRight, ShieldAlert, Sparkles } from 'lucide
 export function Comparison() {
   const comparisonRows = [
     {
+      criterion: 'Arquitetura de Coleta',
+      bad: 'Aplicativos extras que motoristas recusam instalar, drenam a bateria em 3 horas ou exigem hardware/sensores caros no painel.',
+      good: 'SDK Edge embarcado nos apps que a frota já usa. FFT na borda com consumo medido de apenas 1,2–1,8%/h de bateria e Zero CAPEX.',
+      goodBadge: 'SDK Edge (1,2–1,8%/h)',
+    },
+    {
       criterion: 'Detecção de Falhas no Asfalto',
       bad: 'Reclamações manuais no canal 156 quando o buraco já causou acidentes, retenções e danificou veículos de cidadãos.',
-      good: 'Auditoria contínua via frota municipal existente, identificando anomalias inerciais e microfissuras 4 meses antes do buraco se formar.',
+      good: 'Auditoria contínua via frota existente, identificando anomalias inerciais e rugosidade IRI meses antes da cratera se formar.',
       goodBadge: 'Prevenção Ativa',
     },
     {
       criterion: 'Custo de Manutenção da Via',
       bad: 'Tapa-buraco de emergência que custa até 8x mais caro por m² e se desmancha no primeiro período de chuvas fortes.',
-      good: 'Microrrevestimento programado e ordens de serviço preventivas, reduzindo em até 40% a despesa anual com recapeamento.',
+      good: 'Microrrevestimento programado e ordens de serviço preventivas, reduzindo expressivamente o gasto com asfalto.',
       goodBadge: 'Economia Real',
-    },
-    {
-      criterion: 'Engenharia Semafórica',
-      bad: 'Planos de tempo fixos baseados em contagens manuais esporádicas, gerando retenções e filas desnecessárias.',
-      good: 'Otimização inteligente via Google Green Light baseada em fluxos reais, reduzindo paradas em até 20% sem obras físicas.',
-      goodBadge: 'Google Green Light',
     },
     {
       criterion: 'Segurança Jurídica & TCE',
       bad: 'Risco de glosa e apontamentos no Tribunal de Contas por desvio de finalidade das receitas do Fundo de Multas.',
-      good: 'Dossiês técnicos com nexo causal georreferenciado e carimbo de integridade, 100% elegíveis ao Artigo 320 do CTB.',
-      goodBadge: 'Art. 320 CTB',
+      good: 'Dossiê TCE em 1 clique com nexo causal georreferenciado e carimbo de integridade, 100% elegível ao Artigo 320 do CTB.',
+      goodBadge: 'Art. 320 CTB Blindado',
     },
     {
       criterion: 'Contratação & Infraestrutura',
-      bad: 'Licitações tradicionais lentas (6 a 12 meses) e compra de sensores caros com alto custo de manutenção física.',
-      good: 'Adesão ágil ao Piloto CPSI (LC 182/2021) de 90 dias com Zero CAPEX e software em nuvem pronto para operar.',
-      goodBadge: 'CPSI 90 Dias',
+      bad: 'Licitações tradicionais lentas (6 a 12 meses) e contratos de TI engessados que não entregam valor rápido.',
+      good: 'Piloto ágil CPSI (LC 182/2021) de 30 a 90 dias sem licitação e com parâmetros pré-calibrados por porte de município.',
+      goodBadge: 'CPSI Sem Licitação',
     },
   ]
 

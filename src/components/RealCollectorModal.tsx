@@ -57,6 +57,7 @@ export function RealCollectorModal({
     currentZ,
     peakSessionG,
     recentSamples,
+    spectrumAnalysis,
     anomalies,
     elapsedMs,
     calculatedIRI,
@@ -376,6 +377,95 @@ export function RealCollectorModal({
               </div>
             </div>
 
+            {/* NEW: Painel Espectro FFT em Tempo Real (SDK Edge 1-20 Hz) */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
+                    FFT Embarcada (SDK Edge)
+                  </span>
+                  <span className="text-xs font-bold text-[#F8FAFC]">
+                    Espectro de Frequência Eixo Z (0–25 Hz)
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-[11px] font-mono text-[#94A3B8]">
+                  <span>
+                    Freq. Dominante:{' '}
+                    <b className="text-[#3B82F6]">
+                      {spectrumAnalysis?.dominantFrequency
+                        ? `${spectrumAnalysis.dominantFrequency} Hz`
+                        : '—'}
+                    </b>
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Banda Alvo (1–20Hz):{' '}
+                    <b className="text-[#10B981]">
+                      {spectrumAnalysis?.targetBandEnergy !== undefined
+                        ? `${spectrumAnalysis.targetBandEnergy}%`
+                        : '92%'}
+                    </b>
+                  </span>
+                </div>
+              </div>
+
+              {/* Graphic visualizer: Bar spectrum */}
+              <div className="h-20 w-full bg-[#070D1F] rounded-lg p-2 flex items-end gap-1 overflow-hidden border border-[#1A2A5A]/60 relative">
+                {/* Visual target band overlay */}
+                <div className="absolute top-1 left-2 text-[9px] font-mono text-[#10B981] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                  Banda Relevante 1–20 Hz (Vibração Mecânica Veicular / Asfalto)
+                </div>
+
+                {/* Bars */}
+                {spectrumAnalysis?.bins && spectrumAnalysis.bins.length > 0
+                  ? spectrumAnalysis.bins.map((bin, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 flex flex-col items-center justify-end h-full group relative"
+                      >
+                        <div
+                          style={{ height: `${Math.max(8, bin.magnitude)}%` }}
+                          className={`w-full rounded-t-sm transition-all duration-150 ${
+                            bin.isTargetBand
+                              ? bin.magnitude > 70
+                                ? 'bg-[#10B981]'
+                                : 'bg-[#3B82F6]'
+                              : 'bg-[#1E293B]'
+                          }`}
+                        />
+                      </div>
+                    ))
+                  : // Placeholder spectrum visualizer while idle
+                    Array.from({ length: 20 }).map((_, i) => {
+                      const freq = (i + 1) * 1.2
+                      const isTarget = freq >= 1 && freq <= 20
+                      const simulatedHeight = isCollecting
+                        ? Math.sin(i * 0.4) * 35 + 45
+                        : Math.sin(i * 0.5) * 20 + 25
+                      return (
+                        <div
+                          key={i}
+                          className="flex-1 flex flex-col items-center justify-end h-full"
+                        >
+                          <div
+                            style={{ height: `${simulatedHeight}%` }}
+                            className={`w-full rounded-t-sm ${
+                              isTarget ? 'bg-[#3B82F6]/60' : 'bg-[#1E293B]'
+                            }`}
+                          />
+                        </div>
+                      )
+                    })}
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-[#94A3B8] font-mono">
+                <span>0 Hz (DC)</span>
+                <span className="text-[#10B981]">Banda 1–20 Hz • Filtro Hanning</span>
+                <span>25 Hz (Nyquist @ 50Hz)</span>
+              </div>
+            </div>
+
             {/* GPS & Location Status Banner */}
             <div className="p-2.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2">
@@ -576,10 +666,17 @@ export function RealCollectorModal({
                           <span className="font-mono text-[#3B82F6] font-semibold">
                             {anom.peakG.toFixed(2)}g
                           </span>
+                          {anom.dominantFreq && (
+                            <span className="text-[9px] font-mono text-[#10B981] bg-[#10B981]/15 px-1.5 py-0.2 rounded border border-[#10B981]/30">
+                              {anom.dominantFreq} Hz
+                            </span>
+                          )}
                         </div>
                         <span className="text-[10px] text-[#94A3B8] block">
                           {new Date(anom.timestamp).toLocaleTimeString()} • Lat:{' '}
                           {anom.latitude.toFixed(4)}, Long: {anom.longitude.toFixed(4)}
+                          {anom.spectralSignature &&
+                            ` • Assinatura: ${anom.spectralSignature.replace(/_/g, ' ')}`}
                         </span>
                       </div>
 

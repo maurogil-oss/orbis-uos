@@ -10,27 +10,24 @@ export function FAQ() {
   const faqs = [
     {
       id: 'item-1',
-      badge: 'Zero CAPEX & Hardware Passivo',
-      question:
-        'A prefeitura precisa comprar câmeras, radares ou furar as vias para instalar sensores físicos?',
+      badge: 'SDK Edge & Consumo 1,2–1,8%/h',
+      question: 'Por que o SDK Edge consome tão pouca bateria (1,2–1,8% por hora)?',
       answer:
-        'Não. A arquitetura da Orbis UOS é 100% Zero CAPEX e opera no modelo Software como Serviço (SaaS). A captação de dados inerciais é realizada pela frota pública já em circulação (ônibus do transporte coletivo, caminhões de coleta de resíduos e viaturas municipais) através de sensores embarcados em smartphones convencionais fixados nos veículos. Não há nenhuma necessidade de obras civis, postes dedicados, câmeras ópticas ou caixas pretas proprietárias na via pública.',
+        'Porque todo o processamento espectral (janelamento Hanning + FFT Radix-2 de aceleração vertical Z) acontece localmente no smartphone, isolando a banda relevante de 1 a 20 Hz e descartando 99,8% do ruído em repouso. O dispositivo não faz streaming pesado de dados brutos; apenas transmite a assinatura do evento (poucos bytes) no instante exato da anomalia. Um turno de 8 horas consome entre 10% e 15% de bateria.',
     },
     {
       id: 'item-2',
-      badge: 'Marco Legal Startups (LC 182/2021)',
-      question:
-        'Como funciona a contratação do Piloto de 90 dias via CPSI sem a demora das licitações tradicionais?',
+      badge: 'Arquitetura por Porte de Cidade',
+      question: 'Qual a diferença entre a contratação para Cidade Pequena, Média e Grande?',
       answer:
-        'O Contrato Público para Solução Inovadora (CPSI), instituído pela Lei Complementar nº 182/2021 (Marco Legal das Startups), foi criado especificamente para permitir que a administração pública teste e valide tecnologias antes de contratações de escala. O processo é simplificado, ágil (em média 2 a 3 semanas) e possui escopo pré-definido com teto de até 90 dias e baixo valor financeiro, sem risco de questionamento pelo erário.',
+        'Para Cidades Pequenas (até ~50k hab.), oferecemos pacote único e fechado com telemetria na frota existente, mapa de asfalto, one-page do prefeito e dossiê pronto, com IA pré-calibrada "modo cidade pequena" (sem thresholds complexos para o cliente calibrar). Para Cidades Médias (~50k–300k), adiciona-se Central 156+ preditiva, gestão de OS e Green Light Bridge. Para Cidades Grandes (300k+), camada de KPIs por corredor, padrão ISO 37120/37122/37125 e dados para financiamentos internacionais (BID/BNDES).',
     },
     {
       id: 'item-3',
       badge: 'Proteção no TCE & Artigo 320 CTB',
-      question:
-        'O Tribunal de Contas (TCE) aprova o custeio da plataforma com receitas do Fundo Municipal de Multas?',
+      question: 'Como o Dossiê TCE em 1 clique assegura o custeio via Fundo Municipal de Multas?',
       answer:
-        'Sim, com segurança total. O Artigo 320 do Código de Trânsito Brasileiro determina expressamente que a receita de multas deve ser aplicada exclusivamente em sinalização, engenharia de tráfego, de campo, policiamento e fiscalização. Como a Orbis gera auditoria asfáltica, rugosidade métrica (IRI) e otimização semafórica (engenharia viária), fornecemos dossiês técnicos com carimbo de integridade e nexo causal georreferenciado 100% aderentes às exigências dos Tribunais de Contas estaduais e Procuradorias.',
+        'O Artigo 320 do Código de Trânsito Brasileiro determina expressamente que a receita de multas seja aplicada exclusivamente em sinalização, engenharia de tráfego, policiamento e fiscalização. O ORBIS.UOS gera no cockpit o Dossiê TCE pré-formatado com nexo causal georreferenciado e carimbo criptográfico, comprovando aos auditores que o monitoramento inercial e a correção preventiva da via constituem estrita engenharia viária de proteção à vida.',
     },
     {
       id: 'item-4',

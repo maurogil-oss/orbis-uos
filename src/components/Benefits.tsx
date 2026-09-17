@@ -12,23 +12,23 @@ import {
 export function Benefits() {
   const pillars = [
     {
-      title: 'Zeladoria Asfáltica Preditiva & Índice IRI',
-      tag: 'Zero Cratera & Telemetria',
-      badge: 'Frota Existente',
+      title: 'SDK Edge com FFT Embarcada (1,2–1,8%/h)',
+      tag: 'Zero CAPEX • Bateria Protegida',
+      badge: 'Processamento Local',
       description:
-        'A frota pública (ônibus do transporte coletivo e caminhões de coleta) atua como um laboratório inercial ambulante. Sensores do celular (acelerômetro eixo Z e GPS) identificam microfissuras e perda de rugosidade meses antes da cratera se formar, gerando ordens de serviço automatizadas e calculando o índice IRI contínuo da malha.',
-      metric: 'Até 40%',
-      metricLabel: 'de economia em recapeamento',
-      submetric: '4 Meses de antecipação antes de virar buraco',
+        'Não é mais um aplicativo para o motorista instalar; é um SDK leve que embute a telemetria nos apps que sua frota já usa. O processamento espectral FFT isola frequências de 1 a 20 Hz no próprio smartphone e envia apenas assinaturas de anomalias viárias com baixíssimo consumo de bateria.',
+      metric: '1,2–1,8%/h',
+      metricLabel: 'Consumo medido de bateria (Turno de 8h = 10–15%)',
+      submetric: 'Filtro Hanning + Janela FFT de 0 a 25 Hz',
       icon: Activity,
       accent: '#3B82F6',
     },
     {
-      title: 'Google Green Light Ready',
+      title: 'Google Green Light & Central 156+ Preditiva',
       tag: 'Engenharia Semafórica',
       badge: 'Zero Obras',
       description:
-        'Ondas verdes sincronizadas por inteligência artificial. Acelere a fluidez e reduza paradas em cruzamentos movimentados sem necessidade de quebrar o asfalto para passar cabeamento ótico ou instalar laços indutivos caros.',
+        'Ondas verdes sincronizadas por inteligência artificial e conectores com controladores de tráfego (Siemens, Dataprom, Digicon). Menos retenções, menos combustível queimado e OSs de reparo despachadas antes das reclamações da população no 156.',
       metric: '-20%',
       metricLabel: 'de redução em filas de trânsito',
       submetric: 'Até 30 toneladas de CO₂ poupadas anualmente por corredor',
@@ -40,7 +40,7 @@ export function Benefits() {
       tag: 'Respaldo Jurídico B2G',
       badge: '100% Auditável',
       description:
-        'Utilize as receitas do Fundo Municipal de Multas com segurança total. Dossiês com nexo causal georreferenciado que comprovam a destinação exclusiva para engenharia e segurança viária, prontos para pareceres de Procuradorias e aprovação em Cortes de Contas.',
+        'Utilize as receitas do Fundo Municipal de Multas com segurança total. Dossiês com nexo causal georreferenciado e pareceres prontos em 1 clique para Procuradorias e aprovação sem ressalvas no Tribunal de Contas do Estado.',
       metric: '100%',
       metricLabel: 'elegível para custeio via multas CTB',
       submetric: 'Adesão simplificada via CPSI (LC 182/2021)',
@@ -52,7 +52,7 @@ export function Benefits() {
       tag: 'Privacidade por Design',
       badge: 'Zero Câmeras',
       description:
-        'Auditoria da via, nunca das pessoas. Ao contrário de sistemas com reconhecimento de placas ou biometria facial que trazem sérios riscos na ANPD e no Ministério Público, o Orbis mede exclusivamente vibrações mecânicas verticais (eixo Z) e atrito do pavimento através de smartphones embarcados.',
+        'Auditoria da via, nunca das pessoas. Ao contrário de sistemas com reconhecimento de placas ou biometria facial que trazem riscos na ANPD e no Ministério Público, o ORBIS.UOS mede exclusivamente ondas de choque e atrito mecânico do pavimento.',
       metric: '0 Placas',
       metricLabel: 'Zero biometria ou dados automotivos coletados',
       submetric: 'Telemetria Z inercial pura da física do asfalto',
