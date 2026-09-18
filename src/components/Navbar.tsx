@@ -161,9 +161,13 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-2 shrink-0">
           {isAuthenticated ? (
             <div className="flex items-center gap-2 pl-2 border-l border-[#1A2A5A]">
-              <span className="text-xs text-[#CBD5E1] font-medium max-w-[120px] truncate">
+              <Link
+                to="/cockpit"
+                title="Ir para o Cockpit Institucional"
+                className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[120px] truncate"
+              >
                 {user?.name}
-              </span>
+              </Link>
               <button
                 type="button"
                 onClick={logout}

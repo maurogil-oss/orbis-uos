@@ -22,6 +22,7 @@ interface InstitutionalConfigModalProps {
   onClose: () => void
   settings: InstitucionalSettingsRecord | null
   onSettingsUpdated: (updated: InstitucionalSettingsRecord) => void
+  onOpenChangePassword?: () => void
 }
 
 export function InstitutionalConfigModal({
@@ -29,6 +30,7 @@ export function InstitutionalConfigModal({
   onClose,
   settings,
   onSettingsUpdated,
+  onOpenChangePassword,
 }: InstitutionalConfigModalProps) {
   // Estado da Feature 2: Portal Público do Cidadão (Hooks incondicionais)
   const [portalAtivo, setPortalAtivo] = useState<boolean>(settings?.portal_publico_ativo === true)
@@ -369,6 +371,40 @@ export function InstitutionalConfigModal({
               </button>
             </div>
           </form>
+        </div>
+
+        {/* SEÇÃO 3: SEGURANÇA E ACESSO INSTITUCIONAL */}
+        <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-[#3B82F6]" />
+              <h3 className="text-sm font-bold text-[#F8FAFC]">
+                Credenciais e Segurança de Acesso
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded border border-[#10B981]/30 font-semibold">
+              Sessão Ativa
+            </span>
+          </div>
+          <p className="text-xs text-[#94A3B8] leading-relaxed">
+            Gerencie sua senha de acesso ao painel do Gabinete e Cockpit de Engenharia. Recomendamos
+            a troca periódica para conformidade com normas municipais de segurança da informação.
+          </p>
+          {onOpenChangePassword && (
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose()
+                  onOpenChangePassword()
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-2 transition-all"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-[#3B82F6]" />
+                <span>Alterar Minha Senha de Acesso</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Rodapé */}
