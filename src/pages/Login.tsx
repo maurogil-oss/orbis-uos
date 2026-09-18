@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import {
-  Shield,
   Lock,
   Mail,
   KeyRound,
@@ -13,6 +12,7 @@ import {
   Loader2,
   CheckCircle2,
 } from 'lucide-react'
+import { OrbisLogo } from '@/components/OrbisLogo'
 
 export default function Login() {
   const { login } = useAuth()
@@ -53,8 +53,8 @@ export default function Login() {
       <div className="max-w-md w-full mx-auto relative z-10 space-y-6">
         {/* Header institucional */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1A2A5A] border border-[#3B82F6]/50 shadow-xl shadow-[#3B82F6]/20 mb-2">
-            <Shield className="w-7 h-7 text-white stroke-[2.2]" />
+          <div className="flex justify-center mb-2">
+            <OrbisLogo height={52} colorMode="dark" variant="full" />
           </div>
           <div className="space-y-1">
             <span className="text-[11px] font-mono uppercase bg-[#101B3A] text-[#60A5FA] px-3 py-1 rounded-full border border-[#1A2A5A] font-bold">
@@ -64,7 +64,7 @@ export default function Login() {
               Acesso Institucional — ORBIS.UOS
             </h1>
             <p className="text-xs text-[#94A3B8]">
-              Autenticação soberana para Gabinetes de Prefeitos, Secretarias e Equipes Técnicas
+              Autenticação segura para Gabinetes de Prefeitos, Secretarias e Equipes Técnicas
             </p>
           </div>
         </div>

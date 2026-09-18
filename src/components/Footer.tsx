@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Shield, Mail, MapPin, Activity } from 'lucide-react'
+import { Mail, MapPin, Activity } from 'lucide-react'
+import { OrbisLogo } from '@/components/OrbisLogo'
 
 export function Footer() {
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -20,12 +21,9 @@ export function Footer() {
           {/* Column 1: Brand & Mission */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3B82F6] to-[#1A2A5A] flex items-center justify-center border border-[#3B82F6]/40 shadow-sm shadow-[#3B82F6]/30">
-                <Shield className="w-4 h-4 text-white stroke-[2.2]" />
-              </div>
-              <span className="font-extrabold text-xl tracking-tight text-[#F8FAFC]">
-                Orbis <span className="text-[#3B82F6]">UOS</span>
-              </span>
+              <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
+                <OrbisLogo height={34} colorMode="dark" variant="full" />
+              </Link>
             </div>
             <p className="text-sm leading-relaxed text-[#94A3B8] max-w-sm">
               Plataforma de inteligência e governança de dados para órgãos públicos. Maximizando a

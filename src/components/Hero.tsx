@@ -72,7 +72,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
   const current = tierConfig[selectedTier]
 
   return (
-    <section className="relative min-h-[94vh] flex items-center justify-center pt-28 pb-16 overflow-hidden bg-gradient-to-b from-[#0A1128] via-[#0E1838] to-[#0A1128]">
+    <section className="relative min-h-[90vh] flex items-center justify-center pt-20 sm:pt-24 pb-16 overflow-hidden bg-gradient-to-b from-[#0A1128] via-[#0E1838] to-[#0A1128]">
       {/* Background Subtle Animated Grid */}
       <div className="absolute inset-0 bg-grid-gov opacity-40 pointer-events-none" />
 
