@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T22:55:54.325Z",
+  "generatedAt": "2026-09-18T22:59:30.686Z",
   "collections": [
     {
       "name": "users",
@@ -770,6 +770,287 @@
       ],
       "indexes": [
         "CREATE UNIQUE INDEX idx_institucional_ibge ON institucional_settings (codigo_ibge)"
+      ]
+    },
+    {
+      "name": "segment_readings",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "fields": [
+        {
+          "name": "segmento_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "via",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "bairro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "veiculo_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "veiculo_tipo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "rms_vertical",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pico_acel_z",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "impactos_count",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "solavancos_angulares",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "iri_janela",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "velocidade_media_kmh",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "freq_dominante_hz",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "energia_banda_alvo_pct",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "latitude",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "longitude",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "janelas_amostradas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "duracao_janela_ms",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_seg_readings_segmento ON segment_readings (segmento_id)",
+        "CREATE INDEX idx_seg_readings_ibge ON segment_readings (codigo_ibge)",
+        "CREATE INDEX idx_seg_readings_veiculo ON segment_readings (veiculo_id)"
+      ]
+    },
+    {
+      "name": "road_segments",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "fields": [
+        {
+          "name": "segmento_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "via",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "bairro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_via",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["corredor_brt", "arterial", "coletora", "local"]
+        },
+        {
+          "name": "extensao_metros",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "passagens_veiculos_distintos",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "veiculos_registrados",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "fator_confianca_valido",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "iri_estimado",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_impactos",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pico_max_z",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "solavancos_angulares_total",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "score_imm",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "faixa_imm",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "latitude_centro",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "longitude_centro",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "ultima_passagem",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_road_segments_seg_ibge ON road_segments (segmento_id, codigo_ibge)",
+        "CREATE INDEX idx_road_segments_ibge ON road_segments (codigo_ibge)",
+        "CREATE INDEX idx_road_segments_confianca ON road_segments (fator_confianca_valido)"
       ]
     }
   ]

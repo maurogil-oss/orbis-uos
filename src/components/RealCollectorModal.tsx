@@ -14,7 +14,11 @@ import {
   ShieldCheck,
   X,
   Gauge,
-  HelpCircle,
+  Activity,
+  Layers,
+  Lock,
+  Radio,
+  FileCheck2,
 } from 'lucide-react'
 import { useDeviceMotionCollector, DetectedAnomaly } from '@/hooks/useDeviceMotionCollector'
 import { createRoadEvent, RoadEventRecord } from '@/services/roadEvents'
@@ -54,14 +58,23 @@ export function RealCollectorModal({
     status,
     sensorSupport,
     permissionError,
+    isWakeLocked,
+    wakeLockSupported,
+    samplingRateHz,
     currentZ,
+    currentRoll,
+    currentPitch,
     peakSessionG,
     recentSamples,
     spectrumAnalysis,
     anomalies,
+    processedWindows,
+    latestWindowMetrics,
+    sessionSummary,
     elapsedMs,
     calculatedIRI,
     currentCoords,
+    currentSegmentId,
     gpsStatus,
     speedKmh,
     startSession,
@@ -70,8 +83,14 @@ export function RealCollectorModal({
     buildEventPayload,
   } = useDeviceMotionCollector({
     thresholdG,
+    via,
+    bairro,
+    linhaFrota,
+    veiculoTipo,
+    codigoIbge: '4106902',
     manualLat,
     manualLng,
+    autoPersistWindows: true,
   })
 
   if (!isOpen) return null
@@ -119,7 +138,7 @@ export function RealCollectorModal({
     const toPersist = anomalies.filter((a) => !persistedAnomalyIds.has(a.id))
     if (toPersist.length === 0) {
       toast({
-        title: 'Nenhuma nova anomalia',
+        title: 'Nenhuma nova anomalia pontual',
         description: 'Todas as anomalias da sessão já foram gravadas no banco.',
       })
       return
@@ -184,7 +203,7 @@ export function RealCollectorModal({
       aria-labelledby="collector-title"
       className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
     >
-      <div className="bg-[#101B3A] border border-[#1A2A5A] rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#101B3A] border border-[#1A2A5A] rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="p-5 border-b border-[#1A2A5A] flex items-center justify-between bg-[#0A1128]/70">
           <div className="flex items-center gap-3">
@@ -198,11 +217,12 @@ export function RealCollectorModal({
                 </h2>
                 <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/40 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-ping" />
-                  Sensor Físico
+                  Sensor Físico • Borda Ativa
                 </span>
               </div>
               <p className="text-xs text-[#94A3B8]">
-                Acelerômetro triaxial do smartphone via API DeviceMotion do navegador
+                Acelerômetro + Giroscópio (DeviceMotion API) com FFT embarcada e agregação por
+                segmento de 100m
               </p>
             </div>
           </div>
@@ -219,19 +239,19 @@ export function RealCollectorModal({
           </button>
         </div>
 
-        {/* Device Warning / Unsupported Notice */}
+        {/* Warning / Unsupported Notice */}
         {sensorSupport === 'unsupported' && (
           <div className="p-4 mx-5 mt-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/40 text-xs text-[#F59E0B] flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="space-y-1.5">
               <span className="font-bold block text-[#F8FAFC]">
-                Dispositivo sem sensor acessível
+                Dispositivo sem sensor inercial acessível
               </span>
               <p className="text-[#CBD5E1] text-[11px] leading-relaxed">
-                Este dispositivo ou navegador não expõe o acelerômetro (comum em desktops sem
-                sensores inerciais). Para testar a captura real, abra este cockpit em um smartphone
-                (iOS Safari ou Android Chrome). Em computadores, você pode utilizar o simulador
-                inercial padrão.
+                Este dispositivo ou navegador não expõe o sensor inercial físico (típico em PCs
+                desktop). Para testar a captura real na frota, abra este Cockpit em um smartphone
+                embarcado (iOS Safari 13+ ou Android Chrome via HTTPS). No computador, você pode
+                alternar para o simulador inercial.
               </p>
               {onOpenSimulatorFallback && (
                 <button
@@ -260,19 +280,113 @@ export function RealCollectorModal({
           </div>
         )}
 
+        {/* Banner de Boas Práticas de Operação: Wake Lock & Manter Tela em Foco */}
+        <div className="mx-5 mt-4 p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-[#94A3B8]">
+            <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
+            <span>
+              <b>Operação Contínua:</b> Mantenha a aba aberta e o smartphone no suporte do painel.
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-[11px] font-mono">
+            {isWakeLocked ? (
+              <span className="bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 px-2 py-0.5 rounded flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Wake Lock Ativo (Tela não apaga)
+              </span>
+            ) : wakeLockSupported ? (
+              <span className="text-[#94A3B8] bg-[#101B3A] border border-[#1A2A5A] px-2 py-0.5 rounded">
+                Wake Lock Standby
+              </span>
+            ) : (
+              <span className="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/30 px-2 py-0.5 rounded">
+                Sem Wake Lock nativo (mantenha em foco)
+              </span>
+            )}
+
+            <span className="bg-[#3B82F6]/15 text-[#60A5FA] border border-[#3B82F6]/30 px-2 py-0.5 rounded flex items-center gap-1">
+              <Radio className="w-3 h-3 animate-pulse" />
+              {samplingRateHz} Hz
+            </span>
+          </div>
+        </div>
+
         {/* Body */}
-        <div className="p-5 space-y-5 max-h-[72vh] overflow-y-auto">
+        <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+          {/* Resumo da Sessão (Exibido imediatamente ao Parar a Coleta) */}
+          {sessionSummary && status === 'stopped' && (
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#101B3A] to-[#0A1128] border-2 border-[#10B981] space-y-3 animate-in fade-in">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
+                <div className="flex items-center gap-2">
+                  <FileCheck2 className="w-5 h-5 text-[#10B981]" />
+                  <h3 className="text-sm font-bold text-[#F8FAFC]">
+                    Resumo da Sessão de Coleta Concluída
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-bold">
+                  Persistido na Borda
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Duração</span>
+                  <span className="font-mono font-bold text-sm text-[#F8FAFC]">
+                    {formatTime(sessionSummary.durationMs)}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Distância Estimada</span>
+                  <span className="font-mono font-bold text-sm text-[#60A5FA]">
+                    {sessionSummary.distanceMeters >= 1000
+                      ? `${(sessionSummary.distanceMeters / 1000).toFixed(2)} km`
+                      : `${sessionSummary.distanceMeters} m`}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Janelas Processadas</span>
+                  <span className="font-mono font-bold text-sm text-[#F8FAFC]">
+                    {sessionSummary.windowsProcessed}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Picos Detectados</span>
+                  <span className="font-mono font-bold text-sm text-[#EF4444]">
+                    {sessionSummary.impactsDetected}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Segmentos Cobertos</span>
+                  <span className="font-mono font-bold text-sm text-[#10B981]">
+                    {sessionSummary.segmentsCovered.length}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1 text-xs text-[#94A3B8]">
+                <span>
+                  Segmentos auditados contaram <b>+1 passagem</b> para o cálculo do{' '}
+                  <b>Fator de Confiança F</b> (meta ≥ 3 veículos distintos).
+                </span>
+                <span className="font-mono text-[11px] text-[#CBD5E1]">
+                  IRI da Sessão: <b>{sessionSummary.averageIri} m/km</b> • Pico:{' '}
+                  <b>{sessionSummary.peakG.toFixed(2)}g</b>
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Real-time Display Console */}
           <div className="p-4 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1A2A5A]">
               <div className="flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-[#3B82F6]" />
                 <span className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                  Telemetria Eixo Z (Vertical)
+                  Telemetria Eixo Z & Atitude Angular
                 </span>
               </div>
               <div className="flex items-center gap-2 text-xs">
-                {/* Calibration or active indicator */}
                 {isCalibrating && (
                   <span className="bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40 px-2.5 py-0.5 rounded-md font-mono text-[11px] animate-pulse">
                     Calibrando Linha de Base (3s)... Mantenha o aparelho em repouso
@@ -288,30 +402,42 @@ export function RealCollectorModal({
                   <span className="text-[#94A3B8] text-[11px] font-mono">Pronto para iniciar</span>
                 )}
                 {status === 'stopped' && (
-                  <span className="text-[#3B82F6] text-[11px] font-mono">Sessão Concluída</span>
+                  <span className="text-[#3B82F6] text-[11px] font-mono">Sessão Finalizada</span>
                 )}
               </div>
             </div>
 
             {/* Big Numbers & Sparkline */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              {/* Big Z Readout */}
-              <div className="sm:col-span-5 p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-center">
+              {/* Big Z Readout + Angular Rates */}
+              <div className="sm:col-span-5 p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-center space-y-2">
                 <span className="text-[10px] text-[#94A3B8] uppercase block tracking-wider font-semibold">
                   Aceleração Vertical Instantânea
                 </span>
-                <div className="text-4xl sm:text-5xl font-black font-mono tracking-tight tabular-nums text-[#F8FAFC] my-1">
+                <div className="text-4xl sm:text-5xl font-black font-mono tracking-tight tabular-nums text-[#F8FAFC]">
                   {currentZ > 0 ? `+${currentZ.toFixed(2)}` : currentZ.toFixed(2)}
                   <span className="text-base font-bold text-[#3B82F6] ml-1">g</span>
                 </div>
                 <div className="flex items-center justify-center gap-3 text-[10px] font-mono text-[#94A3B8]">
                   <span>
-                    Pico Sessão: <b className="text-[#10B981]">{peakSessionG.toFixed(2)}g</b>
+                    Pico: <b className="text-[#10B981]">{peakSessionG.toFixed(2)}g</b>
                   </span>
                   <span>•</span>
                   <span>
                     Limiar: <b className="text-[#FBBF24]">{thresholdG.toFixed(1)}g</b>
                   </span>
+                </div>
+
+                {/* Roll & Pitch rates */}
+                <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#1A2A5A]/60 text-[10px] font-mono">
+                  <div className="bg-[#070D1F] p-1.5 rounded border border-[#1A2A5A]">
+                    <span className="text-[#94A3B8] block text-[9px]">Giro Pitch</span>
+                    <span className="text-[#CBD5E1] font-bold">{currentPitch}°/s</span>
+                  </div>
+                  <div className="bg-[#070D1F] p-1.5 rounded border border-[#1A2A5A]">
+                    <span className="text-[#94A3B8] block text-[9px]">Giro Roll</span>
+                    <span className="text-[#CBD5E1] font-bold">{currentRoll}°/s</span>
+                  </div>
                 </div>
               </div>
 
@@ -324,7 +450,6 @@ export function RealCollectorModal({
                     <span className="font-mono text-[9px]">Sensibilidade: ±{maxZ.toFixed(1)}g</span>
                   </div>
                   <div className="h-12 w-full flex items-center justify-center bg-[#070D1F] rounded-lg px-2 overflow-hidden relative">
-                    {/* Threshold dotted line */}
                     <div
                       className="absolute inset-x-0 border-t border-[#EF4444]/40 border-dashed pointer-events-none"
                       style={{
@@ -357,7 +482,7 @@ export function RealCollectorModal({
                 </div>
 
                 {/* Session mini pills */}
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="grid grid-cols-4 gap-2 text-center text-xs">
                   <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
                     <span className="text-[9px] text-[#94A3B8] block">Duração</span>
                     <span className="font-mono font-bold text-[#F8FAFC] flex items-center justify-center gap-1">
@@ -366,23 +491,29 @@ export function RealCollectorModal({
                     </span>
                   </div>
                   <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                    <span className="text-[9px] text-[#94A3B8] block">Anomalias</span>
+                    <span className="text-[9px] text-[#94A3B8] block">Impactos Z</span>
                     <span className="font-mono font-bold text-[#EF4444]">{anomalies.length}</span>
                   </div>
                   <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
+                    <span className="text-[9px] text-[#94A3B8] block">RMS Borda</span>
+                    <span className="font-mono font-bold text-[#60A5FA]">
+                      {latestWindowMetrics?.rmsVerticalG ?? 0.12}g
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
                     <span className="text-[9px] text-[#94A3B8] block">IRI Estimado</span>
-                    <span className="font-mono font-bold text-[#10B981]">{calculatedIRI} m/km</span>
+                    <span className="font-mono font-bold text-[#10B981]">{calculatedIRI}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* NEW: Painel Espectro FFT em Tempo Real (SDK Edge 1-20 Hz) */}
+            {/* Painel Espectro FFT em Tempo Real (SDK Edge 1-20 Hz) */}
             <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
-                    FFT Embarcada (SDK Edge)
+                    FFT Embarcada na Borda
                   </span>
                   <span className="text-xs font-bold text-[#F8FAFC]">
                     Espectro de Frequência Eixo Z (0–25 Hz)
@@ -411,13 +542,11 @@ export function RealCollectorModal({
 
               {/* Graphic visualizer: Bar spectrum */}
               <div className="h-20 w-full bg-[#070D1F] rounded-lg p-2 flex items-end gap-1 overflow-hidden border border-[#1A2A5A]/60 relative">
-                {/* Visual target band overlay */}
                 <div className="absolute top-1 left-2 text-[9px] font-mono text-[#10B981] flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                  Banda Relevante 1–20 Hz (Vibração Mecânica Veicular / Asfalto)
+                  Banda Relevante 1–20 Hz (Vibração Mecânica Veicular / Defeitos do Asfalto)
                 </div>
 
-                {/* Bars */}
                 {spectrumAnalysis?.bins && spectrumAnalysis.bins.length > 0
                   ? spectrumAnalysis.bins.map((bin, i) => (
                       <div
@@ -436,9 +565,8 @@ export function RealCollectorModal({
                         />
                       </div>
                     ))
-                  : // Placeholder spectrum visualizer while idle
-                    Array.from({ length: 20 }).map((_, i) => {
-                      const freq = (i + 1) * 1.2
+                  : Array.from({ length: 24 }).map((_, i) => {
+                      const freq = (i + 1) * 1.05
                       const isTarget = freq >= 1 && freq <= 20
                       const simulatedHeight = isCollecting
                         ? Math.sin(i * 0.4) * 35 + 45
@@ -460,46 +588,69 @@ export function RealCollectorModal({
               </div>
 
               <div className="flex items-center justify-between text-[10px] text-[#94A3B8] font-mono">
-                <span>0 Hz (DC)</span>
-                <span className="text-[#10B981]">Banda 1–20 Hz • Filtro Hanning</span>
+                <span>0 Hz (Componente DC removida)</span>
+                <span className="text-[#10B981]">
+                  Janelamento Hanning • Filtro de Borda 1–20 Hz
+                </span>
                 <span>25 Hz (Nyquist @ 50Hz)</span>
               </div>
             </div>
 
-            {/* GPS & Location Status Banner */}
-            <div className="p-2.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#3B82F6]" />
-                <span className="text-[#94A3B8]">Posição:</span>
-                <span className="font-mono text-[#F8FAFC]">
-                  {currentCoords.latitude.toFixed(4)}, {currentCoords.longitude.toFixed(4)}
-                </span>
-                {currentCoords.isApprox ? (
-                  <span className="text-[9px] font-mono bg-[#F59E0B]/20 text-[#F59E0B] px-1.5 py-0.5 rounded border border-[#F59E0B]/40">
-                    Aproximada (Curitiba)
+            {/* Segmento de 100m Associado & Localização */}
+            <div className="p-3 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] space-y-2 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span className="text-[#94A3B8]">Segmento de 100m:</span>
+                  <span className="font-mono font-bold text-[#F8FAFC] bg-[#070D1F] px-2 py-0.5 rounded border border-[#1A2A5A]">
+                    {currentSegmentId}
                   </span>
-                ) : (
-                  <span className="text-[9px] font-mono bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded border border-[#10B981]/40 flex items-center gap-1">
-                    <CheckCircle2 className="w-2.5 h-2.5" />
-                    GPS Ativo{' '}
-                    {currentCoords.accuracy ? `(±${Math.round(currentCoords.accuracy)}m)` : ''}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono bg-[#3B82F6]/15 text-[#60A5FA] px-2 py-0.5 rounded border border-[#3B82F6]/30">
+                    {processedWindows.length} janelas agregadas
                   </span>
-                )}
+                  <span className="text-[10px] font-mono bg-[#10B981]/15 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/30">
+                    Fator Confiança: +1 Passagem
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {speedKmh !== undefined && (
-                  <span className="text-[#94A3B8] font-mono text-[11px]">
-                    Vel.: <b className="text-[#60A5FA]">{speedKmh} km/h</b>
+              {/* Coordenadas e Velocidade */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#1A2A5A]/60 text-[11px]">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-[#3B82F6]" />
+                  <span className="font-mono text-[#CBD5E1]">
+                    {currentCoords.latitude.toFixed(4)}, {currentCoords.longitude.toFixed(4)}
                   </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setShowManualLocation(!showManualLocation)}
-                  className="text-[11px] text-[#3B82F6] hover:text-[#60A5FA] underline font-medium"
-                >
-                  {showManualLocation ? 'Ocultar ajuste' : 'Ajustar no mapa'}
-                </button>
+                  {currentCoords.isApprox ? (
+                    <span className="text-[9px] font-mono bg-[#F59E0B]/20 text-[#F59E0B] px-1.5 py-0.5 rounded">
+                      Localização Aproximada (Curitiba)
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-mono bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      GPS Ativo{' '}
+                      {currentCoords.accuracy ? `(±${Math.round(currentCoords.accuracy)}m)` : ''}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {speedKmh !== undefined && (
+                    <span className="text-[#94A3B8] font-mono">
+                      Velocidade: <b className="text-[#60A5FA]">{speedKmh} km/h</b>
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowManualLocation(!showManualLocation)}
+                    className="text-[#3B82F6] hover:text-[#60A5FA] underline font-medium"
+                  >
+                    {showManualLocation ? 'Ocultar ajuste' : 'Ajustar no mapa'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -551,7 +702,7 @@ export function RealCollectorModal({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5 text-[#3B82F6]" />
-                Metadados da Coleta & Frota
+                Metadados da Coleta & Frota Pública
               </span>
               <span className="text-[10px] text-[#94A3B8]">Gravados no evento auditável</span>
             </div>
@@ -620,11 +771,11 @@ export function RealCollectorModal({
               <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
                 <div>
                   <h4 className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-[#EF4444]" />
-                    Anomalias Detectadas pelo Acelerômetro ({anomalies.length})
+                    <Activity className="w-3.5 h-3.5 text-[#EF4444]" />
+                    Anomalias Pontuais de Alto Impacto ({anomalies.length})
                   </h4>
                   <span className="text-[10px] text-[#94A3B8]">
-                    Registros inerciais que ultrapassaram {thresholdG}g
+                    Eventos inerciais que ultrapassaram o limiar de {thresholdG}g
                   </span>
                 </div>
 
@@ -675,8 +826,7 @@ export function RealCollectorModal({
                         <span className="text-[10px] text-[#94A3B8] block">
                           {new Date(anom.timestamp).toLocaleTimeString()} • Lat:{' '}
                           {anom.latitude.toFixed(4)}, Long: {anom.longitude.toFixed(4)}
-                          {anom.spectralSignature &&
-                            ` • Assinatura: ${anom.spectralSignature.replace(/_/g, ' ')}`}
+                          {anom.segmentoId && ` • ${anom.segmentoId}`}
                         </span>
                       </div>
 
@@ -703,15 +853,15 @@ export function RealCollectorModal({
             </div>
           )}
 
-          {/* Quick instructions / Institutional notes */}
+          {/* LGPD & Proteção de Dados Note */}
           <div className="p-3 rounded-xl bg-[#101B3A]/40 border border-[#1A2A5A]/60 flex items-start gap-2.5 text-[11px] text-[#94A3B8]">
             <Info className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />
             <div className="leading-relaxed">
-              <span className="text-[#F8FAFC] font-semibold">Como funciona a calibração: </span>
-              Ao clicar em <i>Iniciar Coleta Real</i>, mantenha o smartphone imóvel sobre uma
-              superfície ou suporte do painel por 3 segundos. O sistema calcula a baseline de
-              gravidade (1g = 9.8 m/s²) e zera o deslocamento. Quando o veículo passa por um buraco
-              ou ondulação, o acelerômetro detecta a sobre-aceleração instantânea.
+              <span className="text-[#F8FAFC] font-semibold">Garantia LGPD & Zero CAPEX: </span>
+              A telemetria inercial passiva opera{' '}
+              <b>sem câmeras, sem imagens e sem captura de placas</b>. Os dados gravados são
+              puramente físicos e agregados por janela e segmento de 100m, preservando integralmente
+              a privacidade de terceiros e dos operadores da frota pública.
             </div>
           </div>
         </div>

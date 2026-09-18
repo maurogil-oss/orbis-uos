@@ -263,16 +263,16 @@ export default function Cockpit() {
               Atualizar
             </button>
 
-            {/* NEW: Coleta Real (DeviceMotion) Button */}
+            {/* Coleta de Campo Real (DeviceMotion + FFT na Borda) */}
             <button
               type="button"
               onClick={() => setShowRealCollectorModal(true)}
               className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md shadow-[#10B981]/25 flex items-center gap-2 transition-all active:scale-95"
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Ativar Coleta Real</span>
+              <span>Coleta de Campo Real</span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-black/25 text-[#A7F3D0]">
-                Acelerômetro
+                FFT na Borda
               </span>
             </button>
 

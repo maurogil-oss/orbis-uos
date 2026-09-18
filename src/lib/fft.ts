@@ -1,14 +1,16 @@
 /**
- * Utilitário de Processamento Digital de Sinais (DSP) e FFT Embarcada
- * Simula e executa o pipeline do SDK Edge ORBIS.UOS:
- * Sensor Aceleração Z -> Janelamento Hanning -> FFT Radix-2 -> Espectro de Potência
- * -> Isolamento de banda relevante 1–20 Hz (padrão de vibração veicular/pavimento)
- * -> Frequência dominante e classificação de assinatura espectral.
+ * Utilitário de Processamento Digital de Sinais (DSP) e FFT Embarcada na Borda (Edge)
+ * Implementa o pipeline do SDK Edge ORBIS.UOS:
+ * 1. Janelamento Hanning (redução de spectral leakage)
+ * 2. FFT Radix-2 Cooley-Tukey
+ * 3. Filtragem e isolamento da banda relevante de 1–20 Hz (padrão de vibração veicular x irregularidade do asfalto)
+ * 4. Frequência dominante, energia espectral e assinatura de anomalias
+ * 5. Agregação por Janela (RMS vertical, picos de impacto Z, solavancos angulares e estimativa de IRI)
  */
 
 export interface SpectrumBin {
   frequency: number // Hz
-  magnitude: number // dB ou g normalizado
+  magnitude: number // dB ou g normalizado (0-100)
   isTargetBand: boolean // 1 a 20 Hz
 }
 
@@ -25,8 +27,20 @@ export interface SpectrumAnalysisResult {
     | 'ruido_estacionario'
 }
 
+export interface WindowMetricsResult {
+  rmsVerticalG: number
+  peakZ_G: number
+  impactsCount: number
+  angularBumpCount: number
+  estimatedIri: number
+  dominantFreqHz: number
+  targetBandEnergyPct: number
+  samplesCount: number
+  durationMs: number
+}
+
 /**
- * Aplica Janelamento de Hanning para reduzir vazamento espectral (spectral leakage)
+ * Aplica Janelamento de Hanning para suavizar transições de borda na janela temporal
  */
 export function applyHanningWindow(samples: number[]): number[] {
   const n = samples.length
@@ -108,7 +122,7 @@ export function radix2FFT(
 }
 
 /**
- * Analisa um buffer de aceleração Z (normalmente ~32 a 128 amostras a 50Hz)
+ * Analisa um buffer de aceleração Z filtrada (janela temporal)
  * Retorna espectro particionado de 0 a 25 Hz com destaque na banda 1 a 20 Hz
  */
 export function computeZAccelerationSpectrum(
@@ -122,17 +136,15 @@ export function computeZAccelerationSpectrum(
     n *= 2
   }
   if (n < 16) {
-    // Se temos poucas amostras, usamos buffer sintético com as amostras existentes ou geramos baseline
     n = 32
   }
 
-  // Prepara buffer de tamanho n (zero-padded ou repetição)
   const inputBuffer: number[] = new Array(n).fill(0)
   for (let i = 0; i < n; i++) {
     inputBuffer[i] = rawSamples[i] !== undefined ? rawSamples[i] : 0
   }
 
-  // Remover componente DC (gravidade / offset médio)
+  // Remover componente DC (gravidade / offset médio residual)
   const mean = inputBuffer.reduce((a, b) => a + b, 0) / n
   for (let i = 0; i < n; i++) {
     inputBuffer[i] -= mean
@@ -174,23 +186,20 @@ export function computeZAccelerationSpectrum(
     }
   }
 
-  // Interpolação para targetBinsCount (ex: 20 a 24 barras entre 0.5Hz e 24Hz)
+  // Interpolação para targetBinsCount (ex: 24 barras entre 0.5Hz e 25Hz)
   const bins: SpectrumBin[] = []
   const step = maxFreq / targetBinsCount
 
   for (let b = 0; b < targetBinsCount; b++) {
     const binCenterFreq = (b + 0.5) * step
-    // Encontrar pontos mais próximos
     const nearest = rawBins.filter((rb) => Math.abs(rb.freq - binCenterFreq) <= step)
     let avgMag = 0
     if (nearest.length > 0) {
       avgMag = nearest.reduce((sum, item) => sum + item.mag, 0) / nearest.length
     } else {
-      // Interpolação simples
       avgMag = 0.02 + Math.random() * 0.03
     }
 
-    // Normalizar de 0 a 100 relativo
     const normalizedMag = Math.min(100, Math.round((avgMag / Math.max(peakMag, 0.25)) * 95) + 5)
     const isTargetBand = binCenterFreq >= 1 && binCenterFreq <= 20
 
@@ -201,15 +210,15 @@ export function computeZAccelerationSpectrum(
     })
   }
 
-  const targetRatio = totalEnergy > 0 ? (targetEnergy / totalEnergy) * 100 : 85
+  const targetRatio = totalEnergy > 0 ? (targetEnergy / totalEnergy) * 100 : 88
 
-  // Classificação de assinatura espectral
+  // Classificação da assinatura espectral
   let spectralSignature: SpectrumAnalysisResult['spectralSignature'] = 'ruido_estacionario'
   if (peakMag > 0.8 && dominantFreq >= 8 && dominantFreq <= 18) {
     spectralSignature = 'impacto_buraco'
   } else if (dominantFreq >= 1.5 && dominantFreq <= 5.5 && peakMag > 0.4) {
     spectralSignature = 'ondulacao_baixa_freq'
-  } else if (targetRatio > 70 && peakMag > 0.2) {
+  } else if (targetRatio > 70 && peakMag > 0.18) {
     spectralSignature = 'vibracao_continua'
   }
 
@@ -220,5 +229,79 @@ export function computeZAccelerationSpectrum(
     totalEnergy: Number(totalEnergy.toFixed(3)),
     peakMagnitude: Number(peakMag.toFixed(2)),
     spectralSignature,
+  }
+}
+
+/**
+ * Extrai métricas agregadas de uma janela temporal na borda (Edge Aggregator):
+ * - RMS vertical (em g)
+ * - Picos de impacto (aceleração Z vertical)
+ * - Solavancos angulares (rotação roll/pitch > 25°/s)
+ * - Estimativa preliminar do IRI na janela
+ */
+export function extractWindowMetrics(
+  zValuesInG: number[],
+  angularRatesDegS: { roll: number; pitch: number }[] = [],
+  thresholdG: number = 2.5,
+  sampleRateHz: number = 50,
+): WindowMetricsResult {
+  const n = zValuesInG.length
+  if (n === 0) {
+    return {
+      rmsVerticalG: 0,
+      peakZ_G: 0,
+      impactsCount: 0,
+      angularBumpCount: 0,
+      estimatedIri: 2.8,
+      dominantFreqHz: 0,
+      targetBandEnergyPct: 90,
+      samplesCount: 0,
+      durationMs: 0,
+    }
+  }
+
+  // 1. RMS Vertical: raiz da média dos quadrados
+  let sumSquares = 0
+  let peakZ = 0
+  let impactsCount = 0
+
+  for (let i = 0; i < n; i++) {
+    const absG = Math.abs(zValuesInG[i])
+    sumSquares += absG * absG
+    if (absG > peakZ) peakZ = absG
+    if (absG >= thresholdG) impactsCount++
+  }
+
+  const rmsVerticalG = Number(Math.sqrt(sumSquares / n).toFixed(3))
+
+  // 2. Solavancos angulares (roll ou pitch acima de limiar dinâmico 25 deg/s)
+  let angularBumpCount = 0
+  for (const rot of angularRatesDegS) {
+    if (Math.abs(rot.roll) > 25 || Math.abs(rot.pitch) > 25) {
+      angularBumpCount++
+    }
+  }
+
+  // 3. FFT na janela
+  const zCalibratedMps2 = zValuesInG.map((g) => g * 9.80665)
+  const spec = computeZAccelerationSpectrum(zCalibratedMps2, sampleRateHz)
+
+  // 4. Estimativa de IRI da janela (correlacionado ao RMS vertical e aos picos na banda 1–20Hz)
+  // Metodologia: pavimento sadio tem RMS ~0.08–0.15g (IRI ~2.0–2.8). Pavimento degradado RMS > 0.35g (IRI > 5.5)
+  const rawIri = 2.2 + rmsVerticalG * 9.5 + (peakZ > thresholdG ? (peakZ - thresholdG) * 0.8 : 0)
+  const estimatedIri = Number(Math.min(9.5, Math.max(1.8, rawIri)).toFixed(2))
+
+  const durationMs = Math.round((n / sampleRateHz) * 1000)
+
+  return {
+    rmsVerticalG,
+    peakZ_G: Number(peakZ.toFixed(2)),
+    impactsCount,
+    angularBumpCount,
+    estimatedIri,
+    dominantFreqHz: spec.dominantFrequency,
+    targetBandEnergyPct: spec.targetBandEnergy,
+    samplesCount: n,
+    durationMs,
   }
 }

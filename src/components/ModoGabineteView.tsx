@@ -23,6 +23,7 @@ import {
   ImmCitySummary,
   RoadSegmentTelemetry,
 } from '@/lib/diagnostics/immEngine'
+import { listRoadSegments, RoadSegmentRecord } from '@/services/roadSegments'
 import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
 import { InstitucionalSettingsRecord } from '@/services/institucionalSettings'
 import { Onda2CockpitCard } from '@/components/Onda2CockpitCard'
@@ -53,7 +54,20 @@ export function ModoGabineteView({
   const blindedCtbBalance = 4280000 // R$ 4,28M
   const livesSavedEstimated = 18 // Heurística de acidentes severos evitados por correção antecipada
 
-  // 2. Cálculo do Motor do IMM Físico baseado nos eventos de telemetria
+  // 2. Estado dos segmentos de 100m com Fator de Confiança
+  const [dbSegments, setDbSegments] = useState<RoadSegmentRecord[]>([])
+
+  useEffect(() => {
+    listRoadSegments('4106902')
+      .then((records) => {
+        if (records.length > 0) {
+          setDbSegments(records)
+        }
+      })
+      .catch((err) => console.warn('Erro ao carregar road_segments no gabinete:', err))
+  }, [])
+
+  // Cálculo do Motor do IMM Físico baseado nos eventos e segmentos reais
   const [immSummary, setImmSummary] = useState<ImmCitySummary>(() => {
     // Mapear eventos existentes para segmentos de 100m
     const segments: RoadSegmentTelemetry[] = roadEvents.map((ev, idx) => ({
@@ -76,6 +90,52 @@ export function ModoGabineteView({
     }))
     return calculateCityImmSummary(segments)
   })
+
+  // Recalcular quando novos roadEvents ou dbSegments chegarem
+  useEffect(() => {
+    if (dbSegments.length > 0) {
+      const liveSegments: RoadSegmentTelemetry[] = dbSegments.map((s) => ({
+        id: s.segmento_id,
+        via: s.via,
+        bairro: s.bairro,
+        extensao_metros: s.extensao_metros || 100,
+        tipo_via: s.tipo_via || 'arterial',
+        passagens_veiculos_distintos: s.passagens_veiculos_distintos || 1,
+        iri_estimado: s.iri_estimado || 3.5,
+        anomalias_detectadas: {
+          trincas_iniciais: s.total_impactos > 2 ? 2 : 1,
+          buracos_medios: s.pico_max_z > 2.5 ? 1 : 0,
+          crateras_severas: s.pico_max_z > 3.8 ? 1 : 0,
+          max_acel_z_g: s.pico_max_z || 2.0,
+        },
+        frenagens_panico_count: s.solavancos_angulares_total > 1 ? 1 : 0,
+        risco_hidrologico_cemaden: false,
+        auditado: true,
+      }))
+      setImmSummary(calculateCityImmSummary(liveSegments))
+      return
+    }
+
+    const segments: RoadSegmentTelemetry[] = roadEvents.map((ev, idx) => ({
+      id: ev.id || `seg-${idx}`,
+      via: ev.via,
+      bairro: ev.bairro,
+      extensao_metros: 100,
+      tipo_via: ev.via.toLowerCase().includes('av') ? 'arterial' : 'coletora',
+      passagens_veiculos_distintos: idx % 3 === 0 ? 4 : 3,
+      iri_estimado: ev.iri_score || 3.8,
+      anomalias_detectadas: {
+        trincas_iniciais: ev.tipo === 'fissura' ? 2 : 0,
+        buracos_medios: ev.tipo === 'buraco' && ev.severidade === 'media' ? 1 : 0,
+        crateras_severas: ev.tipo === 'buraco' && ev.severidade === 'critica' ? 1 : 0,
+        max_acel_z_g: ev.aceleracao_z || 2.1,
+      },
+      frenagens_panico_count: ev.severidade === 'critica' ? 1 : 0,
+      risco_hidrologico_cemaden: false,
+      auditado: true,
+    }))
+    setImmSummary(calculateCityImmSummary(segments))
+  }, [roadEvents, dbSegments])
 
   // 3. Dados Federais SICONFI do município
   const [federalData, setFederalData] = useState<SiconfiFederalSummary | null>(null)

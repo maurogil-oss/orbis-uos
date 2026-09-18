@@ -1,12 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { RoadAnomalyType, RoadSeverity, CreateRoadEventPayload } from '@/services/roadEvents'
-import { computeZAccelerationSpectrum, SpectrumAnalysisResult } from '@/lib/fft'
+import {
+  computeZAccelerationSpectrum,
+  extractWindowMetrics,
+  SpectrumAnalysisResult,
+  WindowMetricsResult,
+} from '@/lib/fft'
+import {
+  computeSegmentId,
+  createSegmentReading,
+  registerSegmentPassage,
+  CreateSegmentReadingPayload,
+} from '@/services/roadSegments'
 
 export interface MotionSample {
   timestamp: number
   rawZ: number
   calibratedZ: number
   inG: number
+  rotationRoll?: number
+  rotationPitch?: number
 }
 
 export interface DetectedAnomaly {
@@ -21,17 +34,42 @@ export interface DetectedAnomaly {
   dominantFreq?: number
   spectralSignature?: string
   persisted?: boolean
+  segmentoId?: string
+}
+
+export interface AggregatedWindowData {
+  id: string
+  timestamp: number
+  segmentoId: string
+  via: string
+  metrics: WindowMetricsResult
+  latitude: number
+  longitude: number
+  speedKmh: number
+  isPersisted: boolean
+}
+
+export interface SessionSummary {
+  durationMs: number
+  distanceMeters: number
+  windowsProcessed: number
+  impactsDetected: number
+  segmentsCovered: string[]
+  averageIri: number
+  peakG: number
 }
 
 export interface CollectorConfig {
-  thresholdG: number // Default 2.5g
-  baselineDurationMs: number // Default 3000ms
+  thresholdG: number // Padrão 2.5g
+  baselineDurationMs: number // Padrão 3000ms
   via: string
   bairro: string
   linhaFrota: string
   veiculoTipo: string
+  codigoIbge?: string
   manualLat?: number
   manualLng?: number
+  autoPersistWindows?: boolean // Salva agregados automaticamente no PocketBase
 }
 
 export type CollectorStatus = 'idle' | 'calibrating' | 'collecting' | 'paused' | 'stopped'
@@ -46,20 +84,33 @@ export type SensorSupport =
 export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) {
   const thresholdG = config.thresholdG ?? 2.5
   const baselineDurationMs = config.baselineDurationMs ?? 3000
+  const codigoIbge = config.codigoIbge ?? '4106902' // Curitiba como padrão
 
-  // State
+  // Estados principais
   const [status, setStatus] = useState<CollectorStatus>('idle')
   const [sensorSupport, setSensorSupport] = useState<SensorSupport>('checking')
   const [permissionError, setPermissionError] = useState<string | null>(null)
 
-  // Real-time telemetry readings
-  const [currentZ, setCurrentZ] = useState<number>(0) // in g
+  // Wake Lock state
+  const [isWakeLocked, setIsWakeLocked] = useState<boolean>(false)
+  const [wakeLockSupported, setWakeLockSupported] = useState<boolean>(false)
+
+  // Leituras inerciais em tempo real
+  const [currentZ, setCurrentZ] = useState<number>(0) // em g
+  const [currentRoll, setCurrentRoll] = useState<number>(0) // deg/s
+  const [currentPitch, setCurrentPitch] = useState<number>(0) // deg/s
   const [peakSessionG, setPeakSessionG] = useState<number>(0)
+  const [samplingRateHz, setSamplingRateHz] = useState<number>(50) // cadência observada
   const [recentSamples, setRecentSamples] = useState<MotionSample[]>([])
   const [spectrumAnalysis, setSpectrumAnalysis] = useState<SpectrumAnalysisResult | null>(null)
   const [anomalies, setAnomalies] = useState<DetectedAnomaly[]>([])
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null)
   const [elapsedMs, setElapsedMs] = useState<number>(0)
+
+  // Janelas agregadas de borda
+  const [processedWindows, setProcessedWindows] = useState<AggregatedWindowData[]>([])
+  const [latestWindowMetrics, setLatestWindowMetrics] = useState<WindowMetricsResult | null>(null)
+  const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null)
 
   // GPS state
   const [currentCoords, setCurrentCoords] = useState<{
@@ -76,22 +127,44 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     'pending',
   )
   const [speedKmh, setSpeedKmh] = useState<number | undefined>(undefined)
+  const [gpsTrack, setGpsTrack] = useState<{ lat: number; lng: number }[]>([])
 
-  // Internal calibration refs
+  // Segmento atual associado
+  const currentSegmentId = computeSegmentId(
+    currentCoords.latitude,
+    currentCoords.longitude,
+    codigoIbge,
+  )
+
+  // Refs internas de hardware e buffer
   const baselineSamplesRef = useRef<number[]>([])
-  const baselineOffsetRef = useRef<number>(9.80665) // baseline in m/s^2 (typically gravity ~9.8)
+  const baselineOffsetRef = useRef<number>(9.80665) // linha de base m/s²
   const isCalibratingRef = useRef<boolean>(false)
   const calibrationStartRef = useRef<number>(0)
   const lastEventTimeRef = useRef<number>(0)
   const watchIdRef = useRef<number | null>(null)
+  const wakeLockSentinelRef = useRef<any>(null)
   const coordsRef = useRef(currentCoords)
   coordsRef.current = currentCoords
+  const speedRef = useRef(speedKmh)
+  speedRef.current = speedKmh
 
-  // Check support on mount
+  // Amostragem e janelamento (Edge Windowing)
+  const sampleTimestampsRef = useRef<number[]>([])
+  const windowZBufferRef = useRef<number[]>([])
+  const windowAngularBufferRef = useRef<{ roll: number; pitch: number }[]>([])
+  const lastWindowFlushRef = useRef<number>(Date.now())
+
+  // Checagem de suporte de sensores e WakeLock no mount
   useEffect(() => {
     if (typeof window === 'undefined') {
       setSensorSupport('unsupported')
       return
+    }
+
+    // Wake Lock check
+    if ('wakeLock' in navigator) {
+      setWakeLockSupported(true)
     }
 
     const hasMotion = 'DeviceMotionEvent' in window
@@ -100,7 +173,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       return
     }
 
-    // Check if iOS 13+ permission is required
+    // iOS 13+ requer permissão explícita
     const motionEvent = window.DeviceMotionEvent as unknown as {
       requestPermission?: () => Promise<'granted' | 'denied'>
     }
@@ -112,7 +185,36 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     }
   }, [])
 
-  // Timer for elapsed session duration
+  // Wake Lock acquirer & releaser
+  const requestWakeLock = useCallback(async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        const sentinel = await (navigator as any).wakeLock.request('screen')
+        wakeLockSentinelRef.current = sentinel
+        setIsWakeLocked(true)
+        sentinel.addEventListener('release', () => {
+          setIsWakeLocked(false)
+        })
+      } catch (err) {
+        console.warn('Wake Lock não disponível ou negado:', err)
+        setIsWakeLocked(false)
+      }
+    }
+  }, [])
+
+  const releaseWakeLock = useCallback(() => {
+    if (wakeLockSentinelRef.current) {
+      try {
+        wakeLockSentinelRef.current.release()
+      } catch {
+        /* intentionally ignored */
+      }
+      wakeLockSentinelRef.current = null
+      setIsWakeLocked(false)
+    }
+  }, [])
+
+  // Timer para duração de sessão
   useEffect(() => {
     let interval: any
     if (status === 'collecting' || status === 'calibrating') {
@@ -125,7 +227,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     return () => clearInterval(interval)
   }, [status, sessionStartTime])
 
-  // Derive RoadSeverity from peak g
+  // Severidade derivada da aceleração de pico em Z
   const deriveSeverity = useCallback((g: number): RoadSeverity => {
     const absG = Math.abs(g)
     if (absG >= 4.0) return 'critica'
@@ -134,7 +236,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     return 'baixa'
   }, [])
 
-  // Derive Anomaly Type from impact characteristics
+  // Tipo de anomalia derivado
   const deriveAnomalyType = useCallback((g: number): RoadAnomalyType => {
     const absG = Math.abs(g)
     if (absG >= 4.0) return 'buraco'
@@ -143,21 +245,121 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     return 'fissura'
   }, [])
 
-  // Approximate IRI score derived from session frequency & peaks
+  // IRI aproximado da sessão inteira
   const calculatedIRI = (() => {
-    if (anomalies.length === 0) return 2.8
+    if (anomalies.length === 0) return 2.6
     const count = anomalies.length
     const avgPeak = anomalies.reduce((sum, a) => sum + Math.abs(a.peakG), 0) / count
-    // Heuristic: baseline 2.8 + (avgPeak * 0.9) + (frequency factor)
     const base = 2.4 + avgPeak * 0.75 + Math.min(count * 0.35, 3.5)
-    return Math.min(Math.max(Number(base.toFixed(1)), 2.5), 8.5)
+    return Math.min(Math.max(Number(base.toFixed(1)), 2.2), 8.8)
   })()
 
-  // Handle DeviceMotion event
+  // Processamento e fechamento de Janela de Borda (Edge Window Flush a cada ~2.5 segundos ou ~100m)
+  const flushEdgeWindow = useCallback(
+    async (currentSegment: string, viaName: string, bairroName: string, veiculoId: string) => {
+      const zBuffer = [...windowZBufferRef.current]
+      const angBuffer = [...windowAngularBufferRef.current]
+      windowZBufferRef.current = []
+      windowAngularBufferRef.current = []
+      lastWindowFlushRef.current = Date.now()
+
+      if (zBuffer.length < 8) return
+
+      const metrics = extractWindowMetrics(zBuffer, angBuffer, thresholdG, samplingRateHz)
+      setLatestWindowMetrics(metrics)
+
+      const coords = coordsRef.current
+      const currentSpeed = speedRef.current ?? 36
+
+      const windowData: AggregatedWindowData = {
+        id: `win-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        timestamp: Date.now(),
+        segmentoId: currentSegment,
+        via: viaName,
+        metrics,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        speedKmh: currentSpeed,
+        isPersisted: false,
+      }
+
+      // Adicionar à lista de janelas processadas na sessão
+      setProcessedWindows((prev) => [windowData, ...prev])
+
+      // Se auto-persistência estiver ativa, gravar leitura agregada e registrar passagem no segmento
+      if (config.autoPersistWindows !== false) {
+        try {
+          const payload: CreateSegmentReadingPayload = {
+            segmento_id: currentSegment,
+            codigo_ibge: codigoIbge,
+            via: viaName,
+            bairro: bairroName,
+            veiculo_id: veiculoId,
+            veiculo_tipo: config.veiculoTipo || 'Smartphone Embarcado',
+            rms_vertical: metrics.rmsVerticalG,
+            pico_acel_z: metrics.peakZ_G,
+            impactos_count: metrics.impactsCount,
+            solavancos_angulares: metrics.angularBumpCount,
+            iri_janela: metrics.estimatedIri,
+            velocidade_media_kmh: currentSpeed,
+            freq_dominante_hz: metrics.dominantFreqHz,
+            energia_banda_alvo_pct: metrics.targetBandEnergyPct,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            janelas_amostradas: 1,
+            duracao_janela_ms: metrics.durationMs,
+          }
+
+          // Gravar leitura agregada
+          await createSegmentReading(payload)
+          // Atualizar o Fator de Confiança do segmento de 100m
+          await registerSegmentPassage(payload)
+
+          setProcessedWindows((prev) =>
+            prev.map((w) => (w.id === windowData.id ? { ...w, isPersisted: true } : w)),
+          )
+        } catch (err) {
+          console.warn('Persistência de janela no PocketBase adiada:', err)
+        }
+      }
+    },
+    [thresholdG, samplingRateHz, config.autoPersistWindows, config.veiculoTipo, codigoIbge],
+  )
+
+  // Handler do evento DeviceMotion com aceleração e taxa de rotação
   const handleMotion = useCallback(
     (event: DeviceMotionEvent) => {
-      // Pick Z acceleration. If acceleration (without gravity) is available, use it directly.
-      // Otherwise, use accelerationIncludingGravity minus calibrated baseline.
+      const now = Date.now()
+
+      // Calcular cadência real de amostragem em Hz
+      sampleTimestampsRef.current.push(now)
+      if (sampleTimestampsRef.current.length > 30) {
+        sampleTimestampsRef.current.shift()
+        const first = sampleTimestampsRef.current[0]
+        const dt = (now - first) / 1000
+        if (dt > 0) {
+          const hz = Math.round(sampleTimestampsRef.current.length / dt)
+          if (hz > 5 && hz < 200) {
+            setSamplingRateHz(hz)
+          }
+        }
+      }
+
+      // Extrair taxa de rotação angular se disponível (gyroscope)
+      let rollDeg = 0
+      let pitchDeg = 0
+      if (event.rotationRate) {
+        rollDeg = event.rotationRate.beta || 0 // pitch / tilt forward-back
+        pitchDeg = event.rotationRate.gamma || 0 // roll / tilt side
+        setCurrentRoll(Number(rollDeg.toFixed(1)))
+        setCurrentPitch(Number(pitchDeg.toFixed(1)))
+        windowAngularBufferRef.current.push({ roll: rollDeg, pitch: pitchDeg })
+        if (windowAngularBufferRef.current.length > 256) {
+          windowAngularBufferRef.current.shift()
+        }
+      }
+
+      // Aceleração linear ou com gravidade
       let rawZ: number | null = null
       let calibratedZ = 0
       let inG = 0
@@ -168,7 +370,6 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         event.acceleration.z !== undefined
       ) {
         rawZ = event.acceleration.z
-        // Linear acceleration usually excludes gravity (0 m/s^2 at rest)
         calibratedZ = rawZ
         inG = calibratedZ / 9.80665
       } else if (
@@ -180,20 +381,16 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
         if (isCalibratingRef.current) {
           baselineSamplesRef.current.push(rawZ)
-          const now = Date.now()
           if (now - calibrationStartRef.current >= baselineDurationMs) {
-            // Finish calibration
             const sum = baselineSamplesRef.current.reduce((a, b) => a + b, 0)
             const count = baselineSamplesRef.current.length || 1
             baselineOffsetRef.current = sum / count
             isCalibratingRef.current = false
             setStatus('collecting')
           }
-          // While calibrating, baseline is still adjusting
           calibratedZ = 0
           inG = 0
         } else {
-          // Remove calibrated gravity baseline
           calibratedZ = rawZ - baselineOffsetRef.current
           inG = calibratedZ / 9.80665
         }
@@ -201,48 +398,65 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
       if (rawZ === null) return
 
-      // Round to 2 decimal places for clean UI
       const roundedG = Number(inG.toFixed(2))
       const absG = Math.abs(roundedG)
 
       setCurrentZ(roundedG)
       setPeakSessionG((prev) => Math.max(prev, absG))
 
-      const now = Date.now()
+      // Acumular no buffer da janela
+      windowZBufferRef.current.push(roundedG)
+      if (windowZBufferRef.current.length > 512) {
+        windowZBufferRef.current.shift()
+      }
+
       const sample: MotionSample = {
         timestamp: now,
         rawZ,
         calibratedZ,
         inG: roundedG,
+        rotationRoll: rollDeg,
+        rotationPitch: pitchDeg,
       }
 
       setRecentSamples((prev) => {
         const next = [...prev, sample]
-        // Keep last 64 samples for FFT windowing and sparkline
         const trimmed = next.length > 64 ? next.slice(-64) : next
 
-        // Executar FFT em janelas a cada poucas amostras (~10Hz de atualização visual)
+        // FFT em tempo real a cada 3 amostras (~16Hz visual)
         if (trimmed.length >= 16 && trimmed.length % 3 === 0) {
           const zValues = trimmed.map((s) => s.calibratedZ)
-          const spec = computeZAccelerationSpectrum(zValues, 50, 20)
+          const spec = computeZAccelerationSpectrum(zValues, samplingRateHz, 24)
           setSpectrumAnalysis(spec)
         }
 
         return trimmed
       })
 
-      // If in collecting status and peak exceeds threshold, trigger anomaly detection
-      // Throttle detections by at least 1200ms to avoid duplicate counting of single bump
+      // Flushing de janela a cada 2.5 segundos em modo de coleta ativa
+      if (!isCalibratingRef.current && now - lastWindowFlushRef.current >= 2500) {
+        const segId = computeSegmentId(
+          coordsRef.current.latitude,
+          coordsRef.current.longitude,
+          codigoIbge,
+        )
+        const viaStr = config.via || 'Via Municipal Monitorada'
+        const bairroStr = config.bairro || 'Centro'
+        const veicStr = config.veiculoTipo || 'Smartphone Frota 1'
+        flushEdgeWindow(segId, viaStr, bairroStr, veicStr)
+      }
+
+      // Detecção de impacto pontual acima do limiar
       if (!isCalibratingRef.current && absG >= thresholdG) {
         if (now - lastEventTimeRef.current > 1200) {
           lastEventTimeRef.current = now
           const severity = deriveSeverity(absG)
           const tipo = deriveAnomalyType(absG)
           const coords = coordsRef.current
+          const segId = computeSegmentId(coords.latitude, coords.longitude, codigoIbge)
 
-          // Calcular assinatura espectral rápida para o impacto
           const recentZ = [absG, absG * 0.8, absG * 0.5, 0.2, 0.1]
-          const quickSpec = computeZAccelerationSpectrum(recentZ, 50, 16)
+          const quickSpec = computeZAccelerationSpectrum(recentZ, samplingRateHz, 16)
 
           const newAnomaly: DetectedAnomaly = {
             id: `real-${now}-${Math.random().toString(36).substr(2, 5)}`,
@@ -255,16 +469,28 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             isApproxLocation: coords.isApprox,
             dominantFreq: quickSpec.dominantFrequency,
             spectralSignature: quickSpec.spectralSignature,
+            segmentoId: segId,
           }
 
           setAnomalies((prev) => [newAnomaly, ...prev])
         }
       }
     },
-    [baselineDurationMs, thresholdG, deriveSeverity, deriveAnomalyType],
+    [
+      baselineDurationMs,
+      thresholdG,
+      samplingRateHz,
+      deriveSeverity,
+      deriveAnomalyType,
+      flushEdgeWindow,
+      config.via,
+      config.bairro,
+      config.veiculoTipo,
+      codigoIbge,
+    ],
   )
 
-  // Start GPS Geolocation watching
+  // Iniciar rastreamento de GPS de baixa cadência
   const startGpsWatch = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setGpsStatus('unsupported')
@@ -285,6 +511,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
           setCurrentCoords(coords)
           coordsRef.current = coords
 
+          setGpsTrack((prev) => [...prev, { lat: coords.latitude, lng: coords.longitude }])
+
           if (pos.coords.speed !== null && pos.coords.speed !== undefined) {
             setSpeedKmh(Math.round(pos.coords.speed * 3.6))
           }
@@ -295,8 +523,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         },
         {
           enableHighAccuracy: true,
-          maximumAge: 2000,
-          timeout: 10000,
+          maximumAge: 3000,
+          timeout: 12000,
         },
       )
       watchIdRef.current = id
@@ -313,7 +541,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     }
   }, [])
 
-  // Request iOS permission if needed, then attach listener
+  // Solicitar permissão de DeviceMotion no iOS 13+
   const requestMotionPermission = useCallback(async (): Promise<boolean> => {
     setPermissionError(null)
     const motionEvent = (
@@ -349,55 +577,139 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     return true
   }, [])
 
-  // Start collection session
+  // Iniciar sessão de coleta
   const startSession = useCallback(async () => {
     const granted = await requestMotionPermission()
     if (!granted) return false
 
-    // Reset session metrics
+    // Ativar Wake Lock para prevenir tela de apagar
+    await requestWakeLock()
+
+    // Reset de métricas da sessão
     setRecentSamples([])
     setSpectrumAnalysis(null)
     setAnomalies([])
+    setProcessedWindows([])
+    setLatestWindowMetrics(null)
+    setSessionSummary(null)
     setPeakSessionG(0)
     setCurrentZ(0)
+    setGpsTrack([])
     const now = Date.now()
     setSessionStartTime(now)
     setElapsedMs(0)
 
-    // Calibration phase
+    // Reset de buffers
+    windowZBufferRef.current = []
+    windowAngularBufferRef.current = []
+    lastWindowFlushRef.current = now
+
+    // Calibração de baseline
     baselineSamplesRef.current = []
     calibrationStartRef.current = now
     isCalibratingRef.current = true
     setStatus('calibrating')
 
-    // Attach listener
+    // Conectar ouvinte
     window.addEventListener('devicemotion', handleMotion, true)
 
-    // Start GPS watch
+    // Conectar GPS
     startGpsWatch()
 
     return true
-  }, [handleMotion, requestMotionPermission, startGpsWatch])
+  }, [handleMotion, requestMotionPermission, requestWakeLock, startGpsWatch])
 
-  // Stop collection session
+  // Encerrar sessão e calcular resumo final imediato
   const stopSession = useCallback(() => {
     window.removeEventListener('devicemotion', handleMotion, true)
     stopGpsWatch()
+    releaseWakeLock()
     isCalibratingRef.current = false
     setStatus('stopped')
-  }, [handleMotion, stopGpsWatch])
 
-  // Cleanup on unmount
+    // Descarregar última janela residual
+    const segId = computeSegmentId(
+      coordsRef.current.latitude,
+      coordsRef.current.longitude,
+      codigoIbge,
+    )
+    flushEdgeWindow(
+      segId,
+      config.via || 'Via Municipal',
+      config.bairro || 'Centro',
+      config.veiculoTipo || 'Smartphone',
+    )
+
+    // Calcular distância aproximada baseada nos pontos de GPS (haversine)
+    let totalDistMeters = 0
+    if (gpsTrack.length > 1) {
+      for (let i = 1; i < gpsTrack.length; i++) {
+        const p1 = gpsTrack[i - 1]
+        const p2 = gpsTrack[i]
+        const dLat = ((p2.lat - p1.lat) * Math.PI) / 180
+        const dLng = ((p2.lng - p1.lng) * Math.PI) / 180
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((p1.lat * Math.PI) / 180) *
+            Math.cos((p2.lat * Math.PI) / 180) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2)
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        totalDistMeters += 6371000 * c
+      }
+    } else {
+      // Estimativa baseada no tempo e velocidade
+      const durationSecs = elapsedMs / 1000
+      const avgSpeed = (speedKmh || 32) / 3.6
+      totalDistMeters = Math.round(durationSecs * avgSpeed)
+    }
+
+    // Segmentos únicos cobertos
+    const segSet = new Set(processedWindows.map((w) => w.segmentoId))
+    if (currentSegmentId) segSet.add(currentSegmentId)
+
+    const summary: SessionSummary = {
+      durationMs: elapsedMs,
+      distanceMeters: Math.round(totalDistMeters),
+      windowsProcessed: processedWindows.length || 1,
+      impactsDetected: anomalies.length,
+      segmentsCovered: Array.from(segSet),
+      averageIri: calculatedIRI,
+      peakG: peakSessionG,
+    }
+
+    setSessionSummary(summary)
+  }, [
+    handleMotion,
+    stopGpsWatch,
+    releaseWakeLock,
+    flushEdgeWindow,
+    codigoIbge,
+    config.via,
+    config.bairro,
+    config.veiculoTipo,
+    gpsTrack,
+    elapsedMs,
+    speedKmh,
+    processedWindows,
+    currentSegmentId,
+    anomalies.length,
+    calculatedIRI,
+    peakSessionG,
+  ])
+
+  // Limpeza no unmount
   useEffect(() => {
     return () => {
       window.removeEventListener('devicemotion', handleMotion, true)
       if (watchIdRef.current !== null && 'geolocation' in navigator) {
         navigator.geolocation.clearWatch(watchIdRef.current)
       }
+      releaseWakeLock()
     }
-  }, [handleMotion])
+  }, [handleMotion, releaseWakeLock])
 
-  // Update manual coordinates fallback
+  // Ajuste manual de coordenadas
   const setManualLocation = useCallback((lat: number, lng: number) => {
     const coords = {
       latitude: lat,
@@ -408,7 +720,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     coordsRef.current = coords
   }, [])
 
-  // Helper to build payload ready for PocketBase road_events
+  // Helper para construir payload de evento pontual pronto para road_events
   const buildEventPayload = useCallback(
     (
       anomaly: DetectedAnomaly,
@@ -438,14 +750,23 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     status,
     sensorSupport,
     permissionError,
+    isWakeLocked,
+    wakeLockSupported,
+    samplingRateHz,
     currentZ,
+    currentRoll,
+    currentPitch,
     peakSessionG,
     recentSamples,
     spectrumAnalysis,
     anomalies,
+    processedWindows,
+    latestWindowMetrics,
+    sessionSummary,
     elapsedMs,
     calculatedIRI,
     currentCoords,
+    currentSegmentId,
     gpsStatus,
     speedKmh,
     startSession,
