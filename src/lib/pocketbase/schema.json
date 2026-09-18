@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T15:41:47.874Z",
+  "generatedAt": "2026-09-18T15:53:44.440Z",
   "collections": [
     {
       "name": "users",
@@ -686,6 +686,91 @@
         }
       ],
       "indexes": ["CREATE INDEX idx_siconfi_ibge_ano ON siconfi_cache (codigo_ibge, ano_exercicio)"]
+    },
+    {
+      "name": "institucional_settings",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "municipio",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "uf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "portal_publico_ativo",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "portal_mensagem_institucional",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cgu_api_key",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cgu_status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["chave_pendente", "ativo", "erro_chave", "indisponivel"]
+        },
+        {
+          "name": "cgu_last_sync",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cgu_cache_payload",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_institucional_ibge ON institucional_settings (codigo_ibge)"
+      ]
     }
   ]
 }

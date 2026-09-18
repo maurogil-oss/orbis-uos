@@ -45,6 +45,8 @@ import {
   EnquadramentoRecord,
 } from '@/services/enquadramento'
 import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
+import { useAuth } from '@/contexts/AuthContext'
+import { LogOut, UserCheck } from 'lucide-react'
 
 const ESTADOS_BRASIL = [
   'AC',
@@ -77,6 +79,7 @@ const ESTADOS_BRASIL = [
 ]
 
 export default function Enquadramento() {
+  const { user, logout } = useAuth()
   const [searchParams] = useSearchParams()
   const initialIbge = searchParams.get('ibge') || '4106902'
   const initialMuni = searchParams.get('muni') || 'Curitiba'
@@ -447,6 +450,29 @@ export default function Enquadramento() {
             </span>
           </div>
         </div>
+
+        {/* Identidade do Usuário Logado & Botão Sair */}
+        {user && (
+          <div className="p-3 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#10B981]/20 border border-[#10B981]/40 flex items-center justify-center text-[#10B981]">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-[#F8FAFC]">{user.name}</span>
+                <span className="text-[#94A3B8] ml-2">({user.email})</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="px-3 py-1.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A] hover:border-[#EF4444] text-[#EF4444] hover:text-[#F87171] font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sair</span>
+            </button>
+          </div>
+        )}
 
         {/* BREADCRUMB & HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">

@@ -19,8 +19,19 @@ import { CuritibaMap } from '@/components/CuritibaMap'
 import { RealCollectorModal } from '@/components/RealCollectorModal'
 import { ModoGabineteView } from '@/components/ModoGabineteView'
 import { TceDossierModal } from '@/components/TceDossierModal'
+import { InstitutionalConfigModal } from '@/components/InstitutionalConfigModal'
+import { useAuth } from '@/contexts/AuthContext'
+import {
+  getInstitucionalSettings,
+  InstitucionalSettingsRecord,
+} from '@/services/institucionalSettings'
+import { Settings, LogOut, UserCheck } from 'lucide-react'
 
 export default function Cockpit() {
+  const { user, logout } = useAuth()
+  const [institucionalSettings, setInstitucionalSettings] =
+    useState<InstitucionalSettingsRecord | null>(null)
+  const [showConfigModal, setShowConfigModal] = useState<boolean>(false)
   const [events, setEvents] = useState<RoadEventRecord[]>([])
   const [fleet, setFleet] = useState<FleetTelemetryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -51,9 +62,14 @@ export default function Cockpit() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [eventsData, fleetData] = await Promise.all([listRoadEvents(), listFleetTelemetry()])
+      const [eventsData, fleetData, settingsData] = await Promise.all([
+        listRoadEvents(),
+        listFleetTelemetry(),
+        getInstitucionalSettings('4106902'),
+      ])
       setEvents(eventsData)
       setFleet(fleetData)
+      setInstitucionalSettings(settingsData)
       if (eventsData.length > 0 && !selectedEvent) {
         setSelectedEvent(eventsData[0])
       }
@@ -161,6 +177,33 @@ export default function Cockpit() {
 
           {/* View Mode Toggle: Modo Gabinete vs Cockpit Técnico */}
           <div className="flex flex-wrap items-center gap-2.5">
+            {/* Usuário logado institucional */}
+            {user && (
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs">
+                <UserCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                <span className="font-semibold text-[#F8FAFC]">{user.name}</span>
+                <span className="text-[#94A3B8]">({user.cargo || 'Servidor'})</span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Encerrar sessão institucional"
+                  className="ml-1 text-[#EF4444] hover:text-[#F87171] p-1 rounded"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Botão de Configurações Institucionais */}
+            <button
+              type="button"
+              onClick={() => setShowConfigModal(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
+              <span>Configurações</span>
+            </button>
+
             <div className="bg-[#101B3A] p-1 rounded-xl border border-[#1A2A5A] flex items-center gap-1">
               <button
                 type="button"
@@ -237,6 +280,8 @@ export default function Cockpit() {
             roadEvents={events}
             onOpenDossier={() => setShowTceDossierModal(true)}
             onOpenTechnicalCockpit={() => setActiveTab('tecnico')}
+            onOpenConfig={() => setShowConfigModal(true)}
+            institucionalSettings={institucionalSettings}
             onSelectEvent={(ev) => {
               setSelectedEvent(ev)
               setActiveTab('tecnico')
@@ -737,6 +782,14 @@ export default function Cockpit() {
           setSelectedEvent(newEvent)
         }}
         onOpenSimulatorFallback={() => setShowSimulateModal(true)}
+      />
+
+      {/* Modal de Configurações Institucionais (Portal Cidadão & Chave CGU) */}
+      <InstitutionalConfigModal
+        isOpen={showConfigModal}
+        onClose={() => setShowConfigModal(false)}
+        settings={institucionalSettings}
+        onSettingsUpdated={(updated) => setInstitucionalSettings(updated)}
       />
     </div>
   )

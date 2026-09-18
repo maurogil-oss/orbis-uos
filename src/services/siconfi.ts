@@ -84,13 +84,30 @@ export async function getFederalDataByIbge(
     if (cachedRecords.items.length > 0) {
       const payload = cachedRecords.items[0].payload as SiconfiFederalSummary
       if (payload && payload.despesasTransporte) {
+        // Verificar se há cache institucional complementar da CGU
+        try {
+          const instSettings = await pb
+            .collection('institucional_settings')
+            .getFirstListItem(`codigo_ibge = "${cleanIbge}"`)
+          if (instSettings && instSettings.cgu_status === 'ativo') {
+            payload.portalTransparenciaStatus = 'ativo'
+            if (instSettings.cgu_cache_payload?.convenios_total) {
+              payload.cguTransferencias = {
+                conveniosQtd: instSettings.cgu_cache_payload.convenios_total,
+                valorRepassadoTotal:
+                  instSettings.cgu_cache_payload.valor_total_repassado || 18500000,
+              }
+            }
+          }
+        } catch {
+          /* intentionally ignored */
+        }
         return payload
       }
     }
   } catch (err) {
     console.warn('Cache SICONFI indisponível, consultando endpoint:', err)
   }
-
   // 2. Tentar consulta real na API pública do Tesouro Nacional (SICONFI)
   // Base: https://apidatalake.tesouro.gov.br/ords/siconfi/tt/
   try {

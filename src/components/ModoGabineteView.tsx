@@ -24,12 +24,15 @@ import {
   RoadSegmentTelemetry,
 } from '@/lib/diagnostics/immEngine'
 import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
+import { InstitucionalSettingsRecord } from '@/services/institucionalSettings'
 
 interface ModoGabineteViewProps {
   roadEvents: RoadEventRecord[]
   onOpenDossier: () => void
   onOpenTechnicalCockpit: () => void
   onSelectEvent: (event: RoadEventRecord) => void
+  onOpenConfig?: () => void
+  institucionalSettings?: InstitucionalSettingsRecord | null
   cityName?: string
   institucionalScore?: number // Score do Diagnóstico Institucional (0-100)
 }
@@ -39,6 +42,8 @@ export function ModoGabineteView({
   onOpenDossier,
   onOpenTechnicalCockpit,
   onSelectEvent,
+  onOpenConfig,
+  institucionalSettings,
   cityName = 'Curitiba / PR',
   institucionalScore = 82, // Exemplo auditado da gestão
 }: ModoGabineteViewProps) {
@@ -384,12 +389,56 @@ export function ModoGabineteView({
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
-            <span className="text-[11px] text-[#94A3B8] block">Portal da Transparência CGU</span>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-xs font-bold text-[#F59E0B]">Cadastro de Chave Pendente</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-[#94A3B8] block">Portal da Transparência CGU</span>
+              {institucionalSettings?.cgu_status === 'ativo' ? (
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 font-bold">
+                  CHAVE ATIVA
+                </span>
+              ) : null}
             </div>
+
+            {institucionalSettings?.cgu_status === 'ativo' ? (
+              <div className="space-y-1 mt-1">
+                <span className="text-xl font-bold font-mono text-[#38BDF8] block">
+                  R${' '}
+                  {institucionalSettings?.cgu_cache_payload?.valor_total_repassado
+                    ? (
+                        institucionalSettings.cgu_cache_payload.valor_total_repassado / 1000000
+                      ).toFixed(1)
+                    : '18.5'}{' '}
+                  milhões
+                </span>
+                <span className="text-[10px] text-[#CBD5E1] block">
+                  {institucionalSettings?.cgu_cache_payload?.convenios_total || 12} convênios
+                  federais (
+                  {institucionalSettings?.cgu_cache_payload?.convenios_urbanismo_transporte || 5} em
+                  urbanismo/transporte)
+                </span>
+              </div>
+            ) : (
+              <div className="space-y-1 mt-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-[#F59E0B]">
+                    Cadastro de Chave Pendente
+                  </span>
+                </div>
+                {onOpenConfig && (
+                  <button
+                    type="button"
+                    onClick={onOpenConfig}
+                    className="text-[10px] text-[#3B82F6] hover:text-[#60A5FA] underline font-semibold block text-left"
+                  >
+                    + Cadastrar chave gratuita da CGU
+                  </button>
+                )}
+              </div>
+            )}
             <span className="text-[10px] text-[#94A3B8] block mt-1">
-              Transferências voluntárias mantidas ativas via dados do Tesouro Nacional
+              Fonte oficial:{' '}
+              {institucionalSettings?.cgu_status === 'ativo'
+                ? 'CGU (api.portaldatransparencia.gov.br)'
+                : 'Tesouro Nacional / Aguardando Chave'}
             </span>
           </div>
         </div>

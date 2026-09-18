@@ -182,6 +182,18 @@ export function Accountability() {
                       </div>
                     ))}
                   </div>
+
+                  {aud.id === 'cidadao' && (
+                    <div className="mt-4 pt-3 border-t border-[#1A2A5A]/60">
+                      <a
+                        href="/cidadao"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#10B981] hover:underline"
+                      >
+                        <span>Acessar Portal de Acompanhamento do Cidadão</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-[#1A2A5A]/60">
