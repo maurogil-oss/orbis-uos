@@ -46,7 +46,25 @@ import {
 } from '@/services/enquadramento'
 import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
 import { useAuth } from '@/contexts/AuthContext'
-import { LogOut, UserCheck } from 'lucide-react'
+import {
+  LogOut,
+  UserCheck,
+  Calendar,
+  CheckSquare,
+  Scale,
+  AlertOctagon,
+  HelpCircle,
+} from 'lucide-react'
+import { getTrilhaPorFaixa, TrilhaFaixaConfig } from '@/lib/diagnostics/trilhasFaixa'
+import {
+  gerarPlanoSaldoRepresado,
+  PlanoSaldoRepresadoResult,
+} from '@/lib/diagnostics/planoSaldoRepresado'
+import {
+  obterFontesAlternativasCusteio,
+  FontesAlternativasResult,
+} from '@/lib/diagnostics/fontesAlternativas'
+import { DossieJuridicoModal } from '@/components/DossieJuridicoModal'
 
 const ESTADOS_BRASIL = [
   'AC',
@@ -92,6 +110,7 @@ export default function Enquadramento() {
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null)
   const [pdfGenerating, setPdfGenerating] = useState<boolean>(false)
   const [federalData, setFederalData] = useState<SiconfiFederalSummary | null>(null)
+  const [showDossieModal, setShowDossieModal] = useState<boolean>(false)
 
   // BLOCO 1
   const [b1, setB1] = useState<Bloco1Data>({
@@ -215,6 +234,30 @@ export default function Enquadramento() {
   })
 
   const saidasResult: EnquadramentoSaidas = generateEnquadramentoSaidas(b1, b2, b3, b4, b5, b6)
+
+  // Trilha de Saída por Faixa (Roteiro cronológico)
+  const trilhaFaixa: TrilhaFaixaConfig = getTrilhaPorFaixa(diagResult.classificacao.faixa)
+
+  // Plano de Aplicação de Saldo Represado (disparado quando flag TCE acende ou saldo informado)
+  const isFlagTceAtivo =
+    b4.situacao_tce === 'apontamento_ressalva' || (b4.saldo_caixa_vinculado_art320 || 0) > 0
+  const planoSaldoRepresado: PlanoSaldoRepresadoResult = gerarPlanoSaldoRepresado({
+    municipio: b1.municipio,
+    uf: b1.uf,
+    saldoRepresado: b4.saldo_caixa_vinculado_art320 || 850000,
+    arrecadacaoAnual: b4.arrecadacao_anual_multas_valor,
+    populacao: b1.populacao_ibge,
+  })
+
+  // Fontes alternativas de custeio para municípios não municipalizados ou expansão
+  const isNaoMunicipalizado = b1.status_municipalizacao === 'nao_municipalizado'
+  const fontesAlternativas: FontesAlternativasResult = obterFontesAlternativasCusteio({
+    municipio: b1.municipio,
+    uf: b1.uf,
+    isNaoMunicipalizado,
+    valorSiconfiTransporte: federalData?.despesasTransporte?.reduce((a, b) => a + b.valor, 0),
+    valorSiconfiUrbanismo: federalData?.despesasUrbanismo?.reduce((a, b) => a + b.valor, 0),
+  })
 
   // Auto-Save por bloco
   const handleSaveCurrentBloco = async (stepToSave: number = activeStep) => {
@@ -352,6 +395,34 @@ export default function Enquadramento() {
 
             <h3>3. AS 4 SAÍDAS ESTRATÉGICAS AUTOMÁTICAS</h3>
 
+            <div class="card" style="margin-bottom: 12px; background: #F8FAFC;">
+              <b>TRILHA DE SAÍDA INSTITUCIONAL (${trilhaFaixa.tituloFaixa}):</b><br>
+              ${trilhaFaixa.passos
+                .map(
+                  (p) =>
+                    `• <b>${p.ano} — ${p.titulo}:</b> ${p.descricao} (Base Legal: ${p.baseLegal})<br>`,
+                )
+                .join('')}
+            </div>
+
+            ${
+              isFlagTceAtivo
+                ? `
+            <div class="card" style="margin-bottom: 12px; border-left: 4px solid #D97706; background: #FFFBEB;">
+              <b>PLANO DE APLICAÇÃO DE SALDO REPRESADO (ART. 320 CTB & RESPOSTA TCE):</b><br>
+              Saldo em Caixa Informado: R$ ${planoSaldoRepresado.saldoRepresadoInformado.toLocaleString('pt-BR')}<br>
+              ${planoSaldoRepresado.cronograma
+                .map(
+                  (c) =>
+                    `• ${c.etapa} (${c.prazoMeses}): R$ ${c.valorEstimado.toLocaleString('pt-BR')} (${c.percentualSaldo}%) — ${c.destinacaoLegal}<br>`,
+                )
+                .join('')}
+              <small>Nexo Causal: ${planoSaldoRepresado.enquadramentoTceSumario}</small>
+            </div>
+            `
+                : ''
+            }
+
             <div class="card" style="margin-bottom: 12px;">
               <b>(a) DIMENSIONAMENTO DO PILOTO CPSI (30 DIAS):</b><br>
               • Veículos-sensor necessários para auditar 100% da malha: <b>${saidasResult.dimensionamentoCpsi.veiculosSensorRecomendados} veículos</b><br>
@@ -374,6 +445,24 @@ export default function Enquadramento() {
               • Amparo e Nexo Causal: ${saidasResult.minutaEmpenho.justificativaNexoCausal}<br>
               • Saldo em caixa informado no Art. 320: R$ ${b4.saldo_caixa_vinculado_art320?.toLocaleString('pt-BR') || '0,00'}
             </div>
+
+            ${
+              isNaoMunicipalizado
+                ? `
+            <div class="card" style="margin-bottom: 12px; border-left: 4px solid #2563EB; background: #EFF6FF;">
+              <b>FONTES ALTERNATIVAS DE CUSTEIO (MUNICÍPIO NÃO MUNICIPALIZADO):</b><br>
+              ${fontesAlternativas.fontes
+                .slice(0, 3)
+                .map(
+                  (f) =>
+                    `• <b>${f.titulo} (${f.esfera}):</b> ${f.descricao} (Base: ${f.baseLegal})<br>`,
+                )
+                .join('')}
+              <small>${fontesAlternativas.orientacaoInstitucional}</small>
+            </div>
+            `
+                : ''
+            }
 
             <div class="card" style="margin-bottom: 12px;">
               <b>(d) MATRIZ DE PRIORIDADE ZERO (TOP PONTOS CRÍTICOS):</b>
@@ -1281,6 +1370,65 @@ export default function Enquadramento() {
                   <span className="text-[10px] text-[#94A3B8]">≥50% = 4 pts | 25-49% = 3 pts</span>
                 </div>
               </div>
+
+              {/* CARD RESPOSTA INSTANTÂNEA: PLANO DE APLICAÇÃO DE SALDO REPRESADO (FLAG TCE) */}
+              {(b4.situacao_tce === 'apontamento_ressalva' ||
+                (b4.saldo_caixa_vinculado_art320 || 0) > 0) && (
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-[#101B3A] to-[#0A1128] border-2 border-[#F59E0B]/60 space-y-4 animate-fade-in shadow-xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A2A5A] pb-3">
+                    <div className="flex items-center gap-2">
+                      <AlertOctagon className="w-5 h-5 text-[#F59E0B] shrink-0" />
+                      <div>
+                        <span className="text-xs font-mono uppercase bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded font-bold border border-[#F59E0B]/30">
+                          Resposta Imediata ao Flag TCE
+                        </span>
+                        <h3 className="text-sm sm:text-base font-bold text-[#F8FAFC] mt-0.5">
+                          Plano Estruturado de Aplicação do Saldo Represado (Art. 320 CTB)
+                        </h3>
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono text-[#10B981] font-bold">
+                      R$ {planoSaldoRepresado.saldoRepresadoInformado.toLocaleString('pt-BR')} em
+                      Caixa
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                    {planoSaldoRepresado.enquadramentoTceSumario}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    {planoSaldoRepresado.cronograma.map((it, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#F8FAFC]">{it.etapa}</span>
+                          <span className="text-[10px] font-mono text-[#3B82F6] bg-[#3B82F6]/15 px-2 py-0.5 rounded">
+                            {it.prazoMeses}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-[#94A3B8]">Dotação Proposta:</span>
+                          <span className="font-mono text-[#10B981] font-bold">
+                            R$ {it.valorEstimado.toLocaleString('pt-BR')} ({it.percentualSaldo}%)
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#94A3B8] leading-tight">
+                          {it.vinculoPrograma}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-[#070D1F] border border-[#1A2A5A] text-[11px] text-[#94A3B8] flex items-center justify-between">
+                    <span>
+                      <b>Amparo Contábil:</b> {planoSaldoRepresado.argumentoContabil}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1662,6 +1810,137 @@ export default function Enquadramento() {
                 </div>
               </div>
 
+              {/* MELHORIA 1: TRILHA DE SAÍDA POR FAIXA (ROTEIRO CRONOLÓGICO DE PREPARAÇÃO INSTITUCIONAL) */}
+              <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#10B981]/50 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A2A5A] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded font-bold border border-[#10B981]/30">
+                        Roteiro de Preparação Institucional
+                      </span>
+                      <span className="text-xs font-mono text-[#94A3B8]">
+                        Duração Estimada: {trilhaFaixa.tempoEstimadoMeses} meses
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-[#F8FAFC] mt-1 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-[#10B981]" />
+                      Trilha de Saída — {trilhaFaixa.tituloFaixa}
+                    </h3>
+                    <p className="text-xs text-[#94A3B8] mt-1">{trilhaFaixa.subtitulo}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowDossieModal(true)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 flex items-center gap-2 transition-all self-start sm:self-auto"
+                  >
+                    <Scale className="w-3.5 h-3.5" />
+                    <span>Abrir Dossiê Jurídico PGM</span>
+                  </button>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[#101B3A]/60 border border-[#1A2A5A] text-xs text-[#CBD5E1] leading-relaxed">
+                  <b>Princípio Institucional:</b> {trilhaFaixa.visaoGeral}
+                </div>
+
+                {/* Passos cronológicos ordenados no tempo */}
+                <div className="space-y-3">
+                  {trilhaFaixa.passos.map((p) => (
+                    <div
+                      key={p.ordem}
+                      className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] hover:border-[#10B981]/40 transition-all space-y-2"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-[#10B981]/20 text-[#10B981] font-mono text-xs font-bold flex items-center justify-center border border-[#10B981]/40">
+                            {p.ordem}
+                          </span>
+                          <span className="text-xs font-bold font-mono text-[#60A5FA]">
+                            {p.ano}
+                          </span>
+                          <span className="text-xs font-bold text-[#F8FAFC]">— {p.titulo}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/30 self-start sm:self-auto">
+                          Prazo: {p.prazoSugerido}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-[#CBD5E1] leading-relaxed pl-8">{p.descricao}</p>
+
+                      <div className="pl-8 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] border-t border-[#1A2A5A]/60">
+                        <span className="text-[#94A3B8]">
+                          <b>Base Legal:</b> {p.baseLegal}
+                        </span>
+                        <span className="text-[#10B981] font-medium">
+                          <b>Entregável:</b> {p.entregavel}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* MELHORIA 5: FONTES ALTERNATIVAS DE CUSTEIO ALÉM DO ART. 320 CTB */}
+              <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#60A5FA]/40 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A2A5A] pb-3">
+                  <div className="flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-[#60A5FA] shrink-0" />
+                    <div>
+                      <span className="text-xs font-mono uppercase bg-[#60A5FA]/20 text-[#60A5FA] px-2 py-0.5 rounded font-bold border border-[#60A5FA]/30">
+                        Captação & Custeio Federativo
+                      </span>
+                      <h3 className="text-base font-bold text-[#F8FAFC] mt-0.5">
+                        Fontes Alternativas de Custeio Além do Art. 320 CTB
+                      </h3>
+                    </div>
+                  </div>
+                  {isNaoMunicipalizado && (
+                    <span className="text-xs font-mono text-[#F59E0B] bg-[#F59E0B]/15 px-2.5 py-1 rounded border border-[#F59E0B]/30 font-semibold">
+                      Município Não Municipalizado
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                  {fontesAlternativas.orientacaoInstitucional}
+                </p>
+
+                <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <span className="text-[#94A3B8]">
+                    Histórico SICONFI/Tesouro Nacional ({b1.municipio}):
+                  </span>
+                  <span className="font-mono text-[#10B981] font-bold text-sm">
+                    R$ {(fontesAlternativas.valorSiconfiHistorico! / 1000000).toFixed(1)} milhões
+                    recebidos em Urbanismo e Transporte nos últimos 3 anos
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  {fontesAlternativas.fontes.map((f) => (
+                    <div
+                      key={f.id}
+                      className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#F8FAFC]">{f.titulo}</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A1128] text-[#60A5FA] border border-[#1A2A5A]">
+                          {f.esfera}
+                        </span>
+                      </div>
+                      <p className="text-[#94A3B8] text-[11px] leading-relaxed">{f.descricao}</p>
+                      <div className="text-[10px] text-[#CBD5E1] pt-1 border-t border-[#1A2A5A]/60 space-y-0.5 font-mono">
+                        <div>
+                          <b className="text-[#94A3B8]">Base Legal:</b> {f.baseLegal}
+                        </div>
+                        <div>
+                          <b className="text-[#94A3B8]">Janela:</b> {f.janelaAcesso}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* AS 4 SAÍDAS AUTOMÁTICAS ESTRUTURADAS */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Saída A: Dimensionamento CPSI */}
@@ -1888,8 +2167,27 @@ export default function Enquadramento() {
             </div>
           )}
 
+          {/* MODAL DO DOSSIÊ JURÍDICO CPSI (ENTREGA AUTÔNOMA PGM) */}
+          {showDossieModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto animate-fade-in">
+              <div className="max-w-4xl w-full my-8">
+                <DossieJuridicoModal
+                  municipio={b1.municipio}
+                  uf={b1.uf}
+                  populacao={b1.populacao_ibge}
+                  porte={diagResult.porte_identificado}
+                  extensaoKm={b2.extensao_total_km}
+                  orcamentoPavimentacao={b2.orcamento_anual_pavimentacao}
+                  protocolo={protocolo}
+                  onClose={() => setShowDossieModal(false)}
+                />
+              </div>
+            </div>
+          )}
+
           {/* BOTÕES DE NAVEGAÇÃO ENTRE OS PASSOS */}
           <div className="pt-6 border-t border-[#1A2A5A] flex items-center justify-between">
+            {' '}
             <button
               type="button"
               onClick={prevStep}
@@ -1899,7 +2197,6 @@ export default function Enquadramento() {
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Bloco Anterior</span>
             </button>
-
             <div className="flex items-center gap-3">
               {activeStep < 6 && (
                 <button

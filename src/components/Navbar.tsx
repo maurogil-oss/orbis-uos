@@ -91,6 +91,14 @@ export function Navbar() {
             <span>Portal Cidadão</span>
           </Link>
 
+          {/* Link Interoperabilidade API */}
+          <Link
+            to="/interoperabilidade"
+            className="text-[11px] font-semibold px-2 py-1 rounded-md text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
+          >
+            API / CIC
+          </Link>
+
           {/* Link Enquadramento */}
           <Link
             to="/enquadramento"
@@ -241,6 +249,14 @@ export function Navbar() {
                 <span>Cockpit</span>
               </Link>
             </div>
+
+            <Link
+              to="/interoperabilidade"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#60A5FA] bg-[#0A1128] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all gap-1.5"
+            >
+              API & Interoperabilidade CIC
+            </Link>
 
             <Link
               to="/enquadramento"

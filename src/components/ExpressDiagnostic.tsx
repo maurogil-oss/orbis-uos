@@ -15,6 +15,7 @@ import {
   ExpressDiagnosticResult,
   CreateExpressDiagnosticPayload,
 } from '@/services/expressDiagnostic'
+import { calcularProjecaoCobertura, CoberturaMalhaResult } from '@/lib/diagnostics/coberturaFrota'
 
 const ESTADOS_BRASIL = [
   'AC',
@@ -74,10 +75,23 @@ export function ExpressDiagnostic() {
     orcamento_anual_pavimentacao: 1200000,
   })
 
+  // Flag de frota terceirizada sem cláusula de telemetria (cenário de cidade média/grande)
+  const [frotaTerceirizadaSemPrevisao, setFrotaTerceirizadaSemPrevisao] = useState<boolean>(false)
+
   const [errors, setErrors] = useState<ExpressFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [result, setResult] = useState<ExpressDiagnosticResult | null>(null)
   const [backendError, setBackendError] = useState<string | null>(null)
+
+  // Cálculo da projeção de cobertura em tempo real
+  const projecaoCobertura: CoberturaMalhaResult = calcularProjecaoCobertura({
+    populacao: formData.populacao_ibge,
+    frotaOnibus: formData.frota_onibus,
+    frotaColeta: formData.frota_caminhoes_coleta,
+    frotaViaturas: formData.frota_viaturas,
+    onibusTerceirizadoSemPrevisao: frotaTerceirizadaSemPrevisao,
+    coletaTerceirizadaSemPrevisao: frotaTerceirizadaSemPrevisao,
+  })
 
   const validate = (): boolean => {
     const errs: ExpressFormErrors = {}
@@ -229,24 +243,42 @@ export function ExpressDiagnostic() {
                   </p>
                 </div>
 
-                {/* 2. Dimensionamento do Piloto CPSI */}
+                {/* 2. Projeção de Cobertura Real & Dimensionamento CPSI */}
                 <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#10B981]/50 space-y-3">
-                  <span className="text-xs font-mono uppercase font-bold text-[#94A3B8] block">
-                    Dimensionamento do Piloto CPSI
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono uppercase font-bold text-[#94A3B8]">
+                      Projeção Real em 30 Dias
+                    </span>
+                    <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded">
+                      Fator F ≥ 3
+                    </span>
+                  </div>
+
                   <div className="flex items-baseline gap-2">
                     <span className="text-5xl font-black font-mono text-[#10B981]">
-                      {result.veiculosSensorSugeridos}
+                      {frotaTerceirizadaSemPrevisao
+                        ? `${projecaoCobertura.percentualCoberturaDia30FrotaPropria}%`
+                        : `${projecaoCobertura.percentualCoberturaDia30FrotaTotal}%`}
                     </span>
-                    <span className="text-sm font-bold text-[#F8FAFC]">veículos-sensor</span>
+                    <span className="text-sm font-bold text-[#F8FAFC]">da malha auditada</span>
                   </div>
-                  <span className="text-xs font-semibold text-[#94A3B8] block">
-                    Para auditar 100% da malha em 30 dias
-                  </span>
-                  <p className="text-[11px] text-[#94A3B8] leading-relaxed pt-1">
-                    Aproveitamento da frota de ônibus e caminhões de coleta existentes via
-                    smartphones dos motoristas (Zero CAPEX).
-                  </p>
+
+                  <div className="text-xs text-[#CBD5E1] font-medium">
+                    {frotaTerceirizadaSemPrevisao
+                      ? `${projecaoCobertura.kmAuditados30DiasComFrotaPropria} km de ${projecaoCobertura.extensaoMalhaEstimadaKm} km estimados`
+                      : `${projecaoCobertura.kmAuditados30DiasComFrotaTotal} km de ${projecaoCobertura.extensaoMalhaEstimadaKm} km estimados`}
+                  </div>
+
+                  {projecaoCobertura.alertaVies ? (
+                    <div className="p-2 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-[10px] leading-relaxed">
+                      <b>Expectativa Gerenciada:</b> {projecaoCobertura.alertaVies}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-[#94A3B8] leading-relaxed pt-1">
+                      Com a frota alocada ({result.veiculosSensorSugeridos} veículos-sensor
+                      sugeridos), a cidade atinge cobertura ampla com Zero CAPEX.
+                    </p>
+                  )}
                 </div>
 
                 {/* 3. Próximo Passo na Esteira */}
@@ -553,6 +585,67 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] font-mono"
                   />
                   <span className="text-[10px] text-[#94A3B8]">Tapa-buraco / recapeamento</span>
+                </div>
+              </div>
+
+              {/* Opção de Gestão de Expectativa: Terceirização sem previsão de telemetria */}
+              <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-[#F8FAFC]">
+                    Condição Contratual da Frota de Ônibus / Coleta
+                  </span>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-[#CBD5E1]">
+                    <input
+                      type="checkbox"
+                      checked={frotaTerceirizadaSemPrevisao}
+                      onChange={(e) => setFrotaTerceirizadaSemPrevisao(e.target.checked)}
+                      className="rounded bg-[#101B3A] border-[#1A2A5A] text-[#3B82F6] focus:ring-0"
+                    />
+                    <span>Frota terceirizada sem cláusula de telemetria no contrato</span>
+                  </label>
+                </div>
+
+                {/* Card de Projeção em Tempo Real: expectativa gerenciada ANTES do piloto */}
+                <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#3B82F6]/30 text-xs space-y-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+                    <span className="text-[#94A3B8]">
+                      Malha Estimada para {projecaoCobertura.porteNome}:{' '}
+                      <b className="text-[#F8FAFC]">
+                        {projecaoCobertura.extensaoMalhaEstimadaKm} km
+                      </b>
+                    </span>
+                    <span className="text-[#94A3B8]">
+                      Necessário para 100% da malha em 30 dias:{' '}
+                      <b className="text-[#10B981]">
+                        {projecaoCobertura.veiculosNecessariosPara100Pct} veículos-sensor
+                      </b>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="text-xl sm:text-2xl font-black font-mono text-[#3B82F6]">
+                      {frotaTerceirizadaSemPrevisao
+                        ? `${projecaoCobertura.percentualCoberturaDia30FrotaPropria}%`
+                        : `${projecaoCobertura.percentualCoberturaDia30FrotaTotal}%`}
+                    </div>
+                    <div className="text-xs text-[#CBD5E1]">
+                      da malha auditada com Fator de Confiança F ≥ 3 em <b>30 dias</b>
+                      <span className="text-[11px] text-[#94A3B8] block">
+                        (
+                        {frotaTerceirizadaSemPrevisao
+                          ? projecaoCobertura.kmAuditados30DiasComFrotaPropria
+                          : projecaoCobertura.kmAuditados30DiasComFrotaTotal}{' '}
+                        km de {projecaoCobertura.extensaoMalhaEstimadaKm} km)
+                      </span>
+                    </div>
+                  </div>
+
+                  {projecaoCobertura.alertaVies && (
+                    <div className="p-2.5 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-[11px] leading-relaxed flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{projecaoCobertura.alertaVies}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

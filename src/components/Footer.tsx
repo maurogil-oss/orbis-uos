@@ -88,6 +88,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/interoperabilidade"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
+                >
+                  API, Webhooks & Interoperabilidade CIC
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/cockpit"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#3B82F6]"
                 >

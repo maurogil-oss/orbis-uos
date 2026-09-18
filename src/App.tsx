@@ -11,6 +11,7 @@ import Enquadramento from './pages/Enquadramento'
 import Metodologia from './pages/Metodologia'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
+import Interoperabilidade from './pages/Interoperabilidade'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -32,6 +33,8 @@ const App = () => (
             <Route path="/acesso" element={<Login />} />
             <Route path="/cidadao" element={<PortalCidadao />} />
             <Route path="/portal-cidadao" element={<PortalCidadao />} />
+            <Route path="/interoperabilidade" element={<Interoperabilidade />} />
+            <Route path="/api" element={<Interoperabilidade />} />
 
             {/* Rotas Protegidas Institucionais (Exigem autenticação institucional) */}
             <Route
