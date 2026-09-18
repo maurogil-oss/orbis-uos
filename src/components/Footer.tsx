@@ -82,6 +82,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/metodologia"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
+                >
+                  Metodologia Homologada (v1.0)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/cockpit"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#3B82F6]"
                 >

@@ -20,6 +20,7 @@ export function Navbar() {
     { label: 'Dimensionamento', href: '/#simulador' },
     { label: 'Pilares Públicos', href: '/#beneficios' },
     { label: 'Marco Legal', href: '/#como-funciona' },
+    { label: 'Diagnóstico Express', href: '/#diagnostico-express' },
     { label: 'Manifesto de Interesse', href: '/#manifesto' },
   ]
 
@@ -82,10 +83,17 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
+          {/* Link Enquadramento Completo 6 Blocos */}
+          <Link
+            to="/enquadramento"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-[#60A5FA] hover:bg-[#3B82F6]/20 transition-all"
+          >
+            Enquadramento Completo
+          </Link>
           {/* Discreto link Cockpit demo */}
           <Link
             to="/cockpit"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] text-[#60A5FA] hover:text-white transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] text-[#CBD5E1] hover:text-white transition-all shadow-sm"
           >
             <Activity className="w-3.5 h-3.5 text-[#10B981]" />
             Ver Cockpit

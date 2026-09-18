@@ -9,6 +9,7 @@ import { Comparison } from '@/components/Comparison'
 import { HowItWorks } from '@/components/HowItWorks'
 import { FAQ } from '@/components/FAQ'
 import { PilotForm } from '@/components/PilotForm'
+import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
 import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
@@ -51,7 +52,10 @@ export default function Index() {
       {/* 9. FAQ (Dúvidas dos Gestores, Secretários e Procuradorias) */}
       <FAQ />
 
-      {/* 10. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) */}
+      {/* 10. Diagnóstico Express (Pré-diagnóstico Provisório e dimensionamento CPSI) */}
+      <ExpressDiagnostic />
+
+      {/* 11. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) */}
       <PilotForm />
     </div>
   )
