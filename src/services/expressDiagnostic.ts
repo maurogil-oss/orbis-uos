@@ -34,6 +34,20 @@ export interface ExpressDiagnosticResult {
   diagnosticoResumo: string
 }
 
+export async function listExpressDiagnostics(): Promise<ExpressDiagnosticRecord[]> {
+  try {
+    const records = await pb
+      .collection('express_diagnostics')
+      .getFullList<ExpressDiagnosticRecord>({
+        sort: '-created',
+      })
+    return records
+  } catch (err) {
+    console.warn('Falha ao listar express_diagnostics:', err)
+    return []
+  }
+}
+
 export async function submitExpressDiagnostic(
   payload: CreateExpressDiagnosticPayload,
 ): Promise<ExpressDiagnosticResult> {

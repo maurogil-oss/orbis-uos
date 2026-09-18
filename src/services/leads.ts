@@ -19,3 +19,15 @@ export async function createLead(payload: CreateLeadPayload): Promise<LeadRecord
   const record = await pb.collection('leads').create<LeadRecord>(payload)
   return record
 }
+
+export async function listLeads(): Promise<LeadRecord[]> {
+  try {
+    const records = await pb.collection('leads').getFullList<LeadRecord>({
+      sort: '-created',
+    })
+    return records
+  } catch (err) {
+    console.warn('Falha ao listar manifestos/leads:', err)
+    return []
+  }
+}

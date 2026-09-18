@@ -134,14 +134,14 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
       ],
     },
     media: {
-      title: 'Enquadramento Institucional para Municípios de 50k–300k hab.',
-      badge: 'Aplicação Legal do Fundo de Multas • Art. 320 CTB',
+      title: 'Enquadramento Institucional para Municípios de 50k–300k hab. (Onda 2)',
+      badge: 'Onda 2: Green Light Bridge + Meio-fio & Vagas • Art. 320 CTB',
       highlight:
-        'Recursos do Fundo Municipal de Multas empregados com comprovação estrita de nexo causal georreferenciado na engenharia viária. O município reduz o tempo de resposta da zeladoria e atende com presteza as demandas de bairros populosos.',
+        'Recursos do Fundo Municipal de Multas empregados com comprovação estrita de nexo causal georreferenciado na engenharia viária. A cidade média ativa os módulos da Onda 2: sincronismo semafórico para ondas verdes arteriais e auditoria de meio-fio/vagas pela frota pública passiva.',
       pills: [
-        'Zeladoria integrada e preditiva conectada ao canal 156',
-        'Sincronização semafórica para corredores de transporte coletivo',
-        'Segurança jurídica e nexo causal para o Tribunal de Contas',
+        'Green Light Bridge: até 22% de redução de atraso em corredores arteriais',
+        'Meio-fio & Vagas: auditoria passiva de calçadas, faixa amarela e idoso/PCD',
+        'Custo Evitado em combustível da frota pública e segurança jurídica no TCE',
       ],
     },
     grande: {

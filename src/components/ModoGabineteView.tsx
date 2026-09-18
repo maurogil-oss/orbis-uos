@@ -25,6 +25,7 @@ import {
 } from '@/lib/diagnostics/immEngine'
 import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
 import { InstitucionalSettingsRecord } from '@/services/institucionalSettings'
+import { Onda2CockpitCard } from '@/components/Onda2CockpitCard'
 
 interface ModoGabineteViewProps {
   roadEvents: RoadEventRecord[]
@@ -338,6 +339,14 @@ export function ModoGabineteView({
           </div>
         </div>
       </div>
+
+      {/* MÓDULOS DA ONDA 2 CIDADE MÉDIA (GREEN LIGHT BRIDGE & MEIO-FIO) */}
+      <Onda2CockpitCard
+        populacao={140000}
+        frotaAtiva={
+          roadEvents.length ? Math.min(24, Math.max(12, Math.round(roadEvents.length * 1.2))) : 18
+        }
+      />
 
       {/* 5º DADO OFICIAL: RECURSOS FEDERAIS SICONFI ÚLTIMOS 3 ANOS NO MODO GABINETE */}
       <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-3">

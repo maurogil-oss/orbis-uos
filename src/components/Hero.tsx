@@ -46,13 +46,13 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
       pilotDays: 'Diagnóstico preliminar em 30 dias',
     },
     media: {
-      badge: 'MUNICÍPIOS DE 50 A 300 MIL HAB. • ACCOUNTABILITY & ZELADORIA INTEGRADA',
+      badge: 'MUNICÍPIOS DE 50 A 300 MIL HAB. • ONDA 2: GREEN LIGHT BRIDGE & MEIO-FIO',
       headlinePrefix: 'Cada quilômetro da malha viária, ',
-      headlineHighlight: 'monitorado para a tomada de decisão pública e prestação de contas',
+      headlineHighlight: 'otimizado com Green Light Bridge e auditoria passiva de meio-fio',
       description:
-        'Integração institucional entre zeladoria viária, engenharia de tráfego e resposta direta ao cidadão. O cidadão acompanha o reparo da sua rua com transparência, enquanto a gestão aplica recursos com nexo causal georreferenciado e total conformidade com as Cortes de Contas.',
+        'Onda 2 em destaque: sincronismo semafórico adaptativo (Green Light Bridge) e auditoria de estacionamento/faixa amarela pela frota existente (Zero CAPEX). Gestão integrada entre zeladoria, engenharia de tráfego e conformidade estrita ao Art. 320 do CTB.',
       honestCoverage: `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km monitorados com integridade`,
-      entryArg: 'Conformidade plena ao Art. 320 do CTB com nexo causal auditável',
+      entryArg: 'Green Light Bridge + Meio-fio & Vagas • Onda 2 ativa',
       batteryTrust: '1,2–1,8%/h de bateria',
       pilotDays: 'Piloto institucional em 60 dias',
     },

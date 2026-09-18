@@ -10,6 +10,7 @@ import { HowItWorks } from '@/components/HowItWorks'
 import { FAQ } from '@/components/FAQ'
 import { PilotForm } from '@/components/PilotForm'
 import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
+import { Onda2Modules } from '@/components/Onda2Modules'
 import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
@@ -37,10 +38,13 @@ export default function Index() {
       {/* 4. Simulator com Nova Moldura Institucional (Recursos Recuperados & Orçamento) */}
       <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 5. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
+      {/* 5. Onda 2 por Porte: Módulos Green Light Bridge e Meio-fio & Vagas para Cidade Média */}
+      <Onda2Modules selectedTier={selectedTier} onSelectTier={setSelectedTier} />
+
+      {/* 6. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
       <Benefits />
 
-      {/* 6. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
+      {/* 7. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
       <IntegrationArchitecture selectedTier={selectedTier} />
 
       {/* 7. Comparativo (Modelo Convencional Reativo vs. ORBIS.UOS Governança Preditiva) */}

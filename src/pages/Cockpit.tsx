@@ -18,20 +18,23 @@ import { listFleetTelemetry, FleetTelemetryRecord } from '@/services/fleet'
 import { CuritibaMap } from '@/components/CuritibaMap'
 import { RealCollectorModal } from '@/components/RealCollectorModal'
 import { ModoGabineteView } from '@/components/ModoGabineteView'
+import { Onda2CockpitCard } from '@/components/Onda2CockpitCard'
 import { TceDossierModal } from '@/components/TceDossierModal'
 import { InstitutionalConfigModal } from '@/components/InstitutionalConfigModal'
+import { ManifestosInstitucionaisModal } from '@/components/ManifestosInstitucionaisModal'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   getInstitucionalSettings,
   InstitucionalSettingsRecord,
 } from '@/services/institucionalSettings'
-import { Settings, LogOut, UserCheck } from 'lucide-react'
+import { Settings, LogOut, UserCheck, FileCheck } from 'lucide-react'
 
 export default function Cockpit() {
   const { user, logout } = useAuth()
   const [institucionalSettings, setInstitucionalSettings] =
     useState<InstitucionalSettingsRecord | null>(null)
   const [showConfigModal, setShowConfigModal] = useState<boolean>(false)
+  const [showManifestosModal, setShowManifestosModal] = useState<boolean>(false)
   const [events, setEvents] = useState<RoadEventRecord[]>([])
   const [fleet, setFleet] = useState<FleetTelemetryRecord[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -202,6 +205,17 @@ export default function Cockpit() {
             >
               <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
               <span>Configurações</span>
+            </button>
+
+            {/* Botão de Manifestos de Interesse & Diagnósticos Capturados */}
+            <button
+              type="button"
+              onClick={() => setShowManifestosModal(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#60A5FA] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
+              title="Ver manifestos e diagnósticos express capturados"
+            >
+              <FileCheck className="w-3.5 h-3.5 text-[#3B82F6]" />
+              <span className="hidden sm:inline">Manifestos</span>
             </button>
 
             <div className="bg-[#101B3A] p-1 rounded-xl border border-[#1A2A5A] flex items-center gap-1">
@@ -533,8 +547,12 @@ export default function Cockpit() {
               </div>
             </div>
 
+            {/* ONDA 2 CIDADE MÉDIA: GREEN LIGHT BRIDGE & MEIO-FIO */}
+            <Onda2CockpitCard populacao={140000} frotaAtiva={fleet.length || 18} />
+
             {/* Bottom Table: Feed of Road Events */}
             <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-4">
+              {' '}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">
                 <div>
                   <h3 className="text-lg font-bold text-[#F8FAFC]">
@@ -568,7 +586,6 @@ export default function Cockpit() {
                   </select>
                 </div>
               </div>
-
               {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
@@ -790,6 +807,12 @@ export default function Cockpit() {
         onClose={() => setShowConfigModal(false)}
         settings={institucionalSettings}
         onSettingsUpdated={(updated) => setInstitucionalSettings(updated)}
+      />
+
+      {/* Modal de Manifestos & Leads Institucionais Capturados */}
+      <ManifestosInstitucionaisModal
+        isOpen={showManifestosModal}
+        onClose={() => setShowManifestosModal(false)}
       />
     </div>
   )

@@ -178,7 +178,7 @@ export default function Login() {
             ← Retornar à página pública principal
           </Link>
           <div className="text-[11px]">
-            O gestor decide; o sistema documenta. • ORBIS.UOS v0.0.8
+            O gestor decide; o sistema documenta. • ORBIS.UOS v0.0.9
           </div>
         </div>
       </div>
