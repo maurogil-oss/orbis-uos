@@ -29,7 +29,7 @@ export default function Index() {
       {/* 1. Hero Section com Narrativa de Gestão Pública, Responsabilidade e Dados Vivos */}
       <Hero selectedTier={selectedTier} onSelectTier={setSelectedTier} liveMetrics={liveMetrics} />
 
-      {/* 2. Trust Strip (Marquee com respaldo institucional e órgãos) */}
+      {/* 2. Trust Strip (Marquee com conformidade técnica, legal e padrões institucionais) */}
       <TrustStrip />
 
       {/* 3. Nova Seção de Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}

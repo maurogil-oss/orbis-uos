@@ -66,7 +66,7 @@ export function Accountability() {
       subtitle: 'Dados públicos abertos, auditáveis e cientificamente embasados',
       accent: '#818CF8',
       description:
-        'Fim da disputa de narrativas sobre a qualidade do pavimento. Indicadores calculados segundo métodos de engenharia de transportes (IRI, FFT de aceleração vertical) e validados com respaldo científico de instituições públicas como a UFPR e dados abertos.',
+        'Fim da disputa de narrativas sobre a qualidade do pavimento. Indicadores calculados segundo métodos consagrados de engenharia de transportes (IRI, FFT de aceleração vertical) e metodologia pública auditável.',
       points: [
         'Métricas públicas mensuráveis sem distorções de comunicação partidária',
         'Painéis de interesse público para acompanhamento de metas municipais e do PPA',
@@ -251,8 +251,8 @@ export function Accountability() {
             <div className="flex items-center gap-2">
               <FileCheck2 className="w-4 h-4 text-[#10B981]" />
               <span>
-                Validação científica contínua com metodologias de engenharia de pavimentos (UFPR /
-                CEMADEN).
+                Validação técnica contínua com metodologias consagradas de engenharia de pavimentos
+                e normas públicas de infraestrutura.
               </span>
             </div>
             <button

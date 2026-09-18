@@ -2,28 +2,28 @@ import React from 'react'
 import { Building2 } from 'lucide-react'
 
 export function TrustStrip() {
-  const institutions = [
-    'Prefeitura de Curitiba',
-    'Governo do Estado do Paraná',
-    'Validação Científica UFPR',
-    'Alinhamento Técnico CEMADEN',
+  const trustItems = [
+    'Compatível com SICONFI',
+    'Conforme PNATRANS / Resoluções CONTRAN',
+    'Alinhado à Visão Zero',
+    'Base Legal Art. 320 CTB',
     'Marco Legal da Inovação (LC 182/21)',
-    'Artigo 320 do CTB',
-    'Consórcios Intermunicipais',
-    'Google Green Light Ready',
-    '100% LGPD & Auditoria Inercial',
-    'URBS Curitiba & RMC',
-    'Prefeitura de São Paulo',
-    'Prefeitura de Belo Horizonte',
+    'Zero CAPEX • Frota Existente',
+    'LGPD 100% • Sem Câmeras / Sem Placas',
+    'Metodologia Pública v1.0 Auditável',
+    'Interoperabilidade GTFS & NTCIP 1202',
+    'Dossiê Pré-formatado para TCE / MP',
+    'Governança Digital (Lei 14.129/21)',
+    'Processamento Espectral FFT na Borda',
   ]
 
   // Double the list to create a seamless infinite loop
-  const displayList = [...institutions, ...institutions]
+  const displayList = [...trustItems, ...trustItems]
 
   return (
     <section
       className="relative w-full bg-[#080E22] border-y border-[#1A2A5A]/60 py-4 overflow-hidden"
-      aria-label="Órgãos e Instituições atendidas"
+      aria-label="Conformidade técnica, legal e padrões institucionais"
     >
       {/* Edge gradient masks for subtle fade */}
       <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#080E22] to-transparent z-10 pointer-events-none" />
@@ -32,7 +32,7 @@ export function TrustStrip() {
       <div className="max-w-[1200px] mx-auto px-4 mb-2 flex items-center justify-center">
         <span className="text-[11px] uppercase tracking-wider font-semibold text-[#94A3B8]/70 flex items-center gap-2">
           <Building2 className="w-3.5 h-3.5 text-[#3B82F6]" />
-          Cooperação federativa, respaldo científico e conformidade institucional
+          Conformidade legal, padrões abertos e integridade técnica institucional
         </span>
       </div>
 
