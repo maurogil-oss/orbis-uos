@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, ArrowRight, Activity, Users, Lock, LogOut } from 'lucide-react'
+import { Menu, X, ArrowRight, Activity, Users, Lock, LogOut, SlidersHorizontal } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { OrbisLogo } from '@/components/OrbisLogo'
 
@@ -115,6 +115,18 @@ export function Navbar() {
             <Activity className="w-3 h-3 text-[#10B981]" />
             <span>Cockpit</span>
           </Link>
+
+          {/* Link Fator K (quando autenticado) */}
+          {isAuthenticated && (
+            <Link
+              to="/cockpit/calibracao-fator-k"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-md text-[#38BDF8] hover:text-white transition-colors"
+              title="Calibração do Fator K por tipo de veículo"
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>Fator K</span>
+            </Link>
+          )}
         </nav>
 
         {/* Nav intermediário para telas menores de desktop (md..xl) */}
@@ -253,6 +265,17 @@ export function Navbar() {
                 <span>Cockpit</span>
               </Link>
             </div>
+
+            {isAuthenticated && (
+              <Link
+                to="/cockpit/calibracao-fator-k"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#38BDF8] bg-[#101B3A] border border-[#38BDF8]/30 hover:border-[#38BDF8] transition-all gap-1.5"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#38BDF8]" />
+                <span>Calibração Real do Fator K</span>
+              </Link>
+            )}
 
             <Link
               to="/interoperabilidade"

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { useDeviceMotionCollector, DetectedAnomaly } from '@/hooks/useDeviceMotionCollector'
 import { createRoadEvent, RoadEventRecord } from '@/services/roadEvents'
+import { VeiculoTipoCalibracao, VEICULO_TIPOS_CONFIG } from '@/services/fatorKCalibration'
 import { toast } from '@/hooks/use-toast'
 
 interface RealCollectorModalProps {
@@ -40,6 +41,7 @@ export function RealCollectorModal({
   // Session metadata
   const [via, setVia] = useState('Av. Sete de Setembro, 3200')
   const [bairro, setBairro] = useState('Batel')
+  const [veiculoTipoCanonico, setVeiculoTipoCanonico] = useState<VeiculoTipoCalibracao>('onibus')
   const [linhaFrota, setLinhaFrota] = useState('Linha Direta / Ligeirinho 203')
   const [veiculoTipo, setVeiculoTipo] = useState('Smartphone no Painel do Ônibus')
   const [thresholdG, setThresholdG] = useState(2.5)
@@ -85,8 +87,9 @@ export function RealCollectorModal({
     thresholdG,
     via,
     bairro,
-    linhaFrota,
-    veiculoTipo,
+    linhaFrota: linhaFrota || `${VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].label} #01`,
+    veiculoTipo: veiculoTipo || VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].label,
+    veiculoTipoCanonico,
     codigoIbge: '4106902',
     manualLat,
     manualLng,
@@ -705,6 +708,73 @@ export function RealCollectorModal({
                 Metadados da Coleta & Frota Pública
               </span>
               <span className="text-[10px] text-[#94A3B8]">Gravados no evento auditável</span>
+            </div>
+
+            {/* SELEÇÃO OBRIGATÓRIA DO TIPO DE VEÍCULO-SENSOR */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/50 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                  Tipo de Veículo-Sensor (Obrigatório para Calibração do Fator K):
+                </label>
+                <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/15 px-2 py-0.5 rounded border border-[#3B82F6]/30">
+                  Baseline K: {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].baselineK.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                {(Object.keys(VEICULO_TIPOS_CONFIG) as VeiculoTipoCalibracao[]).map((key) => {
+                  const cfg = VEICULO_TIPOS_CONFIG[key]
+                  const isSelected = veiculoTipoCanonico === key
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      disabled={isCollecting || isCalibrating}
+                      onClick={() => {
+                        setVeiculoTipoCanonico(key)
+                        setVeiculoTipo(cfg.label)
+                        if (key === 'onibus' && !linhaFrota.includes('Viatura')) {
+                          setLinhaFrota('Linha Direta / Ligeirinho 203')
+                        } else if (key === 'viatura') {
+                          setLinhaFrota('Viatura Guarda Municipal GM-09')
+                        } else if (key === 'caminhao') {
+                          setLinhaFrota('Caminhão Coleta Noturna 08')
+                        } else if (key === 'ambulancia') {
+                          setLinhaFrota('Ambulância SAMU Unidade 04')
+                        } else {
+                          setLinhaFrota('Fiscalização e Obras #12')
+                        }
+                      }}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20'
+                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#CBD5E1]'
+                      } disabled:opacity-50`}
+                    >
+                      <div className="font-bold text-xs flex items-center justify-between">
+                        <span>{cfg.label.split(' ')[0]}</span>
+                        <span className="text-[10px] font-mono text-[#3B82F6]">
+                          K={cfg.baselineK.toFixed(2)}
+                        </span>
+                      </div>
+                      <span className="text-[10px] block opacity-80 leading-tight mt-1 line-clamp-2">
+                        {cfg.sublabel.split('/')[0]}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="text-[11px] text-[#94A3B8] flex items-center justify-between pt-1">
+                <span>
+                  <b>Comportamento Inercial:</b>{' '}
+                  {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].descricaoDinamica}
+                </span>
+                <span className="font-mono text-[10px] text-[#60A5FA]">
+                  {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].suspensaoTipo}
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">

@@ -12,6 +12,7 @@ import {
   registerSegmentPassage,
   CreateSegmentReadingPayload,
 } from '@/services/roadSegments'
+import { createFieldSession } from '@/services/fatorKCalibration'
 
 export interface MotionSample {
   timestamp: number
@@ -66,10 +67,13 @@ export interface CollectorConfig {
   bairro: string
   linhaFrota: string
   veiculoTipo: string
+  veiculoTipoCanonico?: 'onibus' | 'viatura' | 'caminhao' | 'ambulancia' | 'outros'
+  veiculoId?: string
   codigoIbge?: string
   manualLat?: number
   manualLng?: number
   autoPersistWindows?: boolean // Salva agregados automaticamente no PocketBase
+  onSessionComplete?: (summary: SessionSummary) => void
 }
 
 export type CollectorStatus = 'idle' | 'calibrating' | 'collecting' | 'paused' | 'stopped'
@@ -443,7 +447,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         const viaStr = config.via || 'Via Municipal Monitorada'
         const bairroStr = config.bairro || 'Centro'
         const veicStr = config.veiculoTipo || 'Smartphone Frota 1'
-        flushEdgeWindow(segId, viaStr, bairroStr, veicStr)
+        flushEdgeWindow(segId, viaStr, bairroStr, config.veiculoId || 'MOBILE-01')
       }
 
       // Detecção de impacto pontual acima do limiar
@@ -678,6 +682,33 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       peakG: peakSessionG,
     }
 
+    // Persistir registro formal da sessão de campo para alimentação da Calibração do Fator K
+    const sessionCode = `SES-${Date.now().toString(36).toUpperCase()}`
+    createFieldSession({
+      session_code: sessionCode,
+      codigo_ibge: codigoIbge,
+      veiculo_tipo: config.veiculoTipoCanonico || 'onibus',
+      veiculo_id:
+        config.veiculoId || `DEV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+      linha_frota: config.linhaFrota || 'Linha Operacional',
+      via_inicial: config.via || 'Via Municipal',
+      bairro: config.bairro || 'Centro',
+      duracao_ms: elapsedMs,
+      distancia_metros: Math.round(totalDistMeters),
+      janelas_processadas: processedWindows.length || 1,
+      impactos_detectados: anomalies.length,
+      segmentos_cobertos: Array.from(segSet),
+      iri_medio: calculatedIRI,
+      pico_g: peakSessionG,
+      operador_nome: 'Operador de Campo / Cockpit',
+    }).catch((err) => {
+      console.warn('Registro de field_session salvo localmente:', err)
+    })
+
+    if (config.onSessionComplete) {
+      config.onSessionComplete(summary)
+    }
+
     setSessionSummary(summary)
   }, [
     handleMotion,
@@ -688,6 +719,10 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     config.via,
     config.bairro,
     config.veiculoTipo,
+    config.veiculoTipoCanonico,
+    config.veiculoId,
+    config.linhaFrota,
+    config.onSessionComplete,
     gpsTrack,
     elapsedMs,
     speedKmh,

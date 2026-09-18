@@ -31,7 +31,7 @@ export default function Metodologia() {
         <div className="space-y-3 pb-6 border-b border-[#1A2A5A]">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA]">
             <Calendar className="w-3.5 h-3.5" />
-            Versão 1.0 Declarada • Fevereiro de 2025
+            Versão 1.1 Declarada • Calibração Fator K • Março de 2025
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
             Metodologia do Diagnóstico Institucional e do IMM (Índice de Mobilidade Municipal)
@@ -166,6 +166,50 @@ export default function Metodologia() {
               converte em Ordem de Serviço (OS) após o registro de{' '}
               <b>pelo menos 3 passagens de veículos distintos</b> no mesmo segmento de 100 metros.
               Registros solitários são descartados.
+            </div>
+
+            {/* ADIÇÃO v1.1: Calibração Empírica do Fator K */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/40 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#F8FAFC] text-sm flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                  Calibração Empírica do Fator K por Tipo de Veículo (Aditivo Metodológico v1.1)
+                </span>
+                <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/15 px-2 py-0.5 rounded border border-[#3B82F6]/30">
+                  Transparência de Cálculo
+                </span>
+              </div>
+              <p className="text-[#CBD5E1] leading-relaxed">
+                Cada categoria de veículo-sensor (ônibus urbano, viatura policial, caminhão de
+                coleta, ambulância do SAMU ou frota leve) possui massa suspensa e curva de
+                amortecimento distintas. Para assegurar que o IMM mensure exclusivamente o estado do
+                pavimento — e não a dinâmica do chassi — o sistema admite calibração empírica do
+                Fator K:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-[#94A3B8] pl-1 font-mono text-[11px]">
+                <li>
+                  <b className="text-[#F8FAFC]">Critério de Elegibilidade:</b> Apenas sessões e
+                  janelas sobre segmentos de 100 metros com Fator de Confiança F ≥ 3 passagens
+                  validadas são processadas para calibração.
+                </li>
+                <li>
+                  <b className="text-[#F8FAFC]">
+                    Método Primário (Razão em Segmentos Compartilhados):
+                  </b>{' '}
+                  Compara a aceleração vertical RMS e picos FFT da categoria avaliada em relação aos
+                  demais veículos que trafegaram exatamente sobre o mesmo trecho físico.
+                </li>
+                <li>
+                  <b className="text-[#F8FAFC]">Método Secundário (Fallback de RMS Absoluto):</b> Na
+                  ausência temporária de sobreposição direta, aplica a razão da aceleração vertical
+                  média do lote frente à linha de base calibrada da malha.
+                </li>
+                <li>
+                  <b className="text-[#F8FAFC]">Trilha de Auditoria Institucional:</b> Nenhum fator
+                  K é alterado em sigilo; toda aplicação grava o responsável, data/hora, valores
+                  anteriores e motivo para fiscalização dos Tribunais de Contas (TCE/CGU).
+                </li>
+              </ul>
             </div>
           </div>
         </div>

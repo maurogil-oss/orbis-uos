@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T23:41:03.512Z",
+  "generatedAt": "2026-09-18T23:47:13.641Z",
   "collections": [
     {
       "name": "users",
@@ -1051,6 +1051,245 @@
         "CREATE UNIQUE INDEX idx_road_segments_seg_ibge ON road_segments (segmento_id, codigo_ibge)",
         "CREATE INDEX idx_road_segments_ibge ON road_segments (codigo_ibge)",
         "CREATE INDEX idx_road_segments_confianca ON road_segments (fator_confianca_valido)"
+      ]
+    },
+    {
+      "name": "fator_k_calibrations",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "fields": [
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "veiculo_tipo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "valor_baseline",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "valor_calibrado_sugerido",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "valor_aplicado",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status_aplicacao",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["baseline", "calibrado_ativo", "customizado"]
+        },
+        {
+          "name": "amostras_sessoes",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "amostras_segmentos",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "km_acumulado",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "confiabilidade_status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["insuficiente", "moderada", "alta"]
+        },
+        {
+          "name": "metodologia_detalhes",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "auditoria_usuario",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "auditoria_data",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "auditoria_historico",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_fk_ibge_veiculo ON fator_k_calibrations (codigo_ibge, veiculo_tipo)",
+        "CREATE INDEX idx_fk_ibge ON fator_k_calibrations (codigo_ibge)"
+      ]
+    },
+    {
+      "name": "field_sessions",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "",
+        "delete": ""
+      },
+      "fields": [
+        {
+          "name": "session_code",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "veiculo_tipo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "veiculo_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "linha_frota",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "via_inicial",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "bairro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "duracao_ms",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "distancia_metros",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "janelas_processadas",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "impactos_detectados",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "segmentos_cobertos",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "iri_medio",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pico_g",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operador_nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_field_sessions_code ON field_sessions (session_code)",
+        "CREATE INDEX idx_field_sessions_ibge ON field_sessions (codigo_ibge)",
+        "CREATE INDEX idx_field_sessions_veiculo_tipo ON field_sessions (veiculo_tipo)"
       ]
     }
   ]

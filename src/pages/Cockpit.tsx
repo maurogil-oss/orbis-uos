@@ -28,7 +28,7 @@ import {
   getInstitucionalSettings,
   InstitucionalSettingsRecord,
 } from '@/services/institucionalSettings'
-import { Settings, LogOut, UserCheck, FileCheck, KeyRound } from 'lucide-react'
+import { Settings, LogOut, UserCheck, FileCheck, KeyRound, SlidersHorizontal } from 'lucide-react'
 
 export default function Cockpit() {
   const { user, logout } = useAuth()
@@ -265,6 +265,17 @@ export default function Cockpit() {
                 Cockpit Técnico (Engenharia)
               </button>
             </div>
+
+            {/* Calibração Real do Fator K */}
+            <Link
+              to="/cockpit/calibracao-fator-k"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#38BDF8] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#38BDF8]/40 hover:border-[#38BDF8] shadow-sm flex items-center gap-1.5 transition-all"
+              title="Calibração empírica do Fator K por tipo de veículo (ônibus, viatura, caminhão, ambulância)"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#38BDF8]" />
+              <span className="hidden sm:inline">Calibração Fator K</span>
+              <span className="sm:hidden">Fator K</span>
+            </Link>
 
             {/* Dossiê TCE em 1 clique */}
             <button

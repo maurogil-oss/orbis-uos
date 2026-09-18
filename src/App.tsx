@@ -9,6 +9,7 @@ import Index from './pages/Index'
 import Cockpit from './pages/Cockpit'
 import Enquadramento from './pages/Enquadramento'
 import Metodologia from './pages/Metodologia'
+import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
 import Interoperabilidade from './pages/Interoperabilidade'
@@ -50,6 +51,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Enquadramento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cockpit/calibracao-fator-k"
+              element={
+                <ProtectedRoute>
+                  <FatorKCalibrationPage />
                 </ProtectedRoute>
               }
             />

@@ -217,7 +217,10 @@ export function getImmFaixa(score: number): ImmSegmentResult['faixa'] {
 /**
  * Calcula o IMM para um segmento viário individual
  */
-export function evaluateSegmentImm(telemetry: RoadSegmentTelemetry): ImmSegmentResult {
+export function evaluateSegmentImm(
+  telemetry: RoadSegmentTelemetry,
+  fatorKCustom?: number,
+): ImmSegmentResult {
   if (!telemetry.auditado) {
     return {
       segmentId: telemetry.id,
@@ -244,7 +247,14 @@ export function evaluateSegmentImm(telemetry: RoadSegmentTelemetry): ImmSegmentR
     }
   }
 
-  const pilarA = calculateScorePilarA(telemetry.iri_estimado)
+  // O Pilar A (conforto de rolamento e IRI) é ajustado pelo Fator K do veículo-sensor
+  // K > 1.0 normaliza leituras em veículos mais rígidos/pesados, evitando subestimar a qualidade do asfalto
+  const basePilarA = calculateScorePilarA(telemetry.iri_estimado)
+  const pilarA =
+    fatorKCustom && fatorKCustom > 0
+      ? Math.round(Math.min(100, Math.max(0, basePilarA * (1 / Math.sqrt(fatorKCustom)))))
+      : basePilarA
+
   const pilarB = calculateScorePilarB(telemetry.anomalias_detectadas)
   const pilarC = calculateScorePilarC(telemetry.frenagens_panico_count)
   const critMultiplier = getCriticidadeMultiplier(telemetry.tipo_via)
@@ -310,17 +320,17 @@ export function calculateCityImmSummary(segments: RoadSegmentTelemetry[]): ImmCi
       kpiCustoEvitadoTotal: 4860000,
       kpiMultiplicadorMax: 10,
       metodologia: {
-        versao: '1.0',
-        data: 'Fevereiro/2025',
+        versao: '1.1',
+        data: 'Março/2025',
         redacao_obrigatoria_iri:
-          'IRI estimado por telemetria inercial, correlacionado ao método do Banco Mundial',
+          'IRI estimado por telemetria inercial ponderado por Fator K calibrado por tipo de veículo, correlacionado ao método do Banco Mundial',
         regra_fator_confianca:
-          'Regra de Validação Tripla: mínimo de 3 passagens de veículos distintos para emissão de OS',
+          'Regra de Validação Tripla: mínimo de 3 passagens de veículos distintos para emissão de OS e calibração empírica de Fator K',
       },
     }
   }
 
-  const results = segments.map(evaluateSegmentImm)
+  const results = segments.map((s) => evaluateSegmentImm(s))
   const auditados = results.filter((r) => r.auditado)
   const naoAuditados = results.filter((r) => !r.auditado)
 
@@ -367,12 +377,12 @@ export function calculateCityImmSummary(segments: RoadSegmentTelemetry[]): ImmCi
     kpiCustoEvitadoTotal: kpiCustoEvitado > 0 ? kpiCustoEvitado : 3820000,
     kpiMultiplicadorMax: 10,
     metodologia: {
-      versao: '1.0',
-      data: 'Fevereiro/2025',
+      versao: '1.1',
+      data: 'Março/2025',
       redacao_obrigatoria_iri:
-        'IRI estimado por telemetria inercial, correlacionado ao método do Banco Mundial',
+        'IRI estimado por telemetria inercial ponderado por Fator K calibrado por tipo de veículo, correlacionado ao método do Banco Mundial',
       regra_fator_confianca:
-        'Regra de Validação Tripla: mínimo de 3 passagens de veículos distintos para emissão de OS',
+        'Regra de Validação Tripla: mínimo de 3 passagens de veículos distintos para emissão de OS e calibração empírica de Fator K',
     },
   }
 }
