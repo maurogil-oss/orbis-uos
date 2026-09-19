@@ -38,7 +38,7 @@ import {
   generateEnquadramentoSaidas,
   EnquadramentoSaidas,
 } from '@/lib/diagnostics/outputsGenerator'
-import { computeSha256, generateIntegrityProtocol } from '@/lib/diagnostics/pdfReport'
+import { computeSha256, generateIntegrityProtocol, sanitizeHtml } from '@/lib/diagnostics/pdfReport'
 import {
   saveBlocoProgress,
   getEnquadramentoByProtocolo,
@@ -338,7 +338,7 @@ export default function Enquadramento() {
           <html>
           <head>
             <meta charset="utf-8">
-            <title>Relatório de Enquadramento Institucional - ${b1.municipio}/${b1.uf}</title>
+            <title>Relatório de Enquadramento Institucional - ${sanitizeHtml(b1.municipio)}/${sanitizeHtml(b1.uf)}</title>
             <style>
               body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #0F172A; margin: 30px; line-height: 1.5; font-size: 13px; }
               .header { border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -376,11 +376,11 @@ export default function Enquadramento() {
             <div class="grid-2">
               <div class="card">
                 <b>1. IDENTIFICAÇÃO DO ENTE PÚBLICO</b><br>
-                Município: ${b1.municipio} / ${b1.uf}<br>
-                Código IBGE: ${b1.codigo_ibge} | CNPJ: ${b1.cnpj_municipio || 'Não declarado'}<br>
-                População IBGE: ${b1.populacao_ibge.toLocaleString('pt-BR')} habitantes (${diagResult.porte_identificado.toUpperCase()})<br>
-                Prefeito(a): ${b1.prefeito_nome || 'Gabinete do Prefeito'}<br>
-                Órgão Gestor do Trânsito: ${b1.nome_orgao_gestor || 'Órgão Próprio'} (Art. 24 CTB: ${b1.status_municipalizacao})
+                Município: ${sanitizeHtml(b1.municipio)} / ${sanitizeHtml(b1.uf)}<br>
+                Código IBGE: ${sanitizeHtml(b1.codigo_ibge)} | CNPJ: ${sanitizeHtml(b1.cnpj_municipio || 'Não declarado')}<br>
+                População IBGE: ${b1.populacao_ibge.toLocaleString('pt-BR')} habitantes (${sanitizeHtml(diagResult.porte_identificado.toUpperCase())})<br>
+                Prefeito(a): ${sanitizeHtml(b1.prefeito_nome || 'Gabinete do Prefeito')}<br>
+                Órgão Gestor do Trânsito: ${sanitizeHtml(b1.nome_orgao_gestor || 'Órgão Próprio')} (Art. 24 CTB: ${sanitizeHtml(b1.status_municipalizacao)})
               </div>
 
               <div class="card">

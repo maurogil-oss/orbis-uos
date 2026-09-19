@@ -18,3 +18,18 @@ export function generateIntegrityProtocol(municipio: string, uf: string): string
   const ufCode = uf.toUpperCase().slice(0, 2)
   return `ORBIS-${ufCode}-${dateStr}-${randomSuffix}`
 }
+
+/**
+ * Sanitiza strings para interpolação segura em templates HTML/PDF,
+ * prevenindo injeção de tags ou scripts maliciosos (XSS / HTML injection).
+ */
+export function sanitizeHtml(input: unknown): string {
+  if (input === null || input === undefined) return ''
+  const str = String(input)
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}

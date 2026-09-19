@@ -1,5 +1,5 @@
 import rawLogoUrl from '@/assets/uos-novo-d94c4.png'
-import { computeSha256 } from '@/lib/diagnostics/pdfReport'
+import { computeSha256, sanitizeHtml } from '@/lib/diagnostics/pdfReport'
 
 /**
  * Função auxiliar para obter a logomarca oficial com fundo transparente em formato DataURL
@@ -955,7 +955,7 @@ export async function generateDossieArquiteturaPdf(
           <div class="card">
             <b>Protocolo do Dossiê:</b> <span style="font-family: monospace;">${protocolo}</span><br>
             <b>Data e Hora da Emissão:</b> ${dataFormatada} às ${horaFormatada}<br>
-            <b>Responsável / Perfil:</b> ${options?.responsavelNome || 'Público / Avaliação de Conformidade'} (${options?.responsavelCargo || 'Acesso Técnico'})
+            <b>Responsável / Perfil:</b> ${sanitizeHtml(options?.responsavelNome || 'Público / Avaliação de Conformidade')} (${sanitizeHtml(options?.responsavelCargo || 'Acesso Técnico')})
           </div>
 
           <div class="card">

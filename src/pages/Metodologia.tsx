@@ -17,16 +17,19 @@ import {
   Lock,
 } from 'lucide-react'
 import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
+import { generateRelatorioSegurancaPdf } from '@/lib/diagnostics/relatorioSegurancaPdf'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Metodologia() {
   const { user } = useAuth()
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const [isGeneratingSecPdf, setIsGeneratingSecPdf] = useState(false)
   const [lastGeneratedHash, setLastGeneratedHash] = useState<string | null>(null)
   const [lastGeneratedProtocolo, setLastGeneratedProtocolo] = useState<string | null>(null)
+  const [lastGeneratedDocType, setLastGeneratedDocType] = useState<string>('Dossiê')
 
   const handleDownloadDossie = async () => {
-    if (isGeneratingPdf) return
+    if (isGeneratingPdf || isGeneratingSecPdf) return
     setIsGeneratingPdf(true)
     try {
       const res = await generateDossieArquiteturaPdf({
@@ -35,6 +38,7 @@ export default function Metodologia() {
           ? `Usuário Credenciado (${user.email})`
           : 'Acesso Público Governamental',
       })
+      setLastGeneratedDocType('Dossiê de Arquitetura')
       setLastGeneratedHash(res.hash)
       setLastGeneratedProtocolo(res.protocolo)
     } catch (err) {
@@ -46,6 +50,31 @@ export default function Metodologia() {
       )
     } finally {
       setIsGeneratingPdf(false)
+    }
+  }
+
+  const handleDownloadRelatorioSeguranca = async () => {
+    if (isGeneratingSecPdf || isGeneratingPdf) return
+    setIsGeneratingSecPdf(true)
+    try {
+      const res = await generateRelatorioSegurancaPdf({
+        responsavelNome: user?.name || 'Acesso Público / Avaliação Institucional',
+        responsavelCargo: user?.email
+          ? `Servidor Institucional (${user.email})`
+          : 'Acesso Institucional Governamental',
+      })
+      setLastGeneratedDocType('Relatório de Segurança')
+      setLastGeneratedHash(res.hash)
+      setLastGeneratedProtocolo(res.protocolo)
+    } catch (err) {
+      console.error('Erro ao gerar Relatório de Segurança:', err)
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Houve uma falha ao gerar o Relatório de Segurança. Verifique se o bloqueador de pop-ups está ativo.',
+      )
+    } finally {
+      setIsGeneratingSecPdf(false)
     }
   }
 
@@ -71,26 +100,48 @@ export default function Metodologia() {
               2025
             </div>
 
-            {/* Botão de Destaque Superior */}
-            <button
-              type="button"
-              onClick={handleDownloadDossie}
-              disabled={isGeneratingPdf}
-              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] border border-[#3B82F6]/60 shadow-lg shadow-[#2563EB]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
-              title="Baixar documento completo com capa institucional, hierarquia de índices, pilares IMV, FFT e hash SHA-256"
-            >
-              {isGeneratingPdf ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Gerando Dossiê (PDF)...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 text-[#38BDF8]" />
-                  <span>Baixar Dossiê de Arquitetura (PDF)</span>
-                </>
-              )}
-            </button>
+            {/* Botões de Destaque Superior */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleDownloadRelatorioSeguranca}
+                disabled={isGeneratingSecPdf || isGeneratingPdf}
+                className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] border border-[#10B981]/60 shadow-lg shadow-[#10B981]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+                title="Baixar Relatório de Segurança Interno em PDF com scan de RLS, CVEs, auditoria LGPD e hash SHA-256"
+              >
+                {isGeneratingSecPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Gerando Relatório...</span>
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4 text-[#A7F3D0]" />
+                    <span>Baixar Relatório de Segurança (PDF)</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadDossie}
+                disabled={isGeneratingPdf || isGeneratingSecPdf}
+                className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] border border-[#3B82F6]/60 shadow-lg shadow-[#2563EB]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+                title="Baixar documento completo com capa institucional, hierarquia de índices, pilares IMV, FFT e hash SHA-256"
+              >
+                {isGeneratingPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Gerando Dossiê (PDF)...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 text-[#38BDF8]" />
+                    <span>Baixar Dossiê de Arquitetura (PDF)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
@@ -108,7 +159,7 @@ export default function Metodologia() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
                 <span className="text-[#CBD5E1]">
-                  Dossiê gerado com sucesso! Protocolo:{' '}
+                  {lastGeneratedDocType} gerado com sucesso! Protocolo:{' '}
                   <strong className="text-white font-mono">{lastGeneratedProtocolo}</strong>
                 </span>
               </div>
@@ -589,8 +640,27 @@ export default function Metodologia() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <button
               type="button"
+              onClick={handleDownloadRelatorioSeguranca}
+              disabled={isGeneratingSecPdf || isGeneratingPdf}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#064E3B] hover:bg-[#065F46] border border-[#10B981]/50 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isGeneratingSecPdf ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#A7F3D0]" />
+                  <span>Gerando Relatório...</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4 text-[#A7F3D0]" />
+                  <span>Relatório de Segurança (PDF)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={handleDownloadDossie}
-              disabled={isGeneratingPdf}
+              disabled={isGeneratingPdf || isGeneratingSecPdf}
               className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#3B82F6]/50 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isGeneratingPdf ? (

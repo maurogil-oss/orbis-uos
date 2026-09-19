@@ -14,7 +14,7 @@ import {
   ChevronUp,
 } from 'lucide-react'
 import { DossieJuridicoCpsi, gerarDossieJuridicoCpsi } from '@/lib/diagnostics/dossieCpsi'
-import { computeSha256 } from '@/lib/diagnostics/pdfReport'
+import { computeSha256, sanitizeHtml } from '@/lib/diagnostics/pdfReport'
 
 interface DossieJuridicoModalProps {
   municipio: string
@@ -78,7 +78,7 @@ export function DossieJuridicoModal({
         <html>
         <head>
           <meta charset="utf-8">
-          <title>Dossiê Jurídico CPSI - ${municipio}/${uf}</title>
+          <title>Dossiê Jurídico CPSI - ${sanitizeHtml(municipio)}/${sanitizeHtml(uf)}</title>
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #0F172A; margin: 30px; font-size: 13px; line-height: 1.5; }
             .header { border-bottom: 2px solid #0F172A; padding-bottom: 15px; margin-bottom: 20px; }
@@ -95,7 +95,7 @@ export function DossieJuridicoModal({
           <div class="header">
             <h1 class="title">Dossiê Jurídico e Parecer de Enquadramento CPSI</h1>
             <div>Marco Legal das Startups (LC 182/2021) • Lei 14.129/2021</div>
-            <div>Protocolo: ${dossie.protocoloIntegridade} • Município: ${municipio}/${uf} • Emissão: ${dossie.dataEmissao}</div>
+            <div>Protocolo: ${sanitizeHtml(dossie.protocoloIntegridade)} • Município: ${sanitizeHtml(municipio)}/${sanitizeHtml(uf)} • Emissão: ${sanitizeHtml(dossie.dataEmissao)}</div>
           </div>
 
           <div class="box">
