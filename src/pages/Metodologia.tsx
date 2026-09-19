@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Shield,
@@ -11,9 +11,44 @@ import {
   FileCheck2,
   Scale,
   Zap,
+  Download,
+  Loader2,
+  FileText,
+  Lock,
 } from 'lucide-react'
+import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Metodologia() {
+  const { user } = useAuth()
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const [lastGeneratedHash, setLastGeneratedHash] = useState<string | null>(null)
+  const [lastGeneratedProtocolo, setLastGeneratedProtocolo] = useState<string | null>(null)
+
+  const handleDownloadDossie = async () => {
+    if (isGeneratingPdf) return
+    setIsGeneratingPdf(true)
+    try {
+      const res = await generateDossieArquiteturaPdf({
+        responsavelNome: user?.name || 'Acesso Público / Avaliação Externa',
+        responsavelCargo: user?.email
+          ? `Usuário Credenciado (${user.email})`
+          : 'Acesso Público Governamental',
+      })
+      setLastGeneratedHash(res.hash)
+      setLastGeneratedProtocolo(res.protocolo)
+    } catch (err) {
+      console.error('Erro ao gerar Dossiê de Arquitetura:', err)
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Houve uma falha ao gerar o Dossiê de Arquitetura. Verifique se o bloqueador de pop-ups está ativo.',
+      )
+    } finally {
+      setIsGeneratingPdf(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] pt-24 pb-20">
       <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -27,12 +62,37 @@ export default function Metodologia() {
           <span className="text-[#3B82F6]">Metodologia Pública</span>
         </div>
 
-        {/* Header */}
-        <div className="space-y-3 pb-6 border-b border-[#1A2A5A]">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-semibold text-[#10B981]">
-            <Calendar className="w-3.5 h-3.5" />
-            Versão 2.1 Homologada • Onda 3 Mobilidade Ativa (IMA Real & Bandas FFT) • Março de 2025
+        {/* Header com Botão em Destaque */}
+        <div className="space-y-4 pb-6 border-b border-[#1A2A5A]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-semibold text-[#10B981] w-fit">
+              <Calendar className="w-3.5 h-3.5" />
+              Versão 2.1 Homologada • Onda 3 Mobilidade Ativa (IMA Real & Bandas FFT) • Março de
+              2025
+            </div>
+
+            {/* Botão de Destaque Superior */}
+            <button
+              type="button"
+              onClick={handleDownloadDossie}
+              disabled={isGeneratingPdf}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] border border-[#3B82F6]/60 shadow-lg shadow-[#2563EB]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+              title="Baixar documento completo com capa institucional, hierarquia de índices, pilares IMV, FFT e hash SHA-256"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Gerando Dossiê (PDF)...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 text-[#38BDF8]" />
+                  <span>Baixar Dossiê de Arquitetura (PDF)</span>
+                </>
+              )}
+            </button>
           </div>
+
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
             Metodologia do Diagnóstico Institucional, do IMM e dos Sub-índices Setoriais (IMV e IMA)
           </h1>
@@ -41,6 +101,22 @@ export default function Metodologia() {
             ponderação, viés de desvio declarado e bandas espectrais FFT da plataforma ORBIS.UOS
             (Versão 2.1 Homologada).
           </p>
+
+          {/* Feedback de Geração / Hash se já emitido */}
+          {lastGeneratedHash && (
+            <div className="p-3.5 rounded-xl bg-[#0A1128] border border-[#10B981]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
+                <span className="text-[#CBD5E1]">
+                  Dossiê gerado com sucesso! Protocolo:{' '}
+                  <strong className="text-white font-mono">{lastGeneratedProtocolo}</strong>
+                </span>
+              </div>
+              <div className="font-mono text-[11px] text-[#38BDF8] break-all">
+                SHA-256: {lastGeneratedHash.slice(0, 20)}...{lastGeneratedHash.slice(-12)}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 1. Princípios Norteadores */}
@@ -492,8 +568,55 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* Botão de retorno e ação */}
-        <div className="pt-4 flex items-center justify-between">
+        {/* Banner de Encerramento com CTA para Dossiê e Enquadramento */}
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0A1128] via-[#101B3A] to-[#1A2A5A] border border-[#3B82F6]/40 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
+          <div className="space-y-1.5 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#3B82F6]/20 border border-[#3B82F6]/40 text-[11px] font-mono text-[#60A5FA] font-bold">
+              <FileText className="w-3.5 h-3.5" />
+              Evidência Institucional Oficial para Formulários & Editais
+            </div>
+            <h3 className="text-lg font-bold text-white">
+              Precisa apresentar a arquitetura técnica completa para sua equipe ou órgão de
+              controle?
+            </h3>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              Baixe o Dossiê de Arquitetura em PDF com capa institucional, matrizes matemáticas dos
+              4 pilares do IMV, bandas FFT dos modos ativos, catálogo de endpoints e hash
+              criptográfico SHA-256.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={handleDownloadDossie}
+              disabled={isGeneratingPdf}
+              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#3B82F6]/50 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#38BDF8]" />
+                  <span>Gerando PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 text-[#38BDF8]" />
+                  <span>Baixar Dossiê de Arquitetura (PDF)</span>
+                </>
+              )}
+            </button>
+
+            <Link
+              to="/enquadramento"
+              className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-lg shadow-[#3B82F6]/25 text-center transition-all"
+            >
+              Iniciar Enquadramento CPSI
+            </Link>
+          </div>
+        </div>
+
+        {/* Botão de retorno */}
+        <div className="pt-2 flex items-center justify-between text-xs">
           <Link
             to="/"
             className="text-xs font-semibold text-[#CBD5E1] hover:text-white flex items-center gap-1.5"
@@ -501,13 +624,9 @@ export default function Metodologia() {
             <ArrowLeft className="w-3.5 h-3.5" />
             Voltar para a página inicial
           </Link>
-
-          <Link
-            to="/enquadramento"
-            className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 transition-all"
-          >
-            Iniciar Enquadramento do Município
-          </Link>
+          <span className="text-[#64748B] font-mono text-[11px]">
+            ORBIS.UOS • Metodologia v2.1 Homologada • 2025–2026
+          </span>
         </div>
       </div>
     </div>
