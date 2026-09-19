@@ -16,6 +16,10 @@ import {
   FileText,
   Lock,
   Hexagon,
+  Server,
+  Headphones,
+  Database,
+  ArrowRight,
 } from 'lucide-react'
 import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
 import { generateRelatorioSegurancaPdf } from '@/lib/diagnostics/relatorioSegurancaPdf'
@@ -679,6 +683,96 @@ export default function Metodologia() {
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* SEÇÃO NOVA: Pacote Operacional B2G (Backups, Continuidade RTO/RPO & SLAs) */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#10B981]/60 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Server className="w-5 h-5 text-[#10B981]" />
+              Pacote Operacional & Sustentação Contínua B2G
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+              Conformidade Governamental
+            </span>
+          </div>
+
+          <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            A metodologia de auditoria viária e governança municipal é respaldada por um{' '}
+            <b>Pacote Operacional homologado</b> que assegura aos municípios contratantes,
+            secretarias de obras e órgãos de controle (TCE/CGU) a perenidade dos dados, a
+            continuidade do serviço e canais ágeis de resolução de incidentes.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            {/* Backup & Restore */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center gap-2 font-bold text-white text-sm">
+                <Database className="w-4 h-4 text-[#3B82F6]" />
+                <span>1. Política de Backup & Restore</span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Snapshots diários em nuvem gerenciada Skip Cloud, criptografia AES-256 e{' '}
+                <b>procedimento formal de teste de restore em 5 fases</b> com registro em trilha de
+                auditoria na collection <code>institucional_settings</code>.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[10px] font-mono text-[#F59E0B]">
+                Status do Teste: Previsto (Pré-Piloto CPSI)
+              </div>
+            </div>
+
+            {/* Continuidade RTO/RPO */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center gap-2 font-bold text-white text-sm">
+                <Shield className="w-4 h-4 text-[#10B981]" />
+                <span>2. Continuidade (RTO/RPO)</span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                <b>RTO declarado de até 24h</b> e <b>RPO de até 24h</b>. Três cenários de
+                contingência mitigados: failover de nuvem, cache local para falhas de APIs federais
+                (<code>siconfi_cache</code>) e coleta offline em sombras de sinal 4G/5G.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[10px] font-mono text-[#10B981]">
+                RTO: 24h • RPO: 24h Declarados
+              </div>
+            </div>
+
+            {/* Suporte e SLAs */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center gap-2 font-bold text-white text-sm">
+                <Headphones className="w-4 h-4 text-[#F59E0B]" />
+                <span>3. Suporte & SLAs</span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Canal oficial <code>contato@orbis-uos.gov.br</code>, atendimento em horário
+                comercial (08h às 18h BRT) e matriz de SLA: P1 em 4h úteis, P2 em 8h úteis e P3 em 2
+                dias úteis. Harmonizado com o Art. 48 da LGPD em <code>/privacidade</code>.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[10px] font-mono text-[#38BDF8]">
+                SLA P1: 4h • Livro de Incidentes
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#10B981]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="font-bold text-sm text-white block">
+                Consulte a documentação integral ou baixe o PDF para anexação contratual:
+              </span>
+              <p className="text-xs text-[#94A3B8]">
+                A página dedicada <b>/operacao</b> traz o detalhamento passo a passo dos 3
+                documentos, matriz de criticidade e botão para gerar PDF com hash SHA-256 de fé
+                pública.
+              </p>
+            </div>
+            <Link
+              to="/operacao"
+              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#10B981]/20 shrink-0"
+            >
+              <span>Acessar Pacote Operacional (/operacao)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 

@@ -88,6 +88,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/operacao"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#10B981]"
+                >
+                  Pacote Operacional (Backups, RTO/RPO & SLA)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/interoperabilidade"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
                 >
@@ -145,6 +153,10 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]/80">
           <p>© {new Date().getFullYear()} Orbis UOS GovTech. Todos os direitos reservados.</p>
           <div className="flex items-center gap-6">
+            <Link to="/operacao" className="hover:text-[#F8FAFC] transition-colors text-[#10B981]">
+              Pacote Operacional
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
             <Link
               to="/privacidade"
               className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]"

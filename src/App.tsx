@@ -10,6 +10,7 @@ import Cockpit from './pages/Cockpit'
 import Enquadramento from './pages/Enquadramento'
 import Metodologia from './pages/Metodologia'
 import Privacidade from './pages/Privacidade'
+import Operacao from './pages/Operacao'
 import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
@@ -31,6 +32,7 @@ const App = () => (
             {/* Rotas Públicas */}
             <Route path="/" element={<Index />} />
             <Route path="/metodologia" element={<Metodologia />} />
+            <Route path="/operacao" element={<Operacao />} />
             <Route path="/privacidade" element={<Privacidade />} />
             <Route path="/login" element={<Login />} />
             <Route path="/acesso" element={<Login />} />

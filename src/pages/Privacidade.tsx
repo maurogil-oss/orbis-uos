@@ -66,7 +66,7 @@ export default function Privacidade() {
               Versão 1.0 • Vigência: Março/2025
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#101B3A] border border-[#1A2A5A] text-[11px] font-mono text-[#94A3B8]">
-              Release v0.0.21
+              Release v0.0.23
             </span>
           </div>
 
@@ -1062,7 +1062,7 @@ export default function Privacidade() {
           </p>
           <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-[#1A2A5A] font-mono text-[11px]">
             <span>ORBIS UOS GovTech • Encarregado de Proteção de Dados (DPO)</span>
-            <span>Última revisão formal: 15 de Março de 2025 • Versão 1.0 (v0.0.21)</span>
+            <span>Última revisão formal: 15 de Março de 2025 • Versão 1.0 (v0.0.23)</span>
           </div>
         </div>
 
