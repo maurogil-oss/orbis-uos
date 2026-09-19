@@ -1,6 +1,16 @@
 import pb from '@/lib/pocketbase/client'
 
-export type VeiculoTipoCalibracao = 'onibus' | 'viatura' | 'caminhao' | 'ambulancia' | 'outros'
+export type VeiculoTipoCalibracao =
+  | 'onibus'
+  | 'viatura'
+  | 'caminhao'
+  | 'ambulancia'
+  | 'outros'
+  | 'pedestre'
+  | 'ciclista'
+  | 'motociclista'
+
+export type ModoMobilidadeColeta = 'veiculo_frota' | 'pedestre' | 'ciclista' | 'motociclista'
 
 export interface VeiculoTipoOption {
   id: VeiculoTipoCalibracao
@@ -10,6 +20,11 @@ export interface VeiculoTipoOption {
   baselineK: number // Fator K padrão teórico fixo
   descricaoDinamica: string // ex: chassi pesado, suspensão rígida, suspensão mista
   suspensaoTipo: string
+  modoCategoria: ModoMobilidadeColeta
+  indiceAlvo: 'IMV' | 'IMA'
+  bandaFftHz: { min: number; max: number; label: string }
+  trataViesDesvio: boolean
+  dicaOperador: string
 }
 
 export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOption> = {
@@ -22,6 +37,11 @@ export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOpti
     descricaoDinamica:
       'Alta massa inercial, atenua microfissuras e amplifica oscilações de baixa frequência.',
     suspensaoTipo: 'Pneumática / Feixe Misto',
+    modoCategoria: 'veiculo_frota',
+    indiceAlvo: 'IMV',
+    bandaFftHz: { min: 1.0, max: 20.0, label: '1–20 Hz' },
+    trataViesDesvio: false,
+    dicaOperador: 'Fixar no suporte firme do painel do veículo.',
   },
   viatura: {
     id: 'viatura',
@@ -32,6 +52,11 @@ export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOpti
     descricaoDinamica:
       'Chassi leve e suspensão esportiva/reforçada, capta impactos de alta frequência com nitidez.',
     suspensaoTipo: 'Independente McPherson Reforçada',
+    modoCategoria: 'veiculo_frota',
+    indiceAlvo: 'IMV',
+    bandaFftHz: { min: 1.0, max: 20.0, label: '1–20 Hz' },
+    trataViesDesvio: false,
+    dicaOperador: 'Fixar no suporte veicular no para-brisa ou painel.',
   },
   caminhao: {
     id: 'caminhao',
@@ -42,6 +67,11 @@ export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOpti
     descricaoDinamica:
       'Rigidez torsional severa com carga variável, resposta vertical com picos elevados.',
     suspensaoTipo: 'Eixo Rígido com Feixe de Molas',
+    modoCategoria: 'veiculo_frota',
+    indiceAlvo: 'IMV',
+    bandaFftHz: { min: 1.0, max: 20.0, label: '1–20 Hz' },
+    trataViesDesvio: false,
+    dicaOperador: 'Fixar no painel da cabine do caminhão.',
   },
   ambulancia: {
     id: 'ambulancia',
@@ -52,6 +82,11 @@ export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOpti
     descricaoDinamica:
       'Acomodação calibrada para transporte de pacientes, resposta inercial balanceada.',
     suspensaoTipo: 'Mista Estabilizada',
+    modoCategoria: 'veiculo_frota',
+    indiceAlvo: 'IMV',
+    bandaFftHz: { min: 1.0, max: 20.0, label: '1–20 Hz' },
+    trataViesDesvio: false,
+    dicaOperador: 'Fixar no painel frontal da viatura de resgate.',
   },
   outros: {
     id: 'outros',
@@ -61,6 +96,58 @@ export const VEICULO_TIPOS_CONFIG: Record<VeiculoTipoCalibracao, VeiculoTipoOpti
     baselineK: 1.0,
     descricaoDinamica: 'Padrão neutro de referência unitária para frotas institucionais diversas.',
     suspensaoTipo: 'Convencional',
+    modoCategoria: 'veiculo_frota',
+    indiceAlvo: 'IMV',
+    bandaFftHz: { min: 1.0, max: 20.0, label: '1–20 Hz' },
+    trataViesDesvio: false,
+    dicaOperador: 'Fixar no suporte do veículo leve oficial.',
+  },
+
+  // Onda 3: Modos de Mobilidade Ativa (Alimenta o IMA)
+  pedestre: {
+    id: 'pedestre',
+    label: 'Pedestre (Calçadas)',
+    sublabel: 'Caminhada urbana / rotas a pé e passeios públicos',
+    icone: 'footprints',
+    baselineK: 0.75, // Passo humano amortece aceleração de impacto direto; K < 1.0 normaliza a leitura
+    descricaoDinamica:
+      'Cadência biomecânica do passo humano (0.8–3.5 Hz). Detecta degraus, desníveis de ladrilho, buracos e rampas.',
+    suspensaoTipo: 'Biomecânica Humana (Passo)',
+    modoCategoria: 'pedestre',
+    indiceAlvo: 'IMA',
+    bandaFftHz: { min: 0.8, max: 3.5, label: '0.8–3.5 Hz (Banda do Passo)' },
+    trataViesDesvio: true,
+    dicaOperador: 'LGPD: Celular seguro no bolso, bolsa ou mão durante a caminhada na calçada.',
+  },
+  ciclista: {
+    id: 'ciclista',
+    label: 'Ciclista (Ciclovias)',
+    sublabel: 'Bicicleta / ciclofaixas e micromobilidade',
+    icone: 'bike',
+    baselineK: 1.45, // Garfo rígido sem amortecedor amplifica impactos diretos; K > 1.0 equaliza a severidade
+    descricaoDinamica:
+      'Alta rigidez sem suspensão mecânica, sensível a fissuras transversais, sarjetas e tampas de bueiro.',
+    suspensaoTipo: 'Garfo Rígido / Pneu de Pressão',
+    modoCategoria: 'ciclista',
+    indiceAlvo: 'IMA',
+    bandaFftHz: { min: 2.0, max: 12.0, label: '2–12 Hz (Micromobilidade)' },
+    trataViesDesvio: false,
+    dicaOperador: 'LGPD: Celular no suporte do guidão ou no bolso do ciclista.',
+  },
+  motociclista: {
+    id: 'motociclista',
+    label: 'Motociclista (Pistas)',
+    sublabel: 'Duas rodas motorizadas / alta densidade e desvio',
+    icone: 'motorcycle',
+    baselineK: 1.25, // Amortecedor de 2 rodas com inclinação lateral e rolagem
+    descricaoDinamica:
+      'Alta frequência de rolagem com desvio dinâmico de buracos. Complemento de densidade viária e acessibilidade.',
+    suspensaoTipo: 'Garfo Telescópico Dianteiro / Monoshock',
+    modoCategoria: 'motociclista',
+    indiceAlvo: 'IMA',
+    bandaFftHz: { min: 3.0, max: 22.0, label: '3–22 Hz (Duas Rodas)' },
+    trataViesDesvio: true,
+    dicaOperador: 'LGPD: Celular no suporte da moto ou na jaqueta com zíper.',
   },
 }
 
@@ -103,6 +190,11 @@ export interface FieldSessionRecord {
   session_code: string
   codigo_ibge: string
   veiculo_tipo: VeiculoTipoCalibracao
+  modo_coleta?: ModoMobilidadeColeta
+  indice_alvo?: 'IMV' | 'IMA'
+  desvios_detectados?: number
+  banda_fft_min_hz?: number
+  banda_fft_max_hz?: number
   veiculo_id?: string
   linha_frota?: string
   via_inicial?: string
@@ -313,7 +405,7 @@ export async function restoreAllFatorKToBaseline(
   codigoIbge: string,
   usuarioNome: string,
 ): Promise<void> {
-  const tipos: VeiculoTipoCalibracao[] = ['onibus', 'viatura', 'caminhao', 'ambulancia', 'outros']
+  const tipos = Object.keys(VEICULO_TIPOS_CONFIG) as VeiculoTipoCalibracao[]
   for (const tipo of tipos) {
     const config = VEICULO_TIPOS_CONFIG[tipo]
     await applyFatorKCalibration({

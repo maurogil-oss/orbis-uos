@@ -5,6 +5,7 @@ import {
   extractWindowMetrics,
   SpectrumAnalysisResult,
   WindowMetricsResult,
+  FFT_BANDS_BY_MODE,
 } from '@/lib/fft'
 import {
   computeSegmentId,
@@ -12,7 +13,12 @@ import {
   registerSegmentPassage,
   CreateSegmentReadingPayload,
 } from '@/services/roadSegments'
-import { createFieldSession } from '@/services/fatorKCalibration'
+import {
+  createFieldSession,
+  VeiculoTipoCalibracao,
+  ModoMobilidadeColeta,
+  VEICULO_TIPOS_CONFIG,
+} from '@/services/fatorKCalibration'
 
 export interface MotionSample {
   timestamp: number
@@ -55,9 +61,12 @@ export interface SessionSummary {
   distanceMeters: number
   windowsProcessed: number
   impactsDetected: number
+  desviosDetectados: number
   segmentsCovered: string[]
   averageIri: number
   peakG: number
+  modoColeta: ModoMobilidadeColeta
+  indiceAlvo: 'IMV' | 'IMA'
 }
 
 export interface CollectorConfig {
@@ -67,7 +76,9 @@ export interface CollectorConfig {
   bairro: string
   linhaFrota: string
   veiculoTipo: string
-  veiculoTipoCanonico?: 'onibus' | 'viatura' | 'caminhao' | 'ambulancia' | 'outros'
+  veiculoTipoCanonico?: VeiculoTipoCalibracao
+  modoColeta?: ModoMobilidadeColeta
+  indiceAlvo?: 'IMV' | 'IMA'
   veiculoId?: string
   codigoIbge?: string
   manualLat?: number
@@ -115,6 +126,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   const [processedWindows, setProcessedWindows] = useState<AggregatedWindowData[]>([])
   const [latestWindowMetrics, setLatestWindowMetrics] = useState<WindowMetricsResult | null>(null)
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null)
+  const [desviosContagem, setDesviosContagem] = useState<number>(0)
 
   // GPS state
   const [currentCoords, setCurrentCoords] = useState<{
@@ -158,6 +170,24 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   const windowZBufferRef = useRef<number[]>([])
   const windowAngularBufferRef = useRef<{ roll: number; pitch: number }[]>([])
   const lastWindowFlushRef = useRef<number>(Date.now())
+  const totalDesviosSessionRef = useRef<number>(0)
+
+  // Configuração canônica do tipo / modo
+  const canonicoTipo = config.veiculoTipoCanonico || 'onibus'
+  const configInfo = VEICULO_TIPOS_CONFIG[canonicoTipo] || VEICULO_TIPOS_CONFIG.onibus
+  const modoAtivoEfetivo: ModoMobilidadeColeta =
+    config.modoColeta || configInfo.modoCategoria || 'veiculo_frota'
+  const indiceAlvoEfetivo: 'IMV' | 'IMA' = config.indiceAlvo || configInfo.indiceAlvo || 'IMV'
+
+  // Banda FFT selecionada para o processamento
+  const bandConfigFft =
+    modoAtivoEfetivo === 'pedestre'
+      ? FFT_BANDS_BY_MODE.pedestre
+      : modoAtivoEfetivo === 'ciclista'
+        ? FFT_BANDS_BY_MODE.ciclista
+        : modoAtivoEfetivo === 'motociclista'
+          ? FFT_BANDS_BY_MODE.motociclista
+          : FFT_BANDS_BY_MODE.veiculo
 
   // Checagem de suporte de sensores e WakeLock no mount
   useEffect(() => {
@@ -269,11 +299,24 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
       if (zBuffer.length < 8) return
 
-      const metrics = extractWindowMetrics(zBuffer, angBuffer, thresholdG, samplingRateHz)
+      const metrics = extractWindowMetrics(
+        zBuffer,
+        angBuffer,
+        thresholdG,
+        samplingRateHz,
+        bandConfigFft,
+      )
       setLatestWindowMetrics(metrics)
 
+      if (metrics.desvioAngularCount > 0 || metrics.angularBumpCount > 0) {
+        totalDesviosSessionRef.current += metrics.desvioAngularCount || metrics.angularBumpCount
+        setDesviosContagem(totalDesviosSessionRef.current)
+      }
+
       const coords = coordsRef.current
-      const currentSpeed = speedRef.current ?? 36
+      const currentSpeed =
+        speedRef.current ??
+        (modoAtivoEfetivo === 'pedestre' ? 4.5 : modoAtivoEfetivo === 'ciclista' ? 16 : 36)
 
       const windowData: AggregatedWindowData = {
         id: `win-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
@@ -300,6 +343,9 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             bairro: bairroName,
             veiculo_id: veiculoId,
             veiculo_tipo: config.veiculoTipo || 'Smartphone Embarcado',
+            modo_coleta: modoAtivoEfetivo,
+            indice_alvo: indiceAlvoEfetivo,
+            desvio_angular_taxa: metrics.desvioAngularCount,
             rms_vertical: metrics.rmsVerticalG,
             pico_acel_z: metrics.peakZ_G,
             impactos_count: metrics.impactsCount,
@@ -327,7 +373,16 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         }
       }
     },
-    [thresholdG, samplingRateHz, config.autoPersistWindows, config.veiculoTipo, codigoIbge],
+    [
+      thresholdG,
+      samplingRateHz,
+      config.autoPersistWindows,
+      config.veiculoTipo,
+      codigoIbge,
+      bandConfigFft,
+      modoAtivoEfetivo,
+      indiceAlvoEfetivo,
+    ],
   )
 
   // Handler do evento DeviceMotion com aceleração e taxa de rotação
@@ -427,10 +482,10 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         const next = [...prev, sample]
         const trimmed = next.length > 64 ? next.slice(-64) : next
 
-        // FFT em tempo real a cada 3 amostras (~16Hz visual)
+        // FFT em tempo real a cada 3 amostras (~16Hz visual) com banda por modo
         if (trimmed.length >= 16 && trimmed.length % 3 === 0) {
           const zValues = trimmed.map((s) => s.calibratedZ)
-          const spec = computeZAccelerationSpectrum(zValues, samplingRateHz, 24)
+          const spec = computeZAccelerationSpectrum(zValues, samplingRateHz, 24, bandConfigFft)
           setSpectrumAnalysis(spec)
         }
 
@@ -460,7 +515,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
           const segId = computeSegmentId(coords.latitude, coords.longitude, codigoIbge)
 
           const recentZ = [absG, absG * 0.8, absG * 0.5, 0.2, 0.1]
-          const quickSpec = computeZAccelerationSpectrum(recentZ, samplingRateHz, 16)
+          const quickSpec = computeZAccelerationSpectrum(recentZ, samplingRateHz, 16, bandConfigFft)
 
           const newAnomaly: DetectedAnomaly = {
             id: `real-${now}-${Math.random().toString(36).substr(2, 5)}`,
@@ -677,21 +732,33 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       distanceMeters: Math.round(totalDistMeters),
       windowsProcessed: processedWindows.length || 1,
       impactsDetected: anomalies.length,
+      desviosDetectados: totalDesviosSessionRef.current,
       segmentsCovered: Array.from(segSet),
       averageIri: calculatedIRI,
       peakG: peakSessionG,
+      modoColeta: modoAtivoEfetivo,
+      indiceAlvo: indiceAlvoEfetivo,
     }
 
-    // Persistir registro formal da sessão de campo para alimentação da Calibração do Fator K
+    // Persistir registro formal da sessão de campo para alimentação da Calibração do Fator K e IMA
     const sessionCode = `SES-${Date.now().toString(36).toUpperCase()}`
     createFieldSession({
       session_code: sessionCode,
       codigo_ibge: codigoIbge,
-      veiculo_tipo: config.veiculoTipoCanonico || 'onibus',
+      veiculo_tipo: canonicoTipo,
+      modo_coleta: modoAtivoEfetivo,
+      indice_alvo: indiceAlvoEfetivo,
+      desvios_detectados: totalDesviosSessionRef.current,
+      banda_fft_min_hz: configInfo.bandaFftHz.min,
+      banda_fft_max_hz: configInfo.bandaFftHz.max,
       veiculo_id:
         config.veiculoId || `DEV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-      linha_frota: config.linhaFrota || 'Linha Operacional',
-      via_inicial: config.via || 'Via Municipal',
+      linha_frota:
+        config.linhaFrota ||
+        (modoAtivoEfetivo === 'pedestre' ? 'Rota Pedestre' : 'Linha Operacional'),
+      via_inicial:
+        config.via ||
+        (modoAtivoEfetivo === 'pedestre' ? 'Calçada / Passeio Público' : 'Via Municipal'),
       bairro: config.bairro || 'Centro',
       duracao_ms: elapsedMs,
       distancia_metros: Math.round(totalDistMeters),
@@ -700,7 +767,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       segmentos_cobertos: Array.from(segSet),
       iri_medio: calculatedIRI,
       pico_g: peakSessionG,
-      operador_nome: 'Operador de Campo / Cockpit',
+      operador_nome: 'Operador de Campo / Cockpit (Onda 3)',
     }).catch((err) => {
       console.warn('Registro de field_session salvo localmente:', err)
     })
@@ -807,6 +874,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     startSession,
     stopSession,
     setManualLocation,
+    desviosContagem,
     buildEventPayload,
   }
 }

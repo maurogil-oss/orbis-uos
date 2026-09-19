@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T00:01:31.509Z",
+  "generatedAt": "2026-09-19T00:09:24.405Z",
   "collections": [
     {
       "name": "users",
@@ -904,6 +904,26 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "modo_coleta",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["veiculo_frota", "pedestre", "ciclista", "motociclista"]
+        },
+        {
+          "name": "indice_alvo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["IMV", "IMA"]
+        },
+        {
+          "name": "desvio_angular_taxa",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
@@ -1045,6 +1065,30 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "score_ima",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "faixa_ima",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "passagens_modos_ativos",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "desvios_coletivos_count",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
@@ -1284,6 +1328,38 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "modo_coleta",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["veiculo_frota", "pedestre", "ciclista", "motociclista"]
+        },
+        {
+          "name": "indice_alvo",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["IMV", "IMA"]
+        },
+        {
+          "name": "desvios_detectados",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "banda_fft_min_hz",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "banda_fft_max_hz",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [

@@ -38,6 +38,7 @@ import { computeFatorKCalibration } from '@/lib/diagnostics/fatorKEngine'
 import { RealCollectorModal } from '@/components/RealCollectorModal'
 import pb from '@/lib/pocketbase/client'
 import { toast } from '@/hooks/use-toast'
+import { Footprints, Bike } from 'lucide-react'
 
 export default function FatorKCalibrationPage() {
   const { user } = useAuth()
@@ -237,6 +238,12 @@ export default function FatorKCalibrationPage() {
         return <Truck className={className} />
       case 'ambulancia':
         return <Ambulance className={className} />
+      case 'pedestre':
+        return <Footprints className={className} />
+      case 'ciclista':
+        return <Bike className={className} />
+      case 'motociclista':
+        return <Car className={className} />
       case 'outros':
       default:
         return <Car className={className} />
@@ -263,15 +270,15 @@ export default function FatorKCalibrationPage() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-2.5">
                 <SlidersHorizontal className="w-7 h-7 text-[#3B82F6]" />
-                Calibração Real do Fator K por Tipo de Veículo
+                Calibração Real do Fator K por Veículo & Modo Ativo
               </h1>
-              <span className="text-[11px] font-mono uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2.5 py-0.5 rounded border border-[#3B82F6]/40 font-semibold">
-                Motor IMM v1.1
+              <span className="text-[11px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-semibold">
+                Onda 3 • IMV + IMA
               </span>
             </div>
             <p className="text-xs sm:text-sm text-[#94A3B8] mt-1 max-w-3xl leading-relaxed">
-              Ajuste empírico da resposta inercial de cada categoria de veículo da frota pública
-              (ônibus, viatura, caminhão, ambulância) sobre trechos auditados com{' '}
+              Ajuste empírico da resposta inercial e espectral da frota pública e dos modos de
+              mobilidade ativa (pedestre, ciclista, motocicleta) sobre trechos auditados com{' '}
               <b className="text-[#CBD5E1]">Fator de Confiança F ≥ 3 passagens</b>.
             </p>
           </div>
@@ -399,86 +406,197 @@ export default function FatorKCalibrationPage() {
           </Link>
         </div>
 
-        {/* 5 Vehicle Category Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {(Object.keys(VEICULO_TIPOS_CONFIG) as VeiculoTipoCalibracao[]).map((tipoKey) => {
-            const data = resultadosCalibrados[tipoKey]
-            const isSelected = selectedTipo === tipoKey
-            const isApplied = data.statusAplicacao === 'calibrado_ativo'
-            return (
-              <button
-                key={tipoKey}
-                type="button"
-                onClick={() => setSelectedTipo(tipoKey)}
-                className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
-                  isSelected
-                    ? 'bg-[#101B3A] border-[#3B82F6] shadow-lg shadow-[#3B82F6]/15 ring-1 ring-[#3B82F6]'
-                    : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#3B82F6]/50 hover:bg-[#101B3A]/60'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                      isSelected
-                        ? 'bg-[#3B82F6] text-white'
-                        : 'bg-[#101B3A] border border-[#1A2A5A] text-[#94A3B8] group-hover:text-white'
-                    }`}
-                  >
-                    {renderIcon(tipoKey, 'w-4 h-4')}
-                  </div>
+        {/* Category Tabs: Frotas Veiculares (IMV) & Modos de Mobilidade Ativa (IMA - Onda 3) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
+            <span>Frota Veicular Institucional • Sub-índice IMV</span>
+            <span className="font-mono text-[10px] text-[#60A5FA]">Banda Geral 1–20 Hz</span>
+          </div>
 
-                  {isApplied ? (
-                    <span className="text-[9px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded border border-[#10B981]/40 font-bold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                      Ativo
-                    </span>
-                  ) : (
-                    <span className="text-[9px] font-mono text-[#94A3B8] bg-[#101B3A] px-1.5 py-0.5 rounded border border-[#1A2A5A]">
-                      Baseline
-                    </span>
-                  )}
-                </div>
-
-                <div className="font-bold text-xs sm:text-sm text-[#F8FAFC] truncate">
-                  {data.config.label.split('/')[0]}
-                </div>
-
-                <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-[#1A2A5A]/60 text-xs font-mono">
-                  <div>
-                    <span className="text-[10px] text-[#94A3B8] block">Atual:</span>
-                    <span className="font-bold text-[#F8FAFC]">{data.aplicadoK.toFixed(2)}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-[#94A3B8] block">Sugerido:</span>
-                    <span
-                      className={`font-bold ${
-                        data.calibradoSugerido !== data.baselineK
-                          ? 'text-[#10B981]'
-                          : 'text-[#94A3B8]'
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {(
+              ['onibus', 'viatura', 'caminhao', 'ambulancia', 'outros'] as VeiculoTipoCalibracao[]
+            ).map((tipoKey) => {
+              const data = resultadosCalibrados[tipoKey]
+              if (!data) return null
+              const isSelected = selectedTipo === tipoKey
+              const isApplied = data.statusAplicacao === 'calibrado_ativo'
+              return (
+                <button
+                  key={tipoKey}
+                  type="button"
+                  onClick={() => setSelectedTipo(tipoKey)}
+                  className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
+                    isSelected
+                      ? 'bg-[#101B3A] border-[#3B82F6] shadow-lg shadow-[#3B82F6]/15 ring-1 ring-[#3B82F6]'
+                      : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#3B82F6]/50 hover:bg-[#101B3A]/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? 'bg-[#3B82F6] text-white'
+                          : 'bg-[#101B3A] border border-[#1A2A5A] text-[#94A3B8] group-hover:text-white'
                       }`}
                     >
-                      {data.calibradoSugerido.toFixed(2)}
+                      {renderIcon(tipoKey, 'w-4 h-4')}
+                    </div>
+
+                    {isApplied ? (
+                      <span className="text-[9px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded border border-[#10B981]/40 font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                        Ativo
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-mono text-[#94A3B8] bg-[#101B3A] px-1.5 py-0.5 rounded border border-[#1A2A5A]">
+                        Baseline
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="font-bold text-xs sm:text-sm text-[#F8FAFC] truncate">
+                    {data.config.label.split('/')[0]}
+                  </div>
+
+                  <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-[#1A2A5A]/60 text-xs font-mono">
+                    <div>
+                      <span className="text-[10px] text-[#94A3B8] block">Atual:</span>
+                      <span className="font-bold text-[#F8FAFC]">{data.aplicadoK.toFixed(2)}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-[#94A3B8] block">Sugerido:</span>
+                      <span
+                        className={`font-bold ${
+                          data.calibradoSugerido !== data.baselineK
+                            ? 'text-[#10B981]'
+                            : 'text-[#94A3B8]'
+                        }`}
+                      >
+                        {data.calibradoSugerido.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 text-[10px] text-[#94A3B8] flex items-center justify-between">
+                    <span>{data.amostras.sessoes} sessões</span>
+                    <span
+                      className={
+                        data.confiabilidade.status === 'alta'
+                          ? 'text-[#10B981] font-semibold'
+                          : data.confiabilidade.status === 'moderada'
+                            ? 'text-[#F59E0B]'
+                            : 'text-[#64748B]'
+                      }
+                    >
+                      {data.confiabilidade.status.toUpperCase()}
                     </span>
                   </div>
-                </div>
+                </button>
+              )
+            })}
+          </div>
 
-                <div className="mt-2 text-[10px] text-[#94A3B8] flex items-center justify-between">
-                  <span>{data.amostras.sessoes} sessões</span>
-                  <span
-                    className={
-                      data.confiabilidade.status === 'alta'
-                        ? 'text-[#10B981] font-semibold'
-                        : data.confiabilidade.status === 'moderada'
-                          ? 'text-[#F59E0B]'
-                          : 'text-[#64748B]'
-                    }
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#10B981] pt-2">
+            <span>Onda 3 • Mobilidade Ativa & Acessibilidade • Sub-índice IMA</span>
+            <span className="font-mono text-[10px] text-[#A7F3D0]">
+              Bandas Espectrais Dedicadas
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {(['pedestre', 'ciclista', 'motociclista'] as VeiculoTipoCalibracao[]).map(
+              (tipoKey) => {
+                const data = resultadosCalibrados[tipoKey]
+                if (!data) return null
+                const isSelected = selectedTipo === tipoKey
+                const isApplied = data.statusAplicacao === 'calibrado_ativo'
+                return (
+                  <button
+                    key={tipoKey}
+                    type="button"
+                    onClick={() => setSelectedTipo(tipoKey)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
+                      isSelected
+                        ? 'bg-[#101B3A] border-[#10B981] shadow-lg shadow-[#10B981]/15 ring-1 ring-[#10B981]'
+                        : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#10B981]/50 hover:bg-[#101B3A]/60'
+                    }`}
                   >
-                    {data.confiabilidade.status.toUpperCase()}
-                  </span>
-                </div>
-              </button>
-            )
-          })}
+                    <div className="flex items-center justify-between mb-2">
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          isSelected
+                            ? 'bg-[#10B981] text-white'
+                            : 'bg-[#101B3A] border border-[#1A2A5A] text-[#10B981] group-hover:text-white'
+                        }`}
+                      >
+                        {renderIcon(tipoKey, 'w-4 h-4')}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] font-mono text-[#CBD5E1] bg-[#101B3A] px-1.5 py-0.5 rounded border border-[#1A2A5A]">
+                          {data.config.bandaFftHz.label}
+                        </span>
+                        {isApplied ? (
+                          <span className="text-[9px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded border border-[#10B981]/40 font-bold flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                            Ativo
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono text-[#94A3B8] bg-[#101B3A] px-1.5 py-0.5 rounded border border-[#1A2A5A]">
+                            Baseline
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="font-bold text-xs sm:text-sm text-[#F8FAFC]">
+                      {data.config.label}
+                    </div>
+                    <div className="text-[11px] text-[#94A3B8] truncate mt-0.5">
+                      {data.config.sublabel}
+                    </div>
+
+                    <div className="flex items-baseline justify-between mt-2 pt-2 border-t border-[#1A2A5A]/60 text-xs font-mono">
+                      <div>
+                        <span className="text-[10px] text-[#94A3B8] block">Atual:</span>
+                        <span className="font-bold text-[#F8FAFC]">
+                          {data.aplicadoK.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-[#94A3B8] block">Sugerido:</span>
+                        <span
+                          className={`font-bold ${
+                            data.calibradoSugerido !== data.baselineK
+                              ? 'text-[#10B981]'
+                              : 'text-[#94A3B8]'
+                          }`}
+                        >
+                          {data.calibradoSugerido.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 text-[10px] text-[#94A3B8] flex items-center justify-between">
+                      <span>{data.amostras.sessoes} sessões de campo</span>
+                      <span
+                        className={
+                          data.confiabilidade.status === 'alta'
+                            ? 'text-[#10B981] font-semibold'
+                            : data.confiabilidade.status === 'moderada'
+                              ? 'text-[#F59E0B]'
+                              : 'text-[#64748B]'
+                        }
+                      >
+                        {data.confiabilidade.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </button>
+                )
+              },
+            )}
+          </div>
         </div>
 
         {/* Selected Category Deep Dive Panel */}
@@ -590,20 +708,33 @@ export default function FatorKCalibrationPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]" />
-                      Método Matemático Aplicado para Este Tipo:
+                      Método Matemático & Banda FFT do Modo:
                     </span>
-                    <span className="text-[10px] font-mono bg-[#3B82F6]/15 text-[#60A5FA] px-2 py-0.5 rounded border border-[#3B82F6]/30">
-                      {tipoSelecionadoData.metodologia.metodoUtilizado ===
-                      'razao_segmentos_compartilhados'
-                        ? 'Razão de Segmentos Compartilhados'
-                        : tipoSelecionadoData.metodologia.metodoUtilizado === 'media_absoluta_rms'
-                          ? 'Média Absoluta RMS (Fallback)'
-                          : 'Baseline Teórico'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono bg-[#10B981]/15 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/30">
+                        Banda: {tipoSelecionadoData.config.bandaFftHz.label}
+                      </span>
+                      <span className="text-[10px] font-mono bg-[#3B82F6]/15 text-[#60A5FA] px-2 py-0.5 rounded border border-[#3B82F6]/30">
+                        {tipoSelecionadoData.metodologia.metodoUtilizado ===
+                        'razao_segmentos_compartilhados'
+                          ? 'Razão de Segmentos Compartilhados'
+                          : tipoSelecionadoData.metodologia.metodoUtilizado === 'media_absoluta_rms'
+                            ? 'Média Absoluta RMS (Fallback)'
+                            : 'Baseline Teórico'}
+                      </span>
+                    </div>
                   </div>
                   <p className="text-xs text-[#CBD5E1] leading-relaxed">
                     {tipoSelecionadoData.metodologia.descricaoMetodo}
                   </p>
+                  {tipoSelecionadoData.config.trataViesDesvio && (
+                    <div className="text-[11px] text-[#FBBF24] bg-[#F59E0B]/10 p-2 rounded border border-[#F59E0B]/30">
+                      <b>Tratamento Estatístico de Viés de Desvio:</b> Para pedestres e
+                      motociclistas, o contorno de poças e buracos gera oscilações angulares
+                      laterais que são somadas como anomalias indiretas na calibração, evitando
+                      subavaliação do trecho.
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] font-mono text-[#94A3B8] border-t border-[#1A2A5A]/50">
                     <span>
                       RMS Médio Vertical:{' '}
@@ -625,7 +756,6 @@ export default function FatorKCalibrationPage() {
                     </span>
                   </div>
                 </div>
-
                 {/* Status da Confiabilidade da Amostra */}
                 <div
                   className={`p-4 rounded-xl border flex items-start gap-3.5 text-xs ${

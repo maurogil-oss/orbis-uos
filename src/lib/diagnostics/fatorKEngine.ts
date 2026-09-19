@@ -13,6 +13,37 @@ import { RoadSegmentRecord, SegmentReadingRecord } from '@/services/roadSegments
 export function normalizeVeiculoTipo(input?: string): VeiculoTipoCalibracao {
   if (!input) return 'onibus'
   const str = input.toLowerCase()
+
+  // Onda 3 — Modos de Mobilidade Ativa
+  if (
+    str.includes('pedestre') ||
+    str.includes('caminhada') ||
+    str.includes('calcada') ||
+    str.includes('calçada') ||
+    str.includes('a pé') ||
+    str.includes('passeio')
+  ) {
+    return 'pedestre'
+  }
+  if (
+    str.includes('ciclista') ||
+    str.includes('bicicleta') ||
+    str.includes('bike') ||
+    str.includes('ciclovia') ||
+    str.includes('ciclofaixa')
+  ) {
+    return 'ciclista'
+  }
+  if (
+    str.includes('motociclista') ||
+    str.includes('moto') ||
+    str.includes('motocicleta') ||
+    str.includes('duas rodas')
+  ) {
+    return 'motociclista'
+  }
+
+  // Frotas Veiculares (Onda 1)
   if (
     str.includes('onibus') ||
     str.includes('ônibus') ||
@@ -64,7 +95,7 @@ export function computeFatorKCalibration(params: {
 }): Record<VeiculoTipoCalibracao, CalibracaoResultadoPorTipo> {
   const { roadSegments, readings, sessions, savedCalibrations } = params
 
-  const tipos: VeiculoTipoCalibracao[] = ['onibus', 'viatura', 'caminhao', 'ambulancia', 'outros']
+  const tipos = Object.keys(VEICULO_TIPOS_CONFIG) as VeiculoTipoCalibracao[]
 
   // Mapa de segmentos validados (F >= 3 passagens)
   const validatedSegmentIds = new Set(
@@ -202,21 +233,22 @@ export function computeFatorKCalibration(params: {
     let descricaoMetodo = ''
     let calibradoSugerido = config.baselineK
 
+    // Para modos ativos (pedestre/ciclista/moto), o baseline possui faixas específicas
+    const minBound = config.modoCategoria === 'pedestre' ? 0.5 : 0.6
+    const maxBound = config.modoCategoria === 'ciclista' ? 2.1 : 1.9
+
     if (sharedSegments.length >= 2 && ratiosShared.length >= 2) {
       metodoUtilizado = 'razao_segmentos_compartilhados'
       const avgRatio = ratiosShared.reduce((a, b) => a + b, 0) / ratiosShared.length
-      // O Fator K serve para equalizar a resposta inercial do veículo ao padrão neutro de pavimentação.
-      // Se um caminhão vibra 1.3x a média comum, o fator K calibrado compensa essa resposta:
-      // calibradoK = baselineK * (0.5 + 0.5 * avgRatio), limitado a uma faixa razoável [0.60, 1.80]
       const rawCalib = config.baselineK * (0.6 + 0.4 * avgRatio)
-      calibradoSugerido = Number(Math.max(0.6, Math.min(1.85, rawCalib)).toFixed(2))
+      calibradoSugerido = Number(Math.max(minBound, Math.min(maxBound, rawCalib)).toFixed(2))
       descricaoMetodo = `Razão empírica em ${sharedSegments.length} segmento(s) compartilhado(s) de 100m com Fator de Confiança F ≥ 3 (razão média observada: ${avgRatio.toFixed(2)}x).`
     } else if (tipoReadings.length >= 3 && avgRmsTipo > 0) {
       metodoUtilizado = 'media_absoluta_rms'
       const ratioGlobal = avgRmsTipo / (globalValidatedAvgRms || 0.18)
       const rawCalib = config.baselineK * (0.75 + 0.25 * ratioGlobal)
-      calibradoSugerido = Number(Math.max(0.65, Math.min(1.75, rawCalib)).toFixed(2))
-      descricaoMetodo = `Média inercial absoluta das janelas de campo deste tipo (${avgRmsTipo.toFixed(2)}g RMS) vs referência de malha (${globalValidatedAvgRms.toFixed(2)}g RMS), com fallback sem cruzamento direto.`
+      calibradoSugerido = Number(Math.max(minBound, Math.min(maxBound, rawCalib)).toFixed(2))
+      descricaoMetodo = `Média inercial absoluta das janelas de campo (${avgRmsTipo.toFixed(2)}g RMS) vs referência de malha (${globalValidatedAvgRms.toFixed(2)}g RMS), com fallback sem cruzamento direto.`
     } else {
       metodoUtilizado = 'baseline_puro'
       calibradoSugerido = config.baselineK

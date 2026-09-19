@@ -14,17 +14,59 @@ export interface SpectrumBin {
   isTargetBand: boolean // 1 a 20 Hz
 }
 
+export interface TargetFftBandConfig {
+  minHz: number
+  maxHz: number
+  label: string
+  descricao: string
+}
+
+export const FFT_BANDS_BY_MODE: Record<
+  'veiculo' | 'pedestre' | 'ciclista' | 'motociclista',
+  TargetFftBandConfig
+> = {
+  veiculo: {
+    minHz: 1.0,
+    maxHz: 20.0,
+    label: '1–20 Hz (Veicular Geral)',
+    descricao: 'Resposta mecânica de suspensão, ressonância de chassi e irregularidade do asfalto.',
+  },
+  pedestre: {
+    minHz: 0.8,
+    maxHz: 3.5,
+    label: '0.8–3.5 Hz (Caminhada / Calçadas)',
+    descricao: 'Cadência humana do passo (1.4–2.5 Hz) e tropeços, degraus e fissuras em calçadas.',
+  },
+  ciclista: {
+    minHz: 2.0,
+    maxHz: 12.0,
+    label: '2–12 Hz (Micromobilidade / Ciclovias)',
+    descricao: 'Rigidez de garfo sem amortecedor, sarjetas transversais, juntas e pedras soltas.',
+  },
+  motociclista: {
+    minHz: 3.0,
+    maxHz: 22.0,
+    label: '3–22 Hz (Motocicleta / Pistas)',
+    descricao:
+      'Suspensão de duas rodas, ranhuras longitudinais e alta densidade de amostragem viária.',
+  },
+}
+
 export interface SpectrumAnalysisResult {
   bins: SpectrumBin[]
   dominantFrequency: number // Hz
-  targetBandEnergy: number // Energia relativa na banda 1–20 Hz (0–100%)
+  targetBandEnergy: number // Energia relativa na banda configurada (0–100%)
   totalEnergy: number
   peakMagnitude: number
+  targetBandMinHz: number
+  targetBandMaxHz: number
   spectralSignature:
     | 'vibracao_continua'
     | 'impacto_buraco'
     | 'ondulacao_baixa_freq'
     | 'ruido_estacionario'
+    | 'passo_pedestre'
+    | 'trepidacao_ciclovia'
 }
 
 export interface WindowMetricsResult {
@@ -32,6 +74,7 @@ export interface WindowMetricsResult {
   peakZ_G: number
   impactsCount: number
   angularBumpCount: number
+  desvioAngularCount: number // Solavancos laterais associados ao desvio de obstáculos
   estimatedIri: number
   dominantFreqHz: number
   targetBandEnergyPct: number
@@ -129,6 +172,7 @@ export function computeZAccelerationSpectrum(
   rawSamples: number[],
   sampleRateHz: number = 50,
   targetBinsCount: number = 24, // Bins discretos de 0 a 25 Hz
+  bandConfig: TargetFftBandConfig = FFT_BANDS_BY_MODE.veiculo,
 ): SpectrumAnalysisResult {
   // Ajustar tamanho para a potência de 2 mais próxima <= samples.length
   let n = 1
@@ -176,7 +220,7 @@ export function computeZAccelerationSpectrum(
     const power = mag * mag
     totalEnergy += power
 
-    if (freq >= 1 && freq <= 20) {
+    if (freq >= bandConfig.minHz && freq <= bandConfig.maxHz) {
       targetEnergy += power
     }
 
@@ -201,7 +245,7 @@ export function computeZAccelerationSpectrum(
     }
 
     const normalizedMag = Math.min(100, Math.round((avgMag / Math.max(peakMag, 0.25)) * 95) + 5)
-    const isTargetBand = binCenterFreq >= 1 && binCenterFreq <= 20
+    const isTargetBand = binCenterFreq >= bandConfig.minHz && binCenterFreq <= bandConfig.maxHz
 
     bins.push({
       frequency: Number(binCenterFreq.toFixed(1)),
@@ -212,13 +256,27 @@ export function computeZAccelerationSpectrum(
 
   const targetRatio = totalEnergy > 0 ? (targetEnergy / totalEnergy) * 100 : 88
 
-  // Classificação da assinatura espectral
+  // Classificação da assinatura espectral especializada
   let spectralSignature: SpectrumAnalysisResult['spectralSignature'] = 'ruido_estacionario'
-  if (peakMag > 0.8 && dominantFreq >= 8 && dominantFreq <= 18) {
+  if (
+    bandConfig.minHz <= 1.0 &&
+    bandConfig.maxHz <= 4.0 &&
+    dominantFreq >= 1.2 &&
+    dominantFreq <= 3.2
+  ) {
+    spectralSignature = 'passo_pedestre'
+  } else if (
+    bandConfig.maxHz <= 14.0 &&
+    dominantFreq >= 3.0 &&
+    dominantFreq <= 11.0 &&
+    peakMag > 0.25
+  ) {
+    spectralSignature = 'trepidacao_ciclovia'
+  } else if (peakMag > 0.8 && dominantFreq >= 8 && dominantFreq <= 18) {
     spectralSignature = 'impacto_buraco'
   } else if (dominantFreq >= 1.5 && dominantFreq <= 5.5 && peakMag > 0.4) {
     spectralSignature = 'ondulacao_baixa_freq'
-  } else if (targetRatio > 70 && peakMag > 0.18) {
+  } else if (targetRatio > 65 && peakMag > 0.15) {
     spectralSignature = 'vibracao_continua'
   }
 
@@ -228,6 +286,8 @@ export function computeZAccelerationSpectrum(
     targetBandEnergy: Math.round(targetRatio),
     totalEnergy: Number(totalEnergy.toFixed(3)),
     peakMagnitude: Number(peakMag.toFixed(2)),
+    targetBandMinHz: bandConfig.minHz,
+    targetBandMaxHz: bandConfig.maxHz,
     spectralSignature,
   }
 }
@@ -244,6 +304,7 @@ export function extractWindowMetrics(
   angularRatesDegS: { roll: number; pitch: number }[] = [],
   thresholdG: number = 2.5,
   sampleRateHz: number = 50,
+  bandConfig: TargetFftBandConfig = FFT_BANDS_BY_MODE.veiculo,
 ): WindowMetricsResult {
   const n = zValuesInG.length
   if (n === 0) {
@@ -252,6 +313,7 @@ export function extractWindowMetrics(
       peakZ_G: 0,
       impactsCount: 0,
       angularBumpCount: 0,
+      desvioAngularCount: 0,
       estimatedIri: 2.8,
       dominantFreqHz: 0,
       targetBandEnergyPct: 90,
@@ -274,17 +336,25 @@ export function extractWindowMetrics(
 
   const rmsVerticalG = Number(Math.sqrt(sumSquares / n).toFixed(3))
 
-  // 2. Solavancos angulares (roll ou pitch acima de limiar dinâmico 25 deg/s)
+  // 2. Solavancos angulares e detecção de viés de desvio
+  // Solavanco vertical/rotacional geral (> 25°/s) e desvio lateral repentino (roll > 35°/s com baixa Z)
   let angularBumpCount = 0
+  let desvioAngularCount = 0
   for (const rot of angularRatesDegS) {
-    if (Math.abs(rot.roll) > 25 || Math.abs(rot.pitch) > 25) {
+    const absRoll = Math.abs(rot.roll)
+    const absPitch = Math.abs(rot.pitch)
+    if (absRoll > 25 || absPitch > 25) {
       angularBumpCount++
+    }
+    // Desvio de obstáculo: pedestres contornando buracos na calçada ou motos desviando na pista
+    if (absRoll > 32) {
+      desvioAngularCount++
     }
   }
 
-  // 3. FFT na janela
+  // 3. FFT na janela com a banda configurada do modo
   const zCalibratedMps2 = zValuesInG.map((g) => g * 9.80665)
-  const spec = computeZAccelerationSpectrum(zCalibratedMps2, sampleRateHz)
+  const spec = computeZAccelerationSpectrum(zCalibratedMps2, sampleRateHz, 24, bandConfig)
 
   // 4. Estimativa de IRI da janela (correlacionado ao RMS vertical e aos picos na banda 1–20Hz)
   // Metodologia: pavimento sadio tem RMS ~0.08–0.15g (IRI ~2.0–2.8). Pavimento degradado RMS > 0.35g (IRI > 5.5)
@@ -298,6 +368,7 @@ export function extractWindowMetrics(
     peakZ_G: Number(peakZ.toFixed(2)),
     impactsCount,
     angularBumpCount,
+    desvioAngularCount,
     estimatedIri,
     dominantFreqHz: spec.dominantFrequency,
     targetBandEnergyPct: spec.targetBandEnergy,

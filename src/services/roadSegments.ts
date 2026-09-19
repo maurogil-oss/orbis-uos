@@ -14,6 +14,9 @@ export interface SegmentReadingRecord {
   bairro?: string
   veiculo_id: string
   veiculo_tipo?: string
+  modo_coleta?: 'veiculo_frota' | 'pedestre' | 'ciclista' | 'motociclista'
+  indice_alvo?: 'IMV' | 'IMA'
+  desvio_angular_taxa?: number
   rms_vertical?: number
   pico_acel_z?: number
   impactos_count?: number
@@ -37,6 +40,9 @@ export interface CreateSegmentReadingPayload {
   bairro?: string
   veiculo_id: string
   veiculo_tipo?: string
+  modo_coleta?: 'veiculo_frota' | 'pedestre' | 'ciclista' | 'motociclista'
+  indice_alvo?: 'IMV' | 'IMA'
+  desvio_angular_taxa?: number
   rms_vertical: number
   pico_acel_z: number
   impactos_count: number
@@ -68,6 +74,10 @@ export interface RoadSegmentRecord {
   solavancos_angulares_total: number
   score_imm: number
   faixa_imm: string
+  score_ima?: number
+  faixa_ima?: string
+  passagens_modos_ativos?: number
+  desvios_coletivos_count?: number
   latitude_centro?: number
   longitude_centro?: number
   ultima_passagem?: string
@@ -151,6 +161,9 @@ export async function registerSegmentPassage(
     const baseScore = Math.round((pilarA * 0.4 + pilarB * 0.3 + pilarC * 0.2) / 0.9)
     const faixa = getImmFaixa(baseScore)
 
+    const isModoAtivo = reading.modo_coleta && reading.modo_coleta !== 'veiculo_frota'
+    const desviosInit = reading.desvio_angular_taxa || 0
+
     const newRecord = await pb.collection('road_segments').create<RoadSegmentRecord>({
       segmento_id,
       codigo_ibge,
@@ -167,6 +180,8 @@ export async function registerSegmentPassage(
       solavancos_angulares_total: solavancos_angulares,
       score_imm: baseScore,
       faixa_imm: faixa.nome,
+      passagens_modos_ativos: isModoAtivo ? 1 : 0,
+      desvios_coletivos_count: desviosInit,
       latitude_centro: latitude,
       longitude_centro: longitude,
       ultima_passagem: nowIso,
@@ -180,6 +195,13 @@ export async function registerSegmentPassage(
   const veiculosArray = Array.from(veiculosSet)
   const passagensCount = veiculosArray.length
   const confiancaValida = passagensCount >= 3
+
+  const isModoAtivo = reading.modo_coleta && reading.modo_coleta !== 'veiculo_frota'
+  const updatedModosAtivos = isModoAtivo
+    ? (existing.passagens_modos_ativos || 0) + 1
+    : existing.passagens_modos_ativos || 0
+  const updatedDesvios =
+    (existing.desvios_coletivos_count || 0) + (reading.desvio_angular_taxa || 0)
 
   // Recalcular médias ponderadas
   const novoIri = Number(((existing.iri_estimado + iri_janela) / 2).toFixed(2))
@@ -210,6 +232,8 @@ export async function registerSegmentPassage(
       solavancos_angulares_total: novoSolavancos,
       score_imm: baseScore,
       faixa_imm: faixa.nome,
+      passagens_modos_ativos: updatedModosAtivos,
+      desvios_coletivos_count: updatedDesvios,
       ultima_passagem: nowIso,
     })
 

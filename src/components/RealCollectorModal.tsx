@@ -56,6 +56,9 @@ export function RealCollectorModal({
   const [isPersistingAll, setIsPersistingAll] = useState(false)
 
   // Sensor collector hook
+  const veiculoAtualConfig =
+    VEICULO_TIPOS_CONFIG[veiculoTipoCanonico] || VEICULO_TIPOS_CONFIG.onibus
+
   const {
     status,
     sensorSupport,
@@ -73,6 +76,7 @@ export function RealCollectorModal({
     processedWindows,
     latestWindowMetrics,
     sessionSummary,
+    desviosContagem,
     elapsedMs,
     calculatedIRI,
     currentCoords,
@@ -87,9 +91,11 @@ export function RealCollectorModal({
     thresholdG,
     via,
     bairro,
-    linhaFrota: linhaFrota || `${VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].label} #01`,
-    veiculoTipo: veiculoTipo || VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].label,
+    linhaFrota: linhaFrota || `${veiculoAtualConfig.label} #01`,
+    veiculoTipo: veiculoTipo || veiculoAtualConfig.label,
     veiculoTipoCanonico,
+    modoColeta: veiculoAtualConfig.modoCategoria,
+    indiceAlvo: veiculoAtualConfig.indiceAlvo,
     codigoIbge: '4106902',
     manualLat,
     manualLng,
@@ -324,15 +330,16 @@ export function RealCollectorModal({
                 <div className="flex items-center gap-2">
                   <FileCheck2 className="w-5 h-5 text-[#10B981]" />
                   <h3 className="text-sm font-bold text-[#F8FAFC]">
-                    Resumo da Sessão de Coleta Concluída
+                    Resumo da Sessão Concluída — Índice Alvo:{' '}
+                    <span className="text-[#3B82F6]">{sessionSummary.indiceAlvo}</span>
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-bold">
-                  Persistido na Borda
+                  Onda 3 • Borda Ativa
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
                   <span className="text-[10px] text-[#94A3B8] block">Duração</span>
                   <span className="font-mono font-bold text-sm text-[#F8FAFC]">
@@ -348,19 +355,25 @@ export function RealCollectorModal({
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Janelas Processadas</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Janelas FFT</span>
                   <span className="font-mono font-bold text-sm text-[#F8FAFC]">
                     {sessionSummary.windowsProcessed}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Picos Detectados</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Impactos / Picos</span>
                   <span className="font-mono font-bold text-sm text-[#EF4444]">
                     {sessionSummary.impactsDetected}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Segmentos Cobertos</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Desvios de Obstáculo</span>
+                  <span className="font-mono font-bold text-sm text-[#F59E0B]">
+                    {sessionSummary.desviosDetectados}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Segmentos 100m</span>
                   <span className="font-mono font-bold text-sm text-[#10B981]">
                     {sessionSummary.segmentsCovered.length}
                   </span>
@@ -369,17 +382,22 @@ export function RealCollectorModal({
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1 text-xs text-[#94A3B8]">
                 <span>
-                  Segmentos auditados contaram <b>+1 passagem</b> para o cálculo do{' '}
-                  <b>Fator de Confiança F</b> (meta ≥ 3 veículos distintos).
+                  Alimentou o <b>{sessionSummary.indiceAlvo}</b> com <b>+1 passagem</b> para o Fator
+                  de Confiança (meta ≥ 3).
+                  {sessionSummary.desviosDetectados > 0 && (
+                    <span className="text-[#FBBF24] ml-1">
+                      • Viés de desvio tratado: {sessionSummary.desviosDetectados} manobra(s)
+                      lateral(is) mapeada(s).
+                    </span>
+                  )}
                 </span>
                 <span className="font-mono text-[11px] text-[#CBD5E1]">
-                  IRI da Sessão: <b>{sessionSummary.averageIri} m/km</b> • Pico:{' '}
+                  IRI/Score equivalente: <b>{sessionSummary.averageIri} m/km</b> • Pico:{' '}
                   <b>{sessionSummary.peakG.toFixed(2)}g</b>
                 </span>
               </div>
             </div>
           )}
-
           {/* Real-time Display Console */}
           <div className="p-4 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1A2A5A]">
@@ -710,70 +728,154 @@ export function RealCollectorModal({
               <span className="text-[10px] text-[#94A3B8]">Gravados no evento auditável</span>
             </div>
 
-            {/* SELEÇÃO OBRIGATÓRIA DO TIPO DE VEÍCULO-SENSOR */}
-            <div className="p-3.5 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/50 space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
+            {/* SELEÇÃO DO MODO DE MOBILIDADE & TIPO DE VEÍCULO-SENSOR (ONDA 3) */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/50 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
-                  Tipo de Veículo-Sensor (Obrigatório para Calibração do Fator K):
+                  Modo de Mobilidade & Veículo-Sensor:
                 </label>
-                <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/15 px-2 py-0.5 rounded border border-[#3B82F6]/30">
-                  Baseline K: {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].baselineK.toFixed(2)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
+                      veiculoAtualConfig.indiceAlvo === 'IMA'
+                        ? 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/40'
+                        : 'bg-[#3B82F6]/20 text-[#60A5FA] border-[#3B82F6]/40'
+                    }`}
+                  >
+                    Alimenta: {veiculoAtualConfig.indiceAlvo} (
+                    {veiculoAtualConfig.indiceAlvo === 'IMA'
+                      ? 'Mobilidade Ativa'
+                      : 'Manutenção Viária'}
+                    )
+                  </span>
+                  <span className="text-[10px] font-mono text-[#CBD5E1] bg-[#0A1128] px-2 py-0.5 rounded border border-[#1A2A5A]">
+                    Banda FFT: {veiculoAtualConfig.bandaFftHz.label}
+                  </span>
+                  <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/15 px-2 py-0.5 rounded border border-[#3B82F6]/30">
+                    Baseline K: {veiculoAtualConfig.baselineK.toFixed(2)}
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
-                {(Object.keys(VEICULO_TIPOS_CONFIG) as VeiculoTipoCalibracao[]).map((key) => {
-                  const cfg = VEICULO_TIPOS_CONFIG[key]
-                  const isSelected = veiculoTipoCanonico === key
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      disabled={isCollecting || isCalibrating}
-                      onClick={() => {
-                        setVeiculoTipoCanonico(key)
-                        setVeiculoTipo(cfg.label)
-                        if (key === 'onibus' && !linhaFrota.includes('Viatura')) {
-                          setLinhaFrota('Linha Direta / Ligeirinho 203')
-                        } else if (key === 'viatura') {
-                          setLinhaFrota('Viatura Guarda Municipal GM-09')
-                        } else if (key === 'caminhao') {
-                          setLinhaFrota('Caminhão Coleta Noturna 08')
-                        } else if (key === 'ambulancia') {
-                          setLinhaFrota('Ambulância SAMU Unidade 04')
-                        } else {
-                          setLinhaFrota('Fiscalização e Obras #12')
-                        }
-                      }}
-                      className={`p-2.5 rounded-xl border text-left transition-all ${
-                        isSelected
-                          ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20'
-                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#CBD5E1]'
-                      } disabled:opacity-50`}
-                    >
-                      <div className="font-bold text-xs flex items-center justify-between">
-                        <span>{cfg.label.split(' ')[0]}</span>
-                        <span className="text-[10px] font-mono text-[#3B82F6]">
-                          K={cfg.baselineK.toFixed(2)}
+              {/* Seletor em abas / cards organizados: Frota Veicular vs Mobilidade Ativa */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] block">
+                  Frota Pública (Alimenta Sub-índice IMV — Asfalto / Vias)
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {(
+                    [
+                      'onibus',
+                      'viatura',
+                      'caminhao',
+                      'ambulancia',
+                      'outros',
+                    ] as VeiculoTipoCalibracao[]
+                  ).map((key) => {
+                    const cfg = VEICULO_TIPOS_CONFIG[key]
+                    const isSelected = veiculoTipoCanonico === key
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        disabled={isCollecting || isCalibrating}
+                        onClick={() => {
+                          setVeiculoTipoCanonico(key)
+                          setVeiculoTipo(cfg.label)
+                          if (key === 'onibus') setLinhaFrota('Linha Direta / Ligeirinho 203')
+                          else if (key === 'viatura')
+                            setLinhaFrota('Viatura Guarda Municipal GM-09')
+                          else if (key === 'caminhao') setLinhaFrota('Caminhão Coleta Noturna 08')
+                          else if (key === 'ambulancia') setLinhaFrota('Ambulância SAMU Unidade 04')
+                          else setLinhaFrota('Fiscalização e Obras #12')
+                        }}
+                        className={`p-2 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20'
+                            : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:border-[#3B82F6]/50 hover:text-[#CBD5E1]'
+                        } disabled:opacity-50`}
+                      >
+                        <div className="font-bold text-xs flex items-center justify-between">
+                          <span>{cfg.label.split(' ')[0]}</span>
+                          <span className="text-[10px] font-mono text-[#3B82F6]">
+                            K={cfg.baselineK.toFixed(2)}
+                          </span>
+                        </div>
+                        <span className="text-[10px] block opacity-80 leading-tight mt-0.5 line-clamp-1">
+                          {cfg.sublabel.split('/')[0]}
                         </span>
-                      </div>
-                      <span className="text-[10px] block opacity-80 leading-tight mt-1 line-clamp-2">
-                        {cfg.sublabel.split('/')[0]}
-                      </span>
-                    </button>
-                  )
-                })}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#10B981] block pt-1">
+                  Onda 3 • Mobilidade Ativa (Alimenta Sub-índice IMA — Calçadas, Ciclovias e Duas
+                  Rodas)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {(['pedestre', 'ciclista', 'motociclista'] as VeiculoTipoCalibracao[]).map(
+                    (key) => {
+                      const cfg = VEICULO_TIPOS_CONFIG[key]
+                      const isSelected = veiculoTipoCanonico === key
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          disabled={isCollecting || isCalibrating}
+                          onClick={() => {
+                            setVeiculoTipoCanonico(key)
+                            setVeiculoTipo(cfg.label)
+                            if (key === 'pedestre') setLinhaFrota('Caminhada Acessibilidade Batel')
+                            else if (key === 'ciclista') setLinhaFrota('Ciclovia Sete de Setembro')
+                            else setLinhaFrota('Patrulha Motociclista 03')
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? 'bg-[#10B981]/20 border-[#10B981] text-white shadow-md shadow-[#10B981]/20'
+                              : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:border-[#10B981]/50 hover:text-[#CBD5E1]'
+                          } disabled:opacity-50`}
+                        >
+                          <div className="font-bold text-xs flex items-center justify-between">
+                            <span className="text-[#F8FAFC]">{cfg.label}</span>
+                            <span className="text-[10px] font-mono text-[#10B981]">
+                              K={cfg.baselineK.toFixed(2)}
+                            </span>
+                          </div>
+                          <span className="text-[10px] block opacity-80 leading-tight mt-1 text-[#CBD5E1]">
+                            {cfg.sublabel}
+                          </span>
+                          <div className="mt-1 flex items-center justify-between text-[9px] font-mono text-[#94A3B8]">
+                            <span>Banda FFT: {cfg.bandaFftHz.label}</span>
+                            {cfg.trataViesDesvio && (
+                              <span className="text-[#F59E0B]">Trata viés desvio</span>
+                            )}
+                          </div>
+                        </button>
+                      )
+                    },
+                  )}
+                </div>
               </div>
 
-              <div className="text-[11px] text-[#94A3B8] flex items-center justify-between pt-1">
-                <span>
-                  <b>Comportamento Inercial:</b>{' '}
-                  {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].descricaoDinamica}
-                </span>
-                <span className="font-mono text-[10px] text-[#60A5FA]">
-                  {VEICULO_TIPOS_CONFIG[veiculoTipoCanonico].suspensaoTipo}
-                </span>
+              {/* Dica do operador e Viés de Desvio Declarado */}
+              <div className="p-2.5 rounded-lg bg-[#070D1F] border border-[#1A2A5A] text-[11px] text-[#94A3B8] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#F8FAFC] font-semibold">
+                    Orientação do Modo: {veiculoAtualConfig.dicaOperador}
+                  </span>
+                  <span className="font-mono text-[10px] text-[#60A5FA]">
+                    {veiculoAtualConfig.suspensaoTipo}
+                  </span>
+                </div>
+                {veiculoAtualConfig.trataViesDesvio && (
+                  <div className="text-[#FBBF24] text-[10px] bg-[#F59E0B]/10 p-1.5 rounded border border-[#F59E0B]/30">
+                    <b>Viés de Desvio Declarado Metodológico:</b> Pedestres e motociclistas tendem a
+                    desviar de buracos e desníveis em vez de transpô-los. A telemetria calcula
+                    desvios angulares laterais contínuos como anomalias indiretas mapeadas.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -929,9 +1031,10 @@ export function RealCollectorModal({
             <div className="leading-relaxed">
               <span className="text-[#F8FAFC] font-semibold">Garantia LGPD & Zero CAPEX: </span>
               A telemetria inercial passiva opera{' '}
-              <b>sem câmeras, sem imagens e sem captura de placas</b>. Os dados gravados são
-              puramente físicos e agregados por janela e segmento de 100m, preservando integralmente
-              a privacidade de terceiros e dos operadores da frota pública.
+              <b>sem câmeras, sem imagens e sem captura de placas</b>. O celular pode ir seguro no{' '}
+              <b>bolso, mochila ou suporte</b> durante caminhada, pedal ou condução. Os dados
+              gravados são puramente físicos e agregados por janela e segmento de 100m, preservando
+              integralmente a privacidade de terceiros e dos operadores da frota pública.
             </div>
           </div>
         </div>

@@ -29,16 +29,17 @@ export default function Metodologia() {
 
         {/* Header */}
         <div className="space-y-3 pb-6 border-b border-[#1A2A5A]">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-semibold text-[#10B981]">
             <Calendar className="w-3.5 h-3.5" />
-            Versão 2.0 Homologada • Hierarquia de Índices (IMM/IMV/IMA) • Março de 2025
+            Versão 2.1 Homologada • Onda 3 Mobilidade Ativa (IMA Real & Bandas FFT) • Março de 2025
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Metodologia do Diagnóstico Institucional, do IMM e dos Sub-índices Setoriais
+            Metodologia do Diagnóstico Institucional, do IMM e dos Sub-índices Setoriais (IMV e IMA)
           </h1>
           <p className="text-sm text-[#94A3B8] leading-relaxed">
             Documentação técnica pública dos princípios, algoritmos de cálculo, matrizes de
-            ponderação e bases legais que regem a plataforma ORBIS.UOS (Versão 2.0).
+            ponderação, viés de desvio declarado e bandas espectrais FFT da plataforma ORBIS.UOS
+            (Versão 2.1 Homologada).
           </p>
         </div>
 
@@ -137,23 +138,24 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* 3. Hierarquia dos Índices e Arquitetura de Consolidação (Versão 2.0) */}
+        {/* 3. Hierarquia dos Índices e Arquitetura de Consolidação (Versão 2.1 — Onda 3) */}
         <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6]/50 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
             <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
               <Layers className="w-5 h-5 text-[#3B82F6]" />
-              3. Hierarquia dos Índices & Arquitetura de Consolidação (Versão 2.0)
+              3. Hierarquia dos Índices & Arquitetura de Consolidação (Versão 2.1)
             </h2>
             <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
-              Revisão 2.0 • Março/2025
+              Revisão 2.1 • Março/2025
             </span>
           </div>
 
           <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
-            A Versão 2.0 da metodologia ORBIS.UOS estabelece a distinção precisa entre o{' '}
-            <b>índice-síntese institucional</b> exibido ao Chefe do Executivo e os{' '}
-            <b>sub-índices técnicos setoriais</b> que refletem as diferentes camadas da mobilidade
-            física:
+            A Versão 2.1 integra a <b>Onda 3 — Mobilidade Ativa</b>, elevando o{' '}
+            <b>IMA (Índice de Manutenção de Acessibilidade)</b> de status planejado para{' '}
+            <b>sub-índice real calculado</b> por sensores em pedestres, ciclistas e motociclistas,
+            preservando a integridade do <b>IMV (Índice de Manutenção Viária)</b> e consolidando o{' '}
+            <b>IMM (Índice de Mobilidade do Município)</b>:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
@@ -169,11 +171,17 @@ export default function Metodologia() {
                 Índice de Mobilidade do Município
               </h3>
               <p className="text-[#94A3B8] leading-relaxed text-[11px]">
-                Número soberano no Modo Gabinete do Prefeito. Consolida os sub-índices setoriais
-                ativos através de média ponderada declarada.
+                Número soberano no Modo Gabinete do Prefeito. Consolida os sub-índices ativos
+                através de peso declarado e transparente.
               </p>
               <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#CBD5E1]">
-                <b>Consolidação atual:</b> 100% IMV
+                <b>Ponderação Declarada:</b>
+                <div className="text-[10px] text-[#A7F3D0] mt-0.5">
+                  • Com IMA coletado: 70% IMV + 30% IMA
+                </div>
+                <div className="text-[10px] text-[#94A3B8]">
+                  • Sem coleta a pé: 100% IMV (sem inventar dado)
+                </div>
               </div>
             </div>
 
@@ -182,45 +190,166 @@ export default function Metodologia() {
               <div className="flex items-center justify-between">
                 <span className="font-mono font-bold text-[#10B981] text-sm">IMV</span>
                 <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded font-bold">
-                  Sub-índice Físico
+                  Sub-índice Viário
                 </span>
               </div>
               <h3 className="font-bold text-[#F8FAFC] text-sm">Índice de Manutenção Viária</h3>
               <p className="text-[#94A3B8] leading-relaxed text-[11px]">
-                Herda <b>intacto</b> o cálculo dos 4 pilares inerciais (IRI estimado, anomalias,
-                aderência e criticidade) com validação tripla F ≥ 3.
+                Permanece <b>intocado</b>: 4 pilares inerciais (IRI estimado, anomalias, aderência e
+                criticidade) com validação tripla F ≥ 3 passagens.
               </p>
               <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#10B981]">
-                <b>Status:</b> Operacional (Onda 1)
+                <b>Status:</b> Operacional (Frota Veicular)
               </div>
             </div>
 
             {/* IMA */}
-            <div className="p-4 rounded-xl bg-[#101B3A]/60 border border-[#1A2A5A] space-y-2">
+            <div className="p-4 rounded-xl bg-[#101B3A] border-2 border-[#10B981]/60 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono font-bold text-[#F59E0B] text-sm">IMA</span>
-                <span className="text-[10px] font-mono uppercase bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded font-bold">
-                  Sub-índice Futuro
+                <span className="font-mono font-bold text-[#10B981] text-sm">IMA</span>
+                <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded font-bold">
+                  Sub-índice Acessibilidade
                 </span>
               </div>
-              <h3 className="font-bold text-[#CBD5E1] text-sm">
+              <h3 className="font-bold text-[#F8FAFC] text-sm">
                 Índice de Manutenção de Acessibilidade
               </h3>
-              <p className="text-[#64748B] leading-relaxed text-[11px]">
-                Avaliação de calçadas/pedestres, ciclovias e micromobilidade urbana. Estrutura
-                arquitetural preparada; coleta não realizada.
+              <p className="text-[#CBD5E1] leading-relaxed text-[11px]">
+                Coleta real por pedestres (calçadas), ciclistas (ciclovias) e motociclistas
+                (pistas). Fator K próprio, banda FFT especializada e viés de desvio tratado
+                estatisticamente.
               </p>
-              <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#F59E0B]">
-                <b>Status:</b> Onda 3 (Planejado)
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#10B981]">
+                <b>Status:</b> Onda 3 Real (Homologado)
               </div>
             </div>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#10B981]/10 border border-[#10B981]/30 text-xs text-[#A7F3D0]">
-            <b>Princípio da Honestidade Metodológica:</b> Sub-índices não calculados (como o IMA na
-            Onda 3) jamais são preenchidos com dados fictícios ou estimativas arbitrárias. No
-            Gabinete, o IMM apresenta com total transparência quais sub-índices compõem a nota no
-            momento.
+            <b>Princípio da Honestidade Metodológica & Estado Neutro:</b> Se o município não
+            realizou coleta a pé ou em ciclovia, o IMA permanece em estado neutro declarado
+            ("Aguardando Campo") e o IMM consolida exclusivamente o sub-índice com dados reais (100%
+            IMV). Nunca são inventados números.
+          </div>
+        </div>
+
+        {/* Seção Nova: Onda 3 — Módulo Mobilidade Ativa e Bandas FFT por Modo */}
+        <div className="p-6 rounded-2xl bg-[#101B3A] border-2 border-[#10B981]/50 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Zap className="w-5 h-5 text-[#10B981]" />
+              Onda 3 — Módulo Mobilidade Ativa & Acessibilidade (IMA)
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+              Engenharia dos Modos Ativos
+            </span>
+          </div>
+
+          <div className="space-y-4 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            <p>
+              A coleta de vibração em pedestres, ciclistas e motociclistas possui física mecânica
+              distinta da suspensão veicular pesada. Portanto, a metodologia estabelece{' '}
+              <b>bandas espectrais FFT especializadas</b> e <b>Fatores K baselines dedicados</b>:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-1.5">
+                <div className="flex items-center justify-between font-bold text-[#10B981]">
+                  <span>1. Pedestre (Calçadas)</span>
+                  <span className="font-mono text-[11px] bg-[#10B981]/10 px-1.5 py-0.5 rounded">
+                    K = 0,75
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-[#60A5FA]">
+                  Banda FFT: 0,8 a 3,5 Hz (Cadência do Passo)
+                </div>
+                <p className="text-[11px] text-[#94A3B8]">
+                  O passo humano atua como filtro passa-baixa. Detecta fissuras em ladrilhos,
+                  degraus, desníveis de raiz e rampas inacessíveis sem confundir o balanço normal do
+                  caminhar.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-1.5">
+                <div className="flex items-center justify-between font-bold text-[#38BDF8]">
+                  <span>2. Ciclista (Ciclovias)</span>
+                  <span className="font-mono text-[11px] bg-[#38BDF8]/10 px-1.5 py-0.5 rounded">
+                    K = 1,45
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-[#60A5FA]">
+                  Banda FFT: 2,0 a 12,0 Hz (Micromobilidade)
+                </div>
+                <p className="text-[11px] text-[#94A3B8]">
+                  Garfo rígido e pneus de alta pressão transmitem impactos secos diretamente ao
+                  sensor. Equalizado para sarjetas transversais, tampas de bueiro desniveladas e
+                  emendas de ciclovia.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-1.5">
+                <div className="flex items-center justify-between font-bold text-[#F59E0B]">
+                  <span>3. Motociclista (Pistas)</span>
+                  <span className="font-mono text-[11px] bg-[#F59E0B]/10 px-1.5 py-0.5 rounded">
+                    K = 1,25
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-[#60A5FA]">
+                  Banda FFT: 3,0 a 22,0 Hz (Duas Rodas)
+                </div>
+                <p className="text-[11px] text-[#94A3B8]">
+                  Suspensão telescópica dianteira e alta agilidade. Utilizado como complemento de
+                  densidade de cobertura da malha, operando em sincronia com o tratamento de viés de
+                  desvio.
+                </p>
+              </div>
+            </div>
+
+            {/* Viés de Desvio Declarado */}
+            <div className="p-4 rounded-xl bg-[#070D1F] border border-[#F59E0B]/40 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#F59E0B]">
+                <Scale className="w-4 h-4" />
+                <span>Tratamento Estatístico do Viés de Desvio Declarado</span>
+              </div>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Ao contrário de ônibus e caminhões — que trafegam em faixas fixas e passam sobre
+                buracos —, <b>pedestres e motociclistas instintivamente desviam dos obstáculos</b>.
+                Se processássemos apenas o impacto vertical Z direto, calçadas intransitáveis
+                poderiam ser falsamente classificadas como sadias.
+              </p>
+              <div className="text-xs text-[#94A3B8] space-y-1 font-mono text-[11px]">
+                <p>
+                  • <b>Mapeamento Angular Lateral:</b> A taxa de variação giroscópica de roll (&gt;
+                  32°/s) sem impacto vertical correspondente é registrada como manobra evasiva.
+                </p>
+                <p>
+                  • <b>Padrão de Desvio Coletivo:</b> Quando 3 ou mais passagens registram manobra
+                  de desvio nas mesmas coordenadas (segmento de 100m), o ponto é contabilizado como
+                  anomalia indireta no Pilar B/C do IMA.
+                </p>
+                <p>
+                  • <b>Motocicleta como Complemento:</b> A coleta em motos entra como reforço de
+                  amostragem e malha, nunca como fonte exclusiva isolada para homologação de
+                  calçadas.
+                </p>
+              </div>
+            </div>
+
+            {/* Compromisso LGPD */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs text-[#CBD5E1] space-y-1">
+              <span className="font-bold text-[#F8FAFC]">
+                Compromisso LGPD na Mobilidade Ativa:
+              </span>
+              <p className="text-[#94A3B8]">
+                A coleta a pé e de bicicleta mantém a diretriz soberana:{' '}
+                <b>
+                  zero câmeras, zero fotos, zero gravação de áudio e zero identificação de pessoas
+                </b>
+                . O celular do cidadão ou do fiscal pode ir seguro no{' '}
+                <b>bolso da calça, mochila ou suporte</b>. Apenas vetores inerciais anônimos e
+                geolocalização autorizada por janela temporal são transmitidos.
+              </p>
+            </div>
           </div>
         </div>
 
