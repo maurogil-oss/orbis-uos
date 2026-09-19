@@ -13,6 +13,7 @@ import {
   registerSegmentPassage,
   CreateSegmentReadingPayload,
 } from '@/services/roadSegments'
+import { latLngToCell, getH3ResolutionForModo } from '@/lib/diagnostics/h3Engine'
 import {
   createFieldSession,
   VeiculoTipoCalibracao,
@@ -53,6 +54,8 @@ export interface AggregatedWindowData {
   latitude: number
   longitude: number
   speedKmh: number
+  h3Index?: string
+  h3Resolution?: number
   isPersisted: boolean
 }
 
@@ -318,6 +321,11 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         speedRef.current ??
         (modoAtivoEfetivo === 'pedestre' ? 4.5 : modoAtivoEfetivo === 'ciclista' ? 16 : 36)
 
+      // Atribuição de Célula H3 Nativa no Momento da Coleta:
+      // Resolução 9 para veicular (~174m); Resolução 10 para modos ativos (~65m)
+      const h3Resolution = getH3ResolutionForModo(modoAtivoEfetivo)
+      const h3Index = latLngToCell(coords.latitude, coords.longitude, h3Resolution)
+
       const windowData: AggregatedWindowData = {
         id: `win-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         timestamp: Date.now(),
@@ -327,6 +335,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         latitude: coords.latitude,
         longitude: coords.longitude,
         speedKmh: currentSpeed,
+        h3Index,
+        h3Resolution,
         isPersisted: false,
       }
 
@@ -356,6 +366,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             energia_banda_alvo_pct: metrics.targetBandEnergyPct,
             latitude: coords.latitude,
             longitude: coords.longitude,
+            h3_index: h3Index,
+            h3_resolution: h3Resolution,
             janelas_amostradas: 1,
             duracao_janela_ms: metrics.durationMs,
           }
@@ -822,12 +834,15 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     coordsRef.current = coords
   }, [])
 
-  // Helper para construir payload de evento pontual pronto para road_events
+  // Helper para construir payload de evento pontual pronto para road_events com h3_index
   const buildEventPayload = useCallback(
     (
       anomaly: DetectedAnomaly,
       sessionMeta: { via: string; bairro: string; linhaFrota: string; veiculoTipo: string },
     ): CreateRoadEventPayload => {
+      const h3Res = getH3ResolutionForModo(modoAtivoEfetivo)
+      const h3Index = latLngToCell(anomaly.latitude, anomaly.longitude, h3Res)
+
       return {
         via:
           sessionMeta.via.trim() ||
@@ -839,13 +854,14 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         aceleracao_z: Math.abs(anomaly.peakG),
         latitude: anomaly.latitude,
         longitude: anomaly.longitude,
+        h3_index: h3Index,
         velocidade_kmh: speedKmh ?? 35,
         status: 'detectado',
         veiculo_tipo: sessionMeta.veiculoTipo || 'Dispositivo Mobile (Acelerômetro Real)',
         linha_frota: sessionMeta.linhaFrota || 'Coleta Inercial Mobile Real',
       }
     },
-    [calculatedIRI, speedKmh],
+    [calculatedIRI, speedKmh, modoAtivoEfetivo],
   )
 
   return {

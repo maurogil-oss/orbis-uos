@@ -5,6 +5,7 @@ import {
   calculateScorePilarB,
   calculateScorePilarC,
 } from '@/lib/diagnostics/immEngine'
+import { latLngToCell, getH3ResolutionForModo } from '@/lib/diagnostics/h3Engine'
 
 export interface SegmentReadingRecord {
   id: string
@@ -27,6 +28,8 @@ export interface SegmentReadingRecord {
   energia_banda_alvo_pct?: number
   latitude?: number
   longitude?: number
+  h3_index?: string
+  h3_resolution?: number
   janelas_amostradas?: number
   duracao_janela_ms?: number
   created: string
@@ -53,6 +56,8 @@ export interface CreateSegmentReadingPayload {
   energia_banda_alvo_pct: number
   latitude: number
   longitude: number
+  h3_index?: string
+  h3_resolution?: number
   janelas_amostradas: number
   duracao_janela_ms: number
 }
@@ -80,6 +85,8 @@ export interface RoadSegmentRecord {
   desvios_coletivos_count?: number
   latitude_centro?: number
   longitude_centro?: number
+  h3_index?: string
+  h3_resolution?: number
   ultima_passagem?: string
   created: string
   updated: string
@@ -104,6 +111,12 @@ export function computeSegmentId(lat: number, lng: number, codigoIbge: string = 
 export async function createSegmentReading(
   payload: CreateSegmentReadingPayload,
 ): Promise<SegmentReadingRecord> {
+  // Atribuição nativa da célula H3 se ainda não preenchida
+  if (!payload.h3_index && payload.latitude && payload.longitude) {
+    const res = getH3ResolutionForModo(payload.modo_coleta)
+    payload.h3_resolution = res
+    payload.h3_index = latLngToCell(payload.latitude, payload.longitude, res)
+  }
   const record = await pb.collection('segment_readings').create<SegmentReadingRecord>(payload)
   return record
 }
@@ -164,6 +177,10 @@ export async function registerSegmentPassage(
     const isModoAtivo = reading.modo_coleta && reading.modo_coleta !== 'veiculo_frota'
     const desviosInit = reading.desvio_angular_taxa || 0
 
+    // Cálculo da resolução H3 (9 para veicular, 10 para modos ativos)
+    const h3Resolution = reading.h3_resolution || getH3ResolutionForModo(reading.modo_coleta)
+    const h3Cell = reading.h3_index || latLngToCell(latitude, longitude, h3Resolution)
+
     const newRecord = await pb.collection('road_segments').create<RoadSegmentRecord>({
       segmento_id,
       codigo_ibge,
@@ -184,6 +201,8 @@ export async function registerSegmentPassage(
       desvios_coletivos_count: desviosInit,
       latitude_centro: latitude,
       longitude_centro: longitude,
+      h3_index: h3Cell,
+      h3_resolution: h3Resolution,
       ultima_passagem: nowIso,
     })
     return newRecord
@@ -220,6 +239,9 @@ export async function registerSegmentPassage(
   const baseScore = Math.round((pilarA * 0.4 + pilarB * 0.3 + pilarC * 0.2) / 0.9)
   const faixa = getImmFaixa(baseScore)
 
+  const h3Res = reading.h3_resolution || getH3ResolutionForModo(reading.modo_coleta)
+  const h3Cell = existing.h3_index || reading.h3_index || latLngToCell(latitude, longitude, h3Res)
+
   const updatedRecord = await pb
     .collection('road_segments')
     .update<RoadSegmentRecord>(existing.id, {
@@ -234,6 +256,8 @@ export async function registerSegmentPassage(
       faixa_imm: faixa.nome,
       passagens_modos_ativos: updatedModosAtivos,
       desvios_coletivos_count: updatedDesvios,
+      h3_index: h3Cell,
+      h3_resolution: h3Res,
       ultima_passagem: nowIso,
     })
 

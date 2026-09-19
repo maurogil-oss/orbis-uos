@@ -37,6 +37,100 @@ export default function Interoperabilidade() {
   const endpoints: EndpointDoc[] = [
     {
       method: 'GET',
+      path: '/backend/v1/interop/h3-cells',
+      title: 'Índices IMV/IMA Agregados por Célula H3 com k-Anonimato (GeoJSON Hexagonal)',
+      description:
+        'Exportação GeoJSON (RFC 7946 / OGC) das células hexagonais H3 (Uber) agregadas por território. Resolução 9 (~174m de aresta) para eixo veicular e Resolução 10 (~65m de aresta) para modos ativos. Cumpre estritamente o k-anonimato (k ≥ 3 sessões independentes): células abaixo do limiar retornam status "nao_auditado" e omitem notas (null). Nenhuma trajetória individual é exposta.',
+      status: 'disponivel',
+      authRequired: false,
+      updateFrequency: 'Near Realtime / Sob Demanda',
+      format: 'GeoJSON',
+      sampleResponse: `{
+  "type": "FeatureCollection",
+  "metadata": {
+    "municipio_ibge": "4106902",
+    "metodologia_versao": "2.2",
+    "spatial_indexing": "Uber H3 Hexagonal Grid (Res 9 Veicular / Res 10 Modos Ativos)",
+    "k_anonymity_rule": "Art. 12 LGPD: Celulas com < 3 sessoes retornam como nao_auditado sem exposicao de notas",
+    "total_cells": 16,
+    "cells_auditadas": 10,
+    "cells_nao_auditadas": 6,
+    "timestamp": "2025-02-23T14:30:00Z"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "89a810f4affffff",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-49.2731, -25.4382],
+            [-49.2746, -25.4373],
+            [-49.2746, -25.4357],
+            [-49.2731, -25.4348],
+            [-49.2716, -25.4357],
+            [-49.2716, -25.4373],
+            [-49.2731, -25.4382]
+          ]
+        ]
+      },
+      "properties": {
+        "h3_index": "89a810f4affffff",
+        "resolution": 9,
+        "edge_meters": 174,
+        "center_lat": -25.4382,
+        "center_lng": -49.2731,
+        "total_sessions": 5,
+        "k_anonymity_satisfied": true,
+        "status": "auditado",
+        "imv_score": 78.4,
+        "ima_score": null,
+        "criticidade": "desgaste",
+        "modo_coleta": "veiculo_frota",
+        "via_referencia": "Av. Marechal Floriano Peixoto",
+        "bairro": "Centro"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "89a810f52ffffff",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-49.2661, -25.4052],
+            [-49.2676, -25.4043],
+            [-49.2676, -25.4027],
+            [-49.2661, -25.4018],
+            [-49.2646, -25.4027],
+            [-49.2646, -25.4043],
+            [-49.2661, -25.4052]
+          ]
+        ]
+      },
+      "properties": {
+        "h3_index": "89a810f52ffffff",
+        "resolution": 9,
+        "edge_meters": 174,
+        "center_lat": -25.4052,
+        "center_lng": -49.2661,
+        "total_sessions": 2,
+        "k_anonymity_satisfied": false,
+        "status": "nao_auditado",
+        "imv_score": null,
+        "ima_score": null,
+        "criticidade": "nao_auditado",
+        "modo_coleta": "veiculo_frota",
+        "via_referencia": "Rua Mateus Leme (Norte)",
+        "bairro": "São Lourenço"
+      }
+    }
+  ]
+}`,
+    },
+    {
+      method: 'GET',
       path: '/backend/v1/telemetry/imm-segments',
       title: 'Índice de Manutenção Viária (IMV) e IMM por Segmento',
       description:
@@ -49,7 +143,7 @@ export default function Interoperabilidade() {
   "type": "FeatureCollection",
   "municipio_ibge": "4106902",
   "timestamp": "2025-02-23T04:00:00Z",
-  "metodologia_versao": "2.0",
+  "metodologia_versao": "2.2",
   "features": [
     {
       "type": "Feature",

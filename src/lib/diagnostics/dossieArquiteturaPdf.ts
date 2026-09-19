@@ -85,15 +85,15 @@ export async function generateDossieArquiteturaPdf(
     minute: '2-digit',
     second: '2-digit',
   })
-  const protocolo = `ORBIS-DOSSIE-ARQ-2.1-${agora.getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`
+  const protocolo = `ORBIS-DOSSIE-ARQ-2.2-${agora.getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`
 
   // 1. Obter a logo oficial processada
   const logoDataUrl = await getOrbisLogoDataUrl()
 
   // 2. Calcular o Hash SHA-256 do documento
   const hashPayload = {
-    documento: 'Dossiê de Arquitetura ORBIS UOS',
-    versao: '2.1 Homologada',
+    tipo: 'DOSSIE_ARQUITETURA_TECNICA',
+    versao: '2.2 Homologada',
     protocolo,
     emissaoIso: agora.toISOString(),
     indices: ['IMM', 'IMV', 'IMA'],
@@ -116,7 +116,7 @@ export async function generateDossieArquiteturaPdf(
     <html lang="pt-BR">
     <head>
       <meta charset="utf-8">
-      <title>Dossie-Arquitetura-ORBIS-UOS-v2.1-2026</title>
+      <title>Dossie-Arquitetura-ORBIS-UOS-v2.2-2026</title>
       <style>
         @page {
           size: A4 portrait;
@@ -412,7 +412,7 @@ export async function generateDossieArquiteturaPdf(
       <div class="cover">
         <div class="cover-header">
           <img src="${logoDataUrl}" alt="ORBIS UOS" class="cover-logo">
-          <div class="cover-badge">METODOLOGIA v2.1 HOMOLOGADA</div>
+          <div class="cover-badge">METODOLOGIA v2.2 HOMOLOGADA</div>
         </div>
 
         <div class="cover-body">
@@ -420,16 +420,15 @@ export async function generateDossieArquiteturaPdf(
           <h1 class="cover-title">Dossiê de Arquitetura Técnica & Metodológica</h1>
           <p class="cover-subtitle">
             Especificação formal da engenharia de dados, hierarquia de índices (IMM, IMV e IMA),
-            bandas espectrais FFT por modo de coleta, Fator K calibrado, escudo anti-falso-positivo,
-            interoperabilidade governamental e conformidade LGPD.
+            indexação espacial hexagonal H3 com k-anonimato, bandas espectrais FFT por modo de coleta,
+            Fator K calibrado, escudo anti-falso-positivo, interoperabilidade governamental e conformidade LGPD.
           </p>
 
-          <div class="cover-meta-grid">
+          <div class="cover-meta">
             <div class="cover-meta-item">
-              <strong>Versão da Metodologia</strong>
-              <span>Versão 2.1 Homologada (Onda 3)</span>
-            </div>
-            <div class="cover-meta-item">
+              <label>Versão Metodológica</label>
+              <span>Versão 2.2 Homologada (H3 & Onda 3)</span>
+            </div>            <div class="cover-meta-item">
               <strong>Data de Emissão</strong>
               <span>${dataFormatada}</span>
             </div>
@@ -461,15 +460,12 @@ export async function generateDossieArquiteturaPdf(
       <!-- ========================================================================= -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Dossiê de Arquitetura v2.1</span>
-          <span>1. Hierarquia de Índices & Pilares IMV</span>
-        </div>
-
-        <div class="section-header">
+          <span>ORBIS.UOS • Dossiê de Arquitetura v2.2</span>
+          <span>3. Interoperabilidade B2G & APIs OGC</span>
+        </div>        <div class="section-header">
           <span class="section-number">1</span>
-          <h2 class="section-title">Hierarquia dos Índices & Arquitetura de Consolidação (v2.1)</h2>
+          <h2 class="section-title">Hierarquia dos Índices & Arquitetura de Consolidação (v2.2)</h2>
         </div>
-
         <p>
           A arquitetura metodológica do ORBIS.UOS opera em modelo federado de índices, garantindo
           a soberania executiva para o Gabinete do Prefeito sem descaracterizar a precisão inercial
@@ -810,7 +806,7 @@ export async function generateDossieArquiteturaPdf(
           <div class="code-box">{
   "type": "FeatureCollection",
   "municipio_ibge": "4106902",
-  "metodologia_versao": "2.1",
+  "metodologia_versao": "2.2",
   "features": [
     {
       "type": "Feature",
@@ -869,7 +865,7 @@ export async function generateDossieArquiteturaPdf(
       <!-- ========================================================================= -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Dossiê de Arquitetura v2.1</span>
+          <span>ORBIS.UOS • Dossiê de Arquitetura v2.2</span>
           <span>4. Infraestrutura, LGPD & Auditoria SHA-256</span>
         </div>
 
@@ -972,7 +968,7 @@ export async function generateDossieArquiteturaPdf(
 
         <div style="margin-top: 30px; border-top: 1px solid #CBD5E1; padding-top: 12px; font-size: 9.5px; color: #64748B; text-align: center;">
           ORBIS.UOS • Urban Operating System • Plataforma B2G de Mobilidade e Zeladoria Viária<br>
-          Metodologia Versão 2.1 Homologada (2025–2026) • Documento com fé pública digital amparado na Lei 14.063/2020.
+          Metodologia Versão 2.2 Homologada (2025–2026) • Documento com fé pública digital amparado na Lei 14.063/2020.
         </div>
       </div>
 

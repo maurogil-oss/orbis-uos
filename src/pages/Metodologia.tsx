@@ -15,6 +15,7 @@ import {
   Loader2,
   FileText,
   Lock,
+  Hexagon,
 } from 'lucide-react'
 import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
 import { generateRelatorioSegurancaPdf } from '@/lib/diagnostics/relatorioSegurancaPdf'
@@ -96,7 +97,7 @@ export default function Metodologia() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-semibold text-[#10B981] w-fit">
               <Calendar className="w-3.5 h-3.5" />
-              Versão 2.1 Homologada • Onda 3 Mobilidade Ativa (IMA Real & Bandas FFT) • Março de
+              Versão 2.2 Homologada • Indexação Espacial H3 & k-Anonimato Territorial • Março de
               2025
             </div>
 
@@ -149,8 +150,8 @@ export default function Metodologia() {
           </h1>
           <p className="text-sm text-[#94A3B8] leading-relaxed">
             Documentação técnica pública dos princípios, algoritmos de cálculo, matrizes de
-            ponderação, viés de desvio declarado e bandas espectrais FFT da plataforma ORBIS.UOS
-            (Versão 2.1 Homologada).
+            ponderação, viés de desvio declarado, bandas espectrais FFT e grade hexagonal H3 da
+            plataforma ORBIS.UOS (Versão 2.2 Homologada).
           </p>
 
           {/* Feedback de Geração / Hash se já emitido */}
@@ -498,6 +499,107 @@ export default function Metodologia() {
                   Consulte os direitos do titular e canal DPO em /privacidade
                 </Link>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* NOVA SEÇÃO: Indexação Espacial H3 & k-Anonimato (Versão 2.2) */}
+        <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#10B981]/60 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Hexagon className="w-5 h-5 text-[#10B981]" />
+              Indexação Espacial H3 Nativa & k-Anonimato (Versão 2.2)
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+              Inovação Metodológica v2.2
+            </span>
+          </div>
+
+          <div className="space-y-4 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            <p>
+              A Versão 2.2 estabelece a{' '}
+              <b>
+                indexação espacial hexagonal nativa H3 (Uber Hexagonal Hierarchical Spatial Index)
+              </b>{' '}
+              como a camada oficial de particionamento geográfico do produto. Cada leitura inercial
+              e cada segmento viário recebe sua célula H3 gravada nativamente no momento exato da
+              coleta em campo.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Resolução 9 - Eixo Veicular */}
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#3B82F6]/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-[#60A5FA]">
+                    Resolução 9 — Eixo Veicular
+                  </span>
+                  <span className="font-mono text-[11px] bg-[#3B82F6]/20 text-[#60A5FA] px-2 py-0.5 rounded font-bold">
+                    Aresta ~174 m (Área ~0,1 km²)
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+                  Adotada para frotas pesadas, ônibus urbanos, caminhões de coleta e viaturas
+                  municipais. O raio de ~174 metros corresponde com precisão ao comprimento médio de
+                  quadras viárias e quarteirões urbanos consolidados nas capitais brasileiras,
+                  permitindo sintetizar o <b>IMV (Índice de Manutenção Viária)</b> em blocos
+                  homogêneos de asfalto sem fragmentação excessiva de dados inerciais.
+                </p>
+              </div>
+
+              {/* Resolução 10 - Modos Ativos */}
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#10B981]/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-[#34D399]">
+                    Resolução 10 — Modos Ativos
+                  </span>
+                  <span className="font-mono text-[11px] bg-[#10B981]/20 text-[#34D399] px-2 py-0.5 rounded font-bold">
+                    Aresta ~65 m (Área ~0,015 km²)
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+                  Adotada para pedestres, ciclistas e motociclistas na coleta do{' '}
+                  <b>IMA (Índice de Manutenção de Acessibilidade)</b>. A alta resolução (~65 metros
+                  de aresta) isola travessias elevadas, esquinas com rampas inacessíveis, fissuras
+                  em calçadas de comércio denso e descontinuidades de ciclovias, garantindo foco
+                  cirúrgico aos setores de urbanismo.
+                </p>
+              </div>
+            </div>
+
+            {/* k-Anonimato e Blindagem LGPD */}
+            <div className="p-4 rounded-xl bg-[#070D1F] border border-[#10B981]/40 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#10B981]">
+                <Shield className="w-4 h-4 text-[#10B981]" />
+                <span>k-Anonimato Espacial (k ≥ 3 Sessões) & Blindagem LGPD (Art. 12)</span>
+              </div>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Em respeito irrestrito à Lei Geral de Proteção de Dados (Lei Federal nº
+                13.709/2018), a plataforma ORBIS.UOS adota o{' '}
+                <b>k-anonimato territorial obrigatório com limiar k = 3</b>:
+              </p>
+              <ul className="list-disc list-inside space-y-1.5 text-[#94A3B8] text-[11px] pl-1">
+                <li>
+                  <b className="text-[#F8FAFC]">Regra de Não Publicação Protetiva:</b> Uma célula
+                  hexagonal H3{' '}
+                  <b>
+                    só é publicada ou exibida com scores IMV/IMA se contar com pelo menos 3 sessões
+                    de coleta independentes
+                  </b>{' '}
+                  realizadas por veículos ou coletadores distintos.
+                </li>
+                <li>
+                  <b className="text-[#F8FAFC]">Status Honesto "Não Auditado":</b> Células com 1 ou
+                  2 passagens permanecem identificadas honestamente como{' '}
+                  <b>"Aguardando Campo / Não Auditado"</b>, com suas notas estritamente ocultadas
+                  (retorno nulo via API). Nenhuma nota é deduzida arbitrariamente.
+                </li>
+                <li>
+                  <b className="text-[#F8FAFC]">Proibição Absoluta de Trajetória Individual:</b> Em
+                  nenhum momento o portal público, as APIs GeoJSON ou relatórios externos exibem
+                  rotas contínuas, linhas de trajeto de munícipes ou leituras inerciais brutas
+                  isoladas. O dado é matematicamente irreversível.
+                </li>
+              </ul>
             </div>
           </div>
         </div>

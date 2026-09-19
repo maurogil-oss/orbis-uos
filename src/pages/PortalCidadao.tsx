@@ -14,12 +14,15 @@ import {
   Calendar,
   Lock,
   ExternalLink,
+  Hexagon,
 } from 'lucide-react'
 import { listRoadEvents, RoadEventRecord } from '@/services/roadEvents'
 import {
   getInstitucionalSettings,
   InstitucionalSettingsRecord,
 } from '@/services/institucionalSettings'
+import { PortalH3HexMap } from '@/components/PortalH3HexMap'
+import { generateCuritibaH3DemoGrid, H3AggregatedCell } from '@/lib/diagnostics/h3Engine'
 
 export default function PortalCidadao() {
   const [settings, setSettings] = useState<InstitucionalSettingsRecord | null>(null)
@@ -31,6 +34,7 @@ export default function PortalCidadao() {
   const [searchVia, setSearchVia] = useState<string>('')
   const [selectedBairro, setSelectedBairro] = useState<string>('todos')
   const [selectedStatus, setSelectedStatus] = useState<string>('todos')
+  const [h3Cells] = useState<H3AggregatedCell[]>(() => generateCuritibaH3DemoGrid())
 
   useEffect(() => {
     // 1. Carregar configurações da cidade (Curitiba - 4106902)
@@ -222,6 +226,29 @@ export default function PortalCidadao() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Grade Espacial Hexagonal H3 - Transparência Territorial e k-Anonimato */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+                <Hexagon className="w-5 h-5 text-[#3B82F6]" />
+                Grade Hexagonal H3 (Uber) • Saúde Viária por Célula
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#10B981]/20 text-[#34D399] border border-[#10B981]/30">
+                  k-Anonimato (k ≥ 3)
+                </span>
+              </h2>
+              <p className="text-xs text-[#94A3B8]">
+                Visualização territorial agregada em hexágonos: Resolução 9 (~174m) para eixo
+                veicular e Resolução 10 (~65m) para modos ativos. Células com amostragem menor que 3
+                sessões aparecem com o status honesto de "Não Auditado" para garantia absoluta de
+                blindagem da privacidade (Art. 12 LGPD).
+              </p>
+            </div>
+          </div>
+
+          <PortalH3HexMap cells={h3Cells} height="480px" />
         </div>
 
         {/* 3 Cartões de Síntese Cidadã */}
@@ -429,7 +456,8 @@ export default function PortalCidadao() {
             className="inline-flex items-center gap-1.5 text-xs text-[#3B82F6] hover:text-[#60A5FA] font-bold underline"
           >
             <span>
-              Conheça a Metodologia Científica (v2.0), o IMM e o Índice de Manutenção Viária (IMV)
+              Conheça a Metodologia Científica (v2.2), Indexação Espacial H3, o IMM e o Índice de
+              Manutenção Viária (IMV)
             </span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>

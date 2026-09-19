@@ -29,16 +29,16 @@ export interface CreateRoadEventPayload {
   bairro?: string
   tipo: RoadAnomalyType
   severidade: RoadSeverity
-  iri_score?: number
-  aceleracao_z?: number
+  iri_score: number
+  aceleracao_z: number
   latitude: number
   longitude: number
-  velocidade_kmh?: number
+  h3_index?: string
+  velocidade_kmh: number
   status: RoadStatus
-  veiculo_tipo?: string
-  linha_frota?: string
+  veiculo_tipo: string
+  linha_frota: string
 }
-
 export async function listRoadEvents(filter?: string): Promise<RoadEventRecord[]> {
   try {
     const records = await pb.collection('road_events').getFullList<RoadEventRecord>({

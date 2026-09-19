@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T19:13:02.790Z",
+  "generatedAt": "2026-09-19T19:26:13.191Z",
   "collections": [
     {
       "name": "users",
@@ -208,6 +208,12 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "h3_index",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
@@ -924,12 +930,25 @@
           "type": "number",
           "required": false,
           "system": false
+        },
+        {
+          "name": "h3_index",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "h3_resolution",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
         "CREATE INDEX idx_seg_readings_segmento ON segment_readings (segmento_id)",
         "CREATE INDEX idx_seg_readings_ibge ON segment_readings (codigo_ibge)",
-        "CREATE INDEX idx_seg_readings_veiculo ON segment_readings (veiculo_id)"
+        "CREATE INDEX idx_seg_readings_veiculo ON segment_readings (veiculo_id)",
+        "CREATE INDEX `idx_seg_readings_h3` ON `segment_readings` (h3_index)"
       ]
     },
     {
@@ -1089,12 +1108,25 @@
           "type": "number",
           "required": false,
           "system": false
+        },
+        {
+          "name": "h3_index",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "h3_resolution",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
         "CREATE UNIQUE INDEX idx_road_segments_seg_ibge ON road_segments (segmento_id, codigo_ibge)",
         "CREATE INDEX idx_road_segments_ibge ON road_segments (codigo_ibge)",
-        "CREATE INDEX idx_road_segments_confianca ON road_segments (fator_confianca_valido)"
+        "CREATE INDEX idx_road_segments_confianca ON road_segments (fator_confianca_valido)",
+        "CREATE INDEX `idx_road_segments_h3` ON `road_segments` (h3_index)"
       ]
     },
     {
