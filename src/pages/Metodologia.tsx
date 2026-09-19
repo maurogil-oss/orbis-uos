@@ -463,11 +463,21 @@ export default function Metodologia() {
             </div>
 
             {/* Compromisso LGPD */}
-            <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs text-[#CBD5E1] space-y-1">
-              <span className="font-bold text-[#F8FAFC]">
-                Compromisso LGPD na Mobilidade Ativa:
-              </span>
-              <p className="text-[#94A3B8]">
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs text-[#CBD5E1] space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-[#10B981]" />
+                  Compromisso LGPD na Mobilidade Ativa & Governança de Dados:
+                </span>
+                <Link
+                  to="/privacidade"
+                  className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-[#38BDF8] hover:underline"
+                >
+                  <span>Política de Privacidade Completa</span>
+                  <ArrowLeft className="w-3 h-3 rotate-180" />
+                </Link>
+              </div>
+              <p className="text-[#94A3B8] leading-relaxed">
                 A coleta a pé e de bicicleta mantém a diretriz soberana:{' '}
                 <b>
                   zero câmeras, zero fotos, zero gravação de áudio e zero identificação de pessoas
@@ -476,6 +486,18 @@ export default function Metodologia() {
                 <b>bolso da calça, mochila ou suporte</b>. Apenas vetores inerciais anônimos e
                 geolocalização autorizada por janela temporal são transmitidos.
               </p>
+              <div className="pt-2 border-t border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                <span className="text-[#A7F3D0]">
+                  • Retenção estrita de 180 dias para telemetria bruta • Anonimização por design
+                  (Art. 12 LGPD)
+                </span>
+                <Link
+                  to="/privacidade"
+                  className="text-[#60A5FA] hover:text-white font-semibold underline"
+                >
+                  Consulte os direitos do titular e canal DPO em /privacidade
+                </Link>
+              </div>
             </div>
           </div>
         </div>

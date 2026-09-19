@@ -12,7 +12,7 @@ export interface RelatorioSegurancaResult {
 }
 
 /**
- * Gera e abre a janela de impressão/salvar em PDF com o Relatório Interno de Segurança ORBIS.UOS v0.0.20
+ * Gera e abre a janela de impressão/salvar em PDF com o Relatório Interno de Segurança ORBIS.UOS v0.0.21
  * Documento de fé pública digital com hash SHA-256 no rodapé, utilizável como evidência institucional.
  */
 export async function generateRelatorioSegurancaPdf(
@@ -42,7 +42,7 @@ export async function generateRelatorioSegurancaPdf(
   // 2. Metadados do hash SHA-256
   const hashPayload = {
     documento: 'Relatório Interno de Segurança e Conformidade Regulatória ORBIS.UOS',
-    versao: '0.0.20',
+    versao: '0.0.21',
     protocolo,
     emissaoIso: agora.toISOString(),
     escopo: [
@@ -67,7 +67,7 @@ export async function generateRelatorioSegurancaPdf(
     <html lang="pt-BR">
     <head>
       <meta charset="utf-8">
-      <title>Relatorio-Seguranca-ORBIS-UOS-v0.0.20-${agora.getFullYear()}</title>
+      <title>Relatorio-Seguranca-ORBIS-UOS-v0.0.21-${agora.getFullYear()}</title>
       <style>
         @page {
           size: A4 portrait;
@@ -346,7 +346,7 @@ export async function generateRelatorioSegurancaPdf(
             </div>
             <div class="cover-meta-item">
               <strong>Versão da Plataforma</strong>
-              <span>ORBIS.UOS v0.0.20 (Hardened Build)</span>
+              <span>ORBIS.UOS v0.0.21 (Hardened Build)</span>
             </div>
             <div class="cover-meta-item">
               <strong>Responsável / Validador</strong>
@@ -380,7 +380,7 @@ export async function generateRelatorioSegurancaPdf(
       <!-- =================================================================== -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.20</span>
+          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.21</span>
           <span>Protocolo: ${protocolo}</span>
         </div>
 
@@ -534,7 +534,7 @@ export async function generateRelatorioSegurancaPdf(
       <!-- =================================================================== -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.20</span>
+          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.21</span>
           <span>Protocolo: ${protocolo}</span>
         </div>
 
@@ -555,7 +555,7 @@ export async function generateRelatorioSegurancaPdf(
               <th>Versão</th>
               <th>Vulnerabilidade / CVE</th>
               <th>Severidade</th>
-              <th>Status na Versão 0.0.20</th>
+              <th>Status na Versão 0.0.21</th>
             </tr>
           </thead>
           <tbody>
@@ -596,7 +596,7 @@ export async function generateRelatorioSegurancaPdf(
         </div>
 
         <div class="success-box">
-          <b>Resumo das Ações Críticas Implementadas na Versão 0.0.20:</b>
+          <b>Resumo das Ações Críticas Implementadas na Versão 0.0.21:</b>
           <ul style="margin: 4px 0 0 16px; padding: 0;">
             <li><b>Proteção LGPD em <code>leads</code> (Corrigido):</b> Listagem e visualização fechadas para <code>@request.auth.id != ''</code>. Agentes públicos que registraram manifestos não têm seus e-mails e telefones expostos publicamente.</li>
             <li><b>Bloqueio de Criação em <code>users</code> (Corrigido):</b> Regra <code>create: null</code> impede autorregistro arbitrário via endpoint REST, prevenindo vetores de spam ou escalada de contas.</li>
@@ -630,19 +630,19 @@ export async function generateRelatorioSegurancaPdf(
               <td>Hardening RLS em 12 Collections (Menor Privilégio)</td>
               <td>Controle de Acesso</td>
               <td><span class="badge-status badge-green">Implantado</span></td>
-              <td>Março/2026 (Versão 0.0.20)</td>
+              <td>Março/2026 (Versão 0.0.21)</td>
             </tr>
             <tr>
               <td>Sanitização de Inputs na Geração de Documentos HTML/PDF</td>
               <td>Prevenção XSS</td>
               <td><span class="badge-status badge-green">Implantado</span></td>
-              <td>Março/2026 (Versão 0.0.20)</td>
+              <td>Março/2026 (Versão 0.0.21)</td>
             </tr>
             <tr>
               <td>Assinatura Criptográfica SHA-256 em Dossiês</td>
               <td>Fé Pública / Integridade</td>
               <td><span class="badge-status badge-green">Implantado</span></td>
-              <td>Março/2026 (Versão 0.0.20)</td>
+              <td>Março/2026 (Versão 0.0.21)</td>
             </tr>
             <tr>
               <td>Pentest Externo Independente por Empresa Homologada</td>
@@ -672,7 +672,7 @@ export async function generateRelatorioSegurancaPdf(
         </div>
 
         <div style="margin-top: 25px; border-top: 1px solid #CBD5E1; padding-top: 10px; font-size: 9px; color: #64748B; text-align: center;">
-          ORBIS.UOS • Urban Operating System • Relatório Interno de Segurança da Informação • Versão 0.0.20<br>
+          ORBIS.UOS • Urban Operating System • Relatório Interno de Segurança da Informação • Versão 0.0.21<br>
           Emissão com fé pública digital amparada na Lei Federal nº 14.063/2020 e Art. 27 da Lei Complementar nº 182/2021.
         </div>
       </div>
