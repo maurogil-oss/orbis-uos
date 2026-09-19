@@ -31,7 +31,7 @@ import {
 import { Settings, LogOut, UserCheck, FileCheck, KeyRound, SlidersHorizontal } from 'lucide-react'
 
 export default function Cockpit() {
-  const { user, logout } = useAuth()
+  const { user, isAdmin, logout } = useAuth()
   const [institucionalSettings, setInstitucionalSettings] =
     useState<InstitucionalSettingsRecord | null>(null)
   const [showConfigModal, setShowConfigModal] = useState<boolean>(false)
@@ -208,6 +208,19 @@ export default function Cockpit() {
               </div>
             )}
 
+            {/* Badge de Papel */}
+            {user && (
+              <span
+                className={`hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-mono font-bold uppercase border ${
+                  isAdmin
+                    ? 'bg-[#3B82F6]/15 text-[#60A5FA] border-[#3B82F6]/30'
+                    : 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
+                }`}
+              >
+                {isAdmin ? 'Admin: Gabinete' : 'Operador: Coleta'}
+              </span>
+            )}
+
             {/* Botão Alterar Senha (visível em telas menores ou como acesso direto rápido) */}
             <button
               type="button"
@@ -225,6 +238,7 @@ export default function Cockpit() {
               type="button"
               onClick={() => setShowConfigModal(true)}
               className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
+              title="Configurações do Município, Contas & Auditoria"
             >
               <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
               <span>Configurações</span>

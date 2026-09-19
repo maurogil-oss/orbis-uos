@@ -38,7 +38,8 @@ export default function Login() {
     } catch (err: any) {
       console.error('Falha na autenticação institucional:', err)
       setErrorMsg(
-        'Credenciais institucionais inválidas ou não cadastradas. Por favor, confira o e-mail oficial e a senha.',
+        err?.message ||
+          'Credenciais institucionais inválidas ou não cadastradas. Por favor, confira o e-mail oficial e a senha.',
       )
     } finally {
       setLoading(false)
@@ -166,8 +167,10 @@ export default function Login() {
               <span>Acesso para Demonstrações Oficiais</span>
             </div>
             <p className="text-[11px] leading-relaxed">
-              Servidores e avaliadores municipais podem utilizar a credencial institucional
-              homologada para testar o Modo Gabinete e o Enquadramento CPSI.
+              Servidores e avaliadores municipais podem utilizar as credenciais institucionais
+              homologadas para testar o acesso: <br />• <b>Administrador:</b>{' '}
+              institucional@orbis.gov.br (Gabinete)
+              <br />• <b>Operador:</b> operador@orbis.gov.br (Fiscalização/Coleta)
             </p>
           </div>
         </div>

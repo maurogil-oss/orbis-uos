@@ -80,12 +80,12 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/metodologia"
-                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
+                  to="/termos"
+                  className="text-xs text-[#94A3B8] hover:text-[#38BDF8] transition-colors"
                 >
-                  Metodologia Homologada (v2.0)
+                  Termos de Uso (B2G)
                 </Link>
-              </li>
+              </li>{' '}
               <li>
                 <Link
                   to="/operacao"
@@ -164,8 +164,8 @@ export function Footer() {
               Política de Privacidade
             </Link>
             <span className="text-[#1A2A5A]">•</span>
-            <Link to="/privacidade#termos" className="hover:text-[#F8FAFC] transition-colors">
-              Termos & Governança LGPD
+            <Link to="/termos" className="hover:text-[#F8FAFC] transition-colors">
+              Termos de Uso
             </Link>
           </div>
         </div>

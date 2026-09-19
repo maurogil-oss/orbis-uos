@@ -1,18 +1,25 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import pb from '@/lib/pocketbase/client'
 
+export type UserRole = 'admin' | 'operador'
+
 export interface InstitucionalUser {
   id: string
   email: string
   name: string
+  role: UserRole
+  status?: 'ativo' | 'desativado'
   cargo?: string
   orgao?: string
+  created?: string
 }
 
 interface AuthContextType {
   user: InstitucionalUser | null
   isAuthenticated: boolean
   isLoading: boolean
+  isAdmin: boolean
+  isOperador: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   changePassword: (
@@ -31,12 +38,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const syncAuthUser = () => {
     if (pb.authStore.isValid && pb.authStore.record) {
       const model = pb.authStore.record
+      const rawRole = (model as any).role
+      const role: UserRole = rawRole === 'operador' ? 'operador' : 'admin'
       setUser({
         id: model.id,
         email: model.email,
         name: model.name || model.email.split('@')[0],
-        cargo: (model as any).cargo || 'Servidor Público Autorizado',
-        orgao: (model as any).orgao || 'Gabinete Municipal',
+        role,
+        status: (model as any).status || 'ativo',
+        cargo:
+          (model as any).cargo ||
+          (role === 'admin' ? 'Gestor / Administrador' : 'Operador de Campo'),
+        orgao: (model as any).orgao || 'Prefeitura Municipal',
+        created: (model as any).created,
       })
     } else {
       setUser(null)
@@ -60,7 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      await pb.collection('users').authWithPassword(email.trim(), password)
+      const authData = await pb.collection('users').authWithPassword(email.trim(), password)
+      const userStatus = (authData.record as any).status
+      if (userStatus === 'desativado') {
+        pb.authStore.clear()
+        setUser(null)
+        throw new Error('Esta conta institucional foi desativada pelo administrador do órgão.')
+      }
       syncAuthUser()
     } finally {
       setIsLoading(false)
@@ -104,8 +124,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user && pb.authStore.isValid,
+        isAuthenticated: !!user && pb.authStore.isValid && user?.status !== 'desativado',
         isLoading,
+        isAdmin: user?.role === 'admin',
+        isOperador: user?.role === 'operador',
         login,
         logout,
         changePassword,

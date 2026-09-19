@@ -1,5 +1,21 @@
 import pb from '@/lib/pocketbase/client'
 
+export interface AuditTrailAuthor {
+  id: string
+  email: string
+  name: string
+  role: 'admin' | 'operador' | 'system'
+}
+
+export interface AuditTrailEvent {
+  id: string
+  event: string
+  author: AuditTrailAuthor
+  details: Record<string, any>
+  compliance?: string
+  timestamp: string
+}
+
 export interface InstitucionalSettingsRecord {
   id?: string
   municipio: string
@@ -11,6 +27,7 @@ export interface InstitucionalSettingsRecord {
   cgu_status?: 'chave_pendente' | 'ativo' | 'erro_chave' | 'indisponivel'
   cgu_last_sync?: string
   cgu_cache_payload?: any
+  audit_trail?: AuditTrailEvent[] | string
   created?: string
   updated?: string
 }
@@ -85,6 +102,74 @@ export async function updateInstitucionalSettings(
 /**
  * Aciona sincronização segura com a API do Portal da Transparência CGU via hook backend
  */
+/**
+ * Registra um evento com autoria na trilha de auditoria de institucional_settings
+ */
+export async function registerAuditEvent(params: {
+  codigoIbge?: string
+  event: string
+  author: AuditTrailAuthor
+  details: Record<string, any>
+  compliance?: string
+}): Promise<void> {
+  const cleanIbge = (params.codigoIbge || '4106902').replace(/\D/g, '')
+  if (!pb.authStore.isValid) return
+
+  try {
+    const settings = await pb
+      .collection('institucional_settings')
+      .getFirstListItem(`codigo_ibge = "${cleanIbge}"`)
+
+    let trail: AuditTrailEvent[] = []
+    const raw = settings.audit_trail
+    if (Array.isArray(raw)) {
+      trail = raw
+    } else if (typeof raw === 'string' && raw.trim()) {
+      try {
+        trail = JSON.parse(raw)
+      } catch (_) {
+        trail = []
+      }
+    }
+
+    const newEvent: AuditTrailEvent = {
+      id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      event: params.event,
+      author: params.author,
+      details: params.details,
+      compliance: params.compliance,
+      timestamp: new Date().toISOString(),
+    }
+
+    trail.unshift(newEvent)
+    if (trail.length > 50) {
+      trail = trail.slice(0, 50)
+    }
+
+    await pb.collection('institucional_settings').update(settings.id, {
+      audit_trail: JSON.stringify(trail),
+    })
+  } catch (err) {
+    console.warn('Não foi possível gravar evento na trilha de auditoria:', err)
+  }
+}
+
+/**
+ * Dispara purga manual de telemetria bruta com mais de 180 dias
+ */
+export async function triggerTelemetryPurge(): Promise<{
+  success: boolean
+  message: string
+  cutoff_date: string
+  total_purged: number
+  purged_segment_readings: number
+  purged_field_sessions: number
+}> {
+  return await pb.send('/backend/v1/telemetry/purge', {
+    method: 'POST',
+  })
+}
+
 export async function syncCguPortalData(params: {
   codigo_ibge: string
   cgu_api_key?: string
