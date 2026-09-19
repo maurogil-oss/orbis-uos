@@ -55,7 +55,7 @@ export function gerarPlanoSaldoRepresado(params: {
       valorEstimado: valorAuditoriaInovadora,
       destinacaoLegal: 'Engenharia de Tráfego e Governança Preditiva (Art. 320 CTB)',
       vinculoPrograma:
-        'Contrato Público para Solução Inovadora (LC 182/2021) — Mapeamento contínuo do IMM e pontos críticos de sinistralidade.',
+        'Contrato Público para Solução Inovadora (LC 182/2021) — Mapeamento contínuo do IMV (Índice de Manutenção Viária), consolidação no IMM e pontos críticos de sinistralidade.',
       statusControle: 'imediato',
     },
     {

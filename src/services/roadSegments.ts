@@ -139,7 +139,7 @@ export async function registerSegmentPassage(
     const passagensCount = 1
     const confiancaValida = passagensCount >= 3
 
-    // Score IMM provisório
+    // Score IMV / IMM provisório
     const pilarA = calculateScorePilarA(iri_janela)
     const pilarB = calculateScorePilarB({
       trincas_iniciais: impactos_count > 0 ? 1 : 0,

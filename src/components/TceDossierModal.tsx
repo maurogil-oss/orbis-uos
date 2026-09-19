@@ -129,13 +129,14 @@ export function TceDossierModal({
             </div>
 
             <h1 className="text-xl sm:text-2xl font-black text-[#F8FAFC] tracking-tight">
-              PARECER TÉCNICO DE NEXO CAUSAL E DESTINAÇÃO DE RECURSOS
+              PARECER TÉCNICO DE NEXO CAUSAL E DESTINAÇÃO DE RECURSOS (IMV & IMM)
             </h1>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
               Comprovação de Elegibilidade da Despesa em Engenharia de Tráfego e Manutenção Viária
               com Fulcro no{' '}
               <b>Artigo 320 do Código de Trânsito Brasileiro (Lei Federal nº 9.503/1997)</b>, na
-              Resolução CONTRAN nº 638/2016 e na LC nº 182/2021 (Marco Legal das Startups).
+              Resolução CONTRAN nº 638/2016 e na LC nº 182/2021 (Marco Legal das Startups), amparado
+              pela Metodologia 2.0 (Índice de Manutenção Viária - IMV e consolidação no IMM).
             </p>
           </div>
 
@@ -160,7 +161,7 @@ export function TceDossierModal({
                 {kmAudited.toLocaleString('pt-BR')} km
               </span>
               <span className="text-[10px] text-[#94A3B8] block mt-0.5">
-                Malha monitorada via frota pública
+                Malha monitorada via frota pública (IMV)
               </span>
             </div>
             <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
@@ -194,10 +195,11 @@ export function TceDossierModal({
             <p className="text-[#CBD5E1] leading-relaxed">
               A implementação do sistema de sensoriamento espectral e telemetria inercial passiva
               enquadra-se rigorosamente na rubrica de{' '}
-              <b>Engenharia de Tráfego e Sinalização Preditiva</b>, uma vez que visa à identificação
-              precoce de patologias asfálticas críticas (buracos, afundamentos, perda de aderência e
-              rugosidade IRI) que colocam em risco iminente a vida de condutores, motociclistas e
-              pedestres.
+              <b>Engenharia de Tráfego e Manutenção Viária Preditiva (IMV / Metodologia 2.0)</b>,
+              uma vez que visa à identificação precoce de patologias asfálticas críticas (buracos,
+              afundamentos, perda de aderência e rugosidade IRI correlacionada ao Banco Mundial) que
+              colocam em risco iminente a vida de condutores, motociclistas e pedestres, gerando os
+              indicadores físicos do IMV consolidados no IMM.
             </p>
           </div>
 
@@ -268,7 +270,7 @@ export function TceDossierModal({
 
             <div className="pt-3 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] font-mono text-[#94A3B8]">
               <div>
-                <span>Autenticação Criptográfica:</span>
+                <span>Autenticação Criptográfica (SHA-256):</span>
                 <span className="block text-[#10B981] font-bold">{signatureHash}</span>
               </div>
               <div className="text-right">
@@ -276,7 +278,9 @@ export function TceDossierModal({
                   Emitido em: {new Date().toLocaleDateString('pt-BR')} às{' '}
                   {new Date().toLocaleTimeString('pt-BR')}
                 </span>
-                <span className="block text-[#3B82F6]">ORBIS.UOS • Módulo de Governança B2G</span>
+                <span className="block text-[#3B82F6]">
+                  ORBIS.UOS • Módulo de Governança B2G • Metodologia v2.0
+                </span>
               </div>
             </div>
           </div>

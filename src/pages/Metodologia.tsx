@@ -31,14 +31,14 @@ export default function Metodologia() {
         <div className="space-y-3 pb-6 border-b border-[#1A2A5A]">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA]">
             <Calendar className="w-3.5 h-3.5" />
-            Versão 1.1 Declarada • Calibração Fator K • Março de 2025
+            Versão 2.0 Homologada • Hierarquia de Índices (IMM/IMV/IMA) • Março de 2025
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Metodologia do Diagnóstico Institucional e do IMM (Índice de Mobilidade Municipal)
+            Metodologia do Diagnóstico Institucional, do IMM e dos Sub-índices Setoriais
           </h1>
           <p className="text-sm text-[#94A3B8] leading-relaxed">
             Documentação técnica pública dos princípios, algoritmos de cálculo, matrizes de
-            ponderação e bases legais que regem a plataforma ORBIS.UOS.
+            ponderação e bases legais que regem a plataforma ORBIS.UOS (Versão 2.0).
           </p>
         </div>
 
@@ -137,16 +137,104 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* 3. Motor do IMM Físico */}
+        {/* 3. Hierarquia dos Índices e Arquitetura de Consolidação (Versão 2.0) */}
+        <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6]/50 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[#3B82F6]" />
+              3. Hierarquia dos Índices & Arquitetura de Consolidação (Versão 2.0)
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+              Revisão 2.0 • Março/2025
+            </span>
+          </div>
+
+          <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            A Versão 2.0 da metodologia ORBIS.UOS estabelece a distinção precisa entre o{' '}
+            <b>índice-síntese institucional</b> exibido ao Chefe do Executivo e os{' '}
+            <b>sub-índices técnicos setoriais</b> que refletem as diferentes camadas da mobilidade
+            física:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            {/* IMM */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/50 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-bold text-[#60A5FA] text-sm">IMM</span>
+                <span className="text-[10px] font-mono uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2 py-0.5 rounded font-bold">
+                  Índice-Síntese
+                </span>
+              </div>
+              <h3 className="font-bold text-[#F8FAFC] text-sm">
+                Índice de Mobilidade do Município
+              </h3>
+              <p className="text-[#94A3B8] leading-relaxed text-[11px]">
+                Número soberano no Modo Gabinete do Prefeito. Consolida os sub-índices setoriais
+                ativos através de média ponderada declarada.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#CBD5E1]">
+                <b>Consolidação atual:</b> 100% IMV
+              </div>
+            </div>
+
+            {/* IMV */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#10B981]/40 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-bold text-[#10B981] text-sm">IMV</span>
+                <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded font-bold">
+                  Sub-índice Físico
+                </span>
+              </div>
+              <h3 className="font-bold text-[#F8FAFC] text-sm">Índice de Manutenção Viária</h3>
+              <p className="text-[#94A3B8] leading-relaxed text-[11px]">
+                Herda <b>intacto</b> o cálculo dos 4 pilares inerciais (IRI estimado, anomalias,
+                aderência e criticidade) com validação tripla F ≥ 3.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#10B981]">
+                <b>Status:</b> Operacional (Onda 1)
+              </div>
+            </div>
+
+            {/* IMA */}
+            <div className="p-4 rounded-xl bg-[#101B3A]/60 border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-bold text-[#F59E0B] text-sm">IMA</span>
+                <span className="text-[10px] font-mono uppercase bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded font-bold">
+                  Sub-índice Futuro
+                </span>
+              </div>
+              <h3 className="font-bold text-[#CBD5E1] text-sm">
+                Índice de Manutenção de Acessibilidade
+              </h3>
+              <p className="text-[#64748B] leading-relaxed text-[11px]">
+                Avaliação de calçadas/pedestres, ciclovias e micromobilidade urbana. Estrutura
+                arquitetural preparada; coleta não realizada.
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#F59E0B]">
+                <b>Status:</b> Onda 3 (Planejado)
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#10B981]/10 border border-[#10B981]/30 text-xs text-[#A7F3D0]">
+            <b>Princípio da Honestidade Metodológica:</b> Sub-índices não calculados (como o IMA na
+            Onda 3) jamais são preenchidos com dados fictícios ou estimativas arbitrárias. No
+            Gabinete, o IMM apresenta com total transparência quais sub-índices compõem a nota no
+            momento.
+          </div>
+        </div>
+
+        {/* 4. Motor do IMV Físico (Auditoria Inercial Contínua da Malha Viária) */}
         <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#3B82F6]/40 space-y-4">
           <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
             <Activity className="w-5 h-5 text-[#10B981]" />
-            3. Motor do IMM Físico (Auditoria Inercial Contínua)
+            4. Motor do IMV Físico (Auditoria Inercial Contínua da Malha Viária)
           </h2>
           <div className="space-y-3 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
             <p>
-              O IMM é um índice físico resultante da telemetria embarcada nos smartphones dos
-              motoristas da frota municipal durante 30 dias ininterruptos de coleta passiva.
+              O IMV (Índice de Manutenção Viária) é o sub-índice físico resultante da telemetria
+              embarcada nos smartphones dos motoristas da frota municipal durante 30 dias
+              ininterruptos de coleta passiva.
             </p>
             <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs space-y-1.5 font-mono">
               <div className="text-[#60A5FA] font-bold">
@@ -168,12 +256,12 @@ export default function Metodologia() {
               Registros solitários são descartados.
             </div>
 
-            {/* ADIÇÃO v1.1: Calibração Empírica do Fator K */}
+            {/* Calibração Empírica do Fator K mantida integralmente */}
             <div className="p-4 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/40 text-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-[#F8FAFC] text-sm flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
-                  Calibração Empírica do Fator K por Tipo de Veículo (Aditivo Metodológico v1.1)
+                  Calibração Empírica do Fator K por Tipo de Veículo
                 </span>
                 <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/15 px-2 py-0.5 rounded border border-[#3B82F6]/30">
                   Transparência de Cálculo
@@ -182,8 +270,8 @@ export default function Metodologia() {
               <p className="text-[#CBD5E1] leading-relaxed">
                 Cada categoria de veículo-sensor (ônibus urbano, viatura policial, caminhão de
                 coleta, ambulância do SAMU ou frota leve) possui massa suspensa e curva de
-                amortecimento distintas. Para assegurar que o IMM mensure exclusivamente o estado do
-                pavimento — e não a dinâmica do chassi — o sistema admite calibração empírica do
+                amortecimento distintas. Para assegurar que o IMV mensure exclusivamente o estado do
+                pavimento — e não a dinâmica do chassi — o sistema opera calibração empírica do
                 Fator K:
               </p>
               <ul className="list-disc list-inside space-y-1 text-[#94A3B8] pl-1 font-mono text-[11px]">
@@ -214,17 +302,17 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* 4. Ações Orçamentárias e Curva de Degradação */}
+        {/* 5. Ações Orçamentárias e Curva de Degradação */}
         <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-4">
           <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
             <Scale className="w-5 h-5 text-[#F59E0B]" />
-            4. Faixas do IMM, Custos e Economia de até 10x
+            5. Faixas de Intervenção do IMV, Custos e Economia de até 10x
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="text-[10px] font-mono uppercase text-[#94A3B8] border-b border-[#1A2A5A] bg-[#0A1128]">
                 <tr>
-                  <th className="py-2.5 px-3">Faixa IMM</th>
+                  <th className="py-2.5 px-3">Faixa IMV</th>
                   <th className="py-2.5 px-3">Classificação do Pavimento</th>
                   <th className="py-2.5 px-3">Ação Orçamentária Recomendada</th>
                   <th className="py-2.5 px-3">Custo Médio / m²</th>

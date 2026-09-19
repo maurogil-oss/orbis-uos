@@ -424,10 +424,10 @@ export default function Enquadramento() {
             }
 
             <div class="card" style="margin-bottom: 12px;">
-              <b>(a) DIMENSIONAMENTO DO PILOTO CPSI (30 DIAS):</b><br>
+              <b>(a) DIMENSIONAMENTO DO PILOTO CPSI (30 DIAS — APURAÇÃO DO IMV & IMM):</b><br>
               • Veículos-sensor necessários para auditar 100% da malha: <b>${saidasResult.dimensionamentoCpsi.veiculosSensorRecomendados} veículos</b><br>
               • Distribuição sugerida: ${saidasResult.dimensionamentoCpsi.onibusAlocados} ônibus + ${saidasResult.dimensionamentoCpsi.caminhoesColetaAlocados} caminhões de coleta + ${saidasResult.dimensionamentoCpsi.viaturasAlocadas} viaturas oficiais<br>
-              • Metodologia: Auditoria inercial contínua via smartphones (Fator de Confiança F ≥ 3 passagens).
+              • Metodologia 2.0: Auditoria inercial contínua via smartphones com apuração do IMV (Índice de Manutenção Viária) e consolidação no IMM (Índice de Mobilidade do Município) com Fator de Confiança F ≥ 3 passagens.
             </div>
 
             <div class="card" style="margin-bottom: 12px;">
@@ -502,7 +502,7 @@ export default function Enquadramento() {
             </div>
 
             <div class="footer">
-              ORBIS.UOS • Urban Operating System • Metodologia Homologada Versão 1.0 (2025) • Documento com fé pública digital amparado na Lei 14.063/2020.
+              ORBIS.UOS • Urban Operating System • Metodologia Homologada Versão 2.0 (2025) • Índices IMM (Mobilidade), IMV (Manutenção Viária) e IMA (Acessibilidade - Onda 3) • Documento com fé pública digital amparado na Lei 14.063/2020.
             </div>
           </body>
           </html>

@@ -51,7 +51,7 @@ export async function listExpressDiagnostics(): Promise<ExpressDiagnosticRecord[
 export async function submitExpressDiagnostic(
   payload: CreateExpressDiagnosticPayload,
 ): Promise<ExpressDiagnosticResult> {
-  // Cálculo instantâneo do Pré-diagnóstico Provisório (NUNCA IMM)
+  // Cálculo instantâneo do Pré-diagnóstico Provisório (NUNCA IMM/IMV definitivo)
   // Baseado nas regras validadas da esteira:
   let scoreProvisorio = 0
 

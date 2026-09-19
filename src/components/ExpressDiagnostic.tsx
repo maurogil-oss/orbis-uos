@@ -238,8 +238,9 @@ export function ExpressDiagnostic() {
                     Faixa: {result.faixaProvisoria}
                   </span>
                   <p className="text-[11px] text-[#94A3B8] leading-relaxed pt-1">
-                    Índice de capacidade de gestão preliminar. O índice definitivo é apurado após o
-                    preenchimento dos 6 blocos do Enquadramento.
+                    Pré-diagnóstico preliminar da gestão. O IMM (Índice de Mobilidade do Município)
+                    e o IMV (Índice de Manutenção Viária) são apurados exclusivamente após o
+                    Enquadramento Completo e a auditoria inercial de campo (Dia 30).
                   </p>
                 </div>
 

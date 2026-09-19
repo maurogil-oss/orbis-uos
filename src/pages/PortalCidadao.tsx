@@ -428,7 +428,9 @@ export default function PortalCidadao() {
             to="/metodologia"
             className="inline-flex items-center gap-1.5 text-xs text-[#3B82F6] hover:text-[#60A5FA] font-bold underline"
           >
-            <span>Conheça a Metodologia Científica e o Índice de Mobilidade Municipal (IMM)</span>
+            <span>
+              Conheça a Metodologia Científica (v2.0), o IMM e o Índice de Manutenção Viária (IMV)
+            </span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

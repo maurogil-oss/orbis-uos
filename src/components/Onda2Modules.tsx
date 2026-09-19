@@ -314,7 +314,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
             <div className="p-4 rounded-xl bg-[#0A1128]/80 border border-[#1A2A5A] text-xs text-[#94A3B8] space-y-2">
               <div className="flex items-center gap-2 text-[#F8FAFC] font-semibold">
                 <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-                <span>Enquadre Institucional & Custo Evitado (Pilar D / IMM)</span>
+                <span>Enquadre Institucional & Custo Evitado (Pilar D / IMV & IMM)</span>
               </div>
               <p className="leading-relaxed">
                 <b>Economia e Descarbonização:</b> {glb.enquadreInstitucional.beneficioCustoEvitado}{' '}

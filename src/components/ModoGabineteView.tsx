@@ -210,20 +210,20 @@ export function ModoGabineteView({
         </div>
       </div>
 
-      {/* NÚMERO-SÍNTESE DO MODO GABINETE: IMM (ÍNDICE DE MOBILIDADE MUNICIPAL) */}
-      <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6]/60 shadow-2xl relative overflow-hidden space-y-4">
+      {/* NÚMERO-SÍNTESE DO MODO GABINETE: IMM (ÍNDICE DE MOBILIDADE DO MUNICÍPIO) & SUB-ÍNDICES */}
+      <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6]/60 shadow-2xl relative overflow-hidden space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#1A2A5A]">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2.5 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
-                Número-Síntese do Painel do Prefeito
+                Índice-Síntese do Município (Metodologia 2.0)
               </span>
               <span className="text-xs text-[#94A3B8]">
-                Medição Física Contínua via Telemetria Inercial
+                Consolidação dos Eixos de Mobilidade Urbana
               </span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-[#F8FAFC] mt-1">
-              IMM • Índice de Mobilidade Municipal (Físico, Dia 30)
+              IMM • Índice de Mobilidade do Município
             </h3>
           </div>
 
@@ -241,11 +241,13 @@ export function ModoGabineteView({
           </div>
         </div>
 
-        {/* Linha do Índice + Ação Orçamentária + Cruzamento com Institucional */}
+        {/* Linha do Índice Principal + Ação Orçamentária + Cruzamento Institucional Adaptado */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-          {/* Pontuação IMM */}
+          {/* Pontuação IMM Síntese */}
           <div className="md:col-span-3 space-y-1 text-center md:text-left">
-            <span className="text-xs font-mono uppercase text-[#94A3B8]">Nota da Malha Viária</span>
+            <span className="text-xs font-mono uppercase text-[#94A3B8]">
+              IMM • Índice-Síntese Geral
+            </span>
             <div className="flex items-baseline justify-center md:justify-start gap-2">
               <span
                 className="text-6xl font-black font-mono tracking-tight"
@@ -256,14 +258,14 @@ export function ModoGabineteView({
               <span className="text-sm font-bold text-[#94A3B8]">/ 100</span>
             </div>
             <span className="text-xs text-[#CBD5E1] font-semibold block">
-              100 = Pavimento Perfeito
+              Consolidado: viário ({immSummary.imvMedioGeral})
             </span>
           </div>
 
           {/* Ação Orçamentária e Curva de Degradação */}
           <div className="md:col-span-5 p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[#94A3B8]">Ação Orçamentária Recomendada:</span>
+              <span className="text-[#94A3B8]">Ação Orçamentária do Viário (IMV):</span>
               <span className="font-bold text-[#F8FAFC]">
                 {immSummary.faixaPredominante.acao_orcamentaria}
               </span>
@@ -284,27 +286,109 @@ export function ModoGabineteView({
             </div>
           </div>
 
-          {/* O CRUZAMENTO DOS DOIS ÍNDICES: INSTITUCIONAL VS IMM */}
+          {/* O CRUZAMENTO INSTITUCIONAL ADAPTADO: GESTÃO VS MOBILIDADE (IMM) VS ASFALTO (IMV) */}
           <div className="md:col-span-4 p-4 rounded-xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-[#3B82F6]/30 space-y-2">
             <div className="flex items-center gap-1.5 text-xs text-[#60A5FA] font-bold">
               <Scale className="w-3.5 h-3.5" />
-              <span>Cruzamento dos Dois Índices</span>
+              <span>Cruzamento dos Três Eixos da Gestão</span>
             </div>
-            <div className="text-xs text-[#CBD5E1] space-y-1 leading-relaxed">
+            <div className="text-xs text-[#CBD5E1] space-y-1.5 leading-relaxed">
               <p>
                 Sua <b>gestão institucional</b> está em{' '}
                 <b className="text-[#3B82F6]">{institucionalScore} pts</b> (Gestão Estruturada).
               </p>
               <p>
-                Seu <b>asfalto físico (IMM)</b> está em{' '}
+                Sua <b>mobilidade geral (IMM)</b> está em{' '}
                 <b style={{ color: immSummary.faixaPredominante.cor }}>
                   {immSummary.immMedioGeral} pts
+                </b>{' '}
+                (Índice-Síntese).
+              </p>
+              <p>
+                Seu <b>asfalto físico (IMV)</b> está em{' '}
+                <b style={{ color: immSummary.faixaPredominante.cor }}>
+                  {immSummary.imvMedioGeral} pts
                 </b>{' '}
                 ({immSummary.faixaPredominante.nome}).
               </p>
             </div>
             <div className="pt-1 text-[11px] text-[#94A3B8]">
-              Regra de justiça: a gestão previne o colapso e economiza até R$ 172/m² auditado.
+              Regra de justiça: a governança antecipa a deterioração e economiza até R$ 172/m²
+              auditado.
+            </div>
+          </div>
+        </div>
+
+        {/* SUB-ÍNDICES CONSOLIDADOS DO IMM (IMV CALCULADO & IMA ONDA 3 PLANEJADO) */}
+        <div className="pt-2 border-t border-[#1A2A5A] space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-mono uppercase font-bold text-[#94A3B8] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#3B82F6]" />
+              Estrutura de Sub-índices do IMM (Arquitetura Versão 2.0)
+            </span>
+            <span className="text-[11px] text-[#64748B]">
+              IMM = Média ponderada dos sub-índices ativos
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            {/* Sub-índice 1: IMV Viário (Ativo / Calculado) */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 flex items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-[#3B82F6] bg-[#3B82F6]/15 px-2 py-0.5 rounded">
+                    IMV
+                  </span>
+                  <span className="text-xs font-bold text-[#F8FAFC]">
+                    Índice de Manutenção Viária
+                  </span>
+                  <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/15 px-1.5 py-0.2 rounded font-semibold">
+                    Ativo • Peso 100%
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#94A3B8]">
+                  4 Pilares: IRI estimado (0,40), Anomalias (0,30), Aderência (0,20) e Criticidade D
+                  (1,0 a 1,5x)
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <div
+                  className="text-2xl font-black font-mono"
+                  style={{ color: immSummary.faixaPredominante.cor }}
+                >
+                  {immSummary.imvMedioGeral}
+                </div>
+                <span className="text-[10px] text-[#94A3B8] font-mono">/ 100 pts</span>
+              </div>
+            </div>
+
+            {/* Sub-índice 2: IMA Acessibilidade (Onda 3 / Planejado — honestidade metodológica) */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A]/60 border border-[#1A2A5A] flex items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded">
+                    IMA
+                  </span>
+                  <span className="text-xs font-bold text-[#CBD5E1]">
+                    Índice de Manutenção de Acessibilidade
+                  </span>
+                  <span className="text-[10px] font-mono text-[#F59E0B] bg-[#F59E0B]/15 px-1.5 py-0.2 rounded font-semibold">
+                    Onda 3 • Planejado
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#64748B]">
+                  Calçadas/pedestres, ciclovias e micromobilidade urbana. Coleta não iniciada neste
+                  município.
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-xs font-mono font-bold text-[#64748B] bg-white/5 px-2 py-1 rounded">
+                  Onda 3
+                </div>
+                <span className="text-[10px] text-[#64748B] font-mono block mt-0.5">
+                  Não calculado
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -314,8 +398,9 @@ export function ModoGabineteView({
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#10B981] shrink-0" />
             <span>
-              <b>Escudo Anti-Falso-Positivo:</b> Um defeito só valida se registrado por{' '}
-              <b>pelo menos 3 passagens de veículos diferentes</b>. Registros isolados não geram OS.
+              <b>Escudo Anti-Falso-Positivo (Fator F ≥ 3):</b> No IMV, anomalias só geram Ordem de
+              Serviço com <b>pelo menos 3 passagens de veículos distintos</b>. Registros solitários
+              não geram OS.
             </span>
           </div>
           <span className="italic shrink-0 font-mono text-[10px] text-[#64748B]">

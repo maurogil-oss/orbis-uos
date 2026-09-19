@@ -126,7 +126,7 @@ export const TRILHAS_POR_FAIXA: Record<
         fase: 'Condução do Piloto',
         titulo: 'Execução do Piloto CPSI de 30 a 90 Dias',
         descricao:
-          'Instalação do app coletor nos smartphones de bordo, varredura contínua de 100% da malha pavimentada e geração do primeiro Mapa de Criticidade Inercial (IMM).',
+          'Instalação do app coletor nos smartphones de bordo, varredura contínua de 100% da malha pavimentada e geração do primeiro Mapa de Criticidade Inercial (IMV e IMM).',
         prazoSugerido: '90 dias',
         baseLegal: 'Art. 27 da LC 182/2021 (Contrato de Teste)',
         entregavel: 'Laudo Técnico de Varredura e Matriz de Prioridade Zero Inicial',

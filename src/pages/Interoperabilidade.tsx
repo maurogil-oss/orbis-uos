@@ -38,9 +38,9 @@ export default function Interoperabilidade() {
     {
       method: 'GET',
       path: '/backend/v1/telemetry/imm-segments',
-      title: 'Índice de Manutenibilidade Municipal (IMM) por Segmento',
+      title: 'Índice de Manutenção Viária (IMV) e IMM por Segmento',
       description:
-        'Exportação georreferenciada das notas do IMM calculadas para cada trecho viário de 100 metros. Contém os pilares A (Aceleração Vertical Z), B (Fator de Confiança de Passagens) e C (Dispersão Espacial).',
+        'Exportação georreferenciada das notas do IMV (Índice de Manutenção Viária) e IMM calculadas para cada trecho viário de 100 metros. Contém os pilares A (Aceleração Vertical Z / IRI), B (Fator de Confiança F ≥ 3) e C (Aderência e Drenagem).',
       status: 'disponivel',
       authRequired: true,
       updateFrequency: 'Diária (consolidada a cada 24h)',
@@ -49,12 +49,14 @@ export default function Interoperabilidade() {
   "type": "FeatureCollection",
   "municipio_ibge": "4106902",
   "timestamp": "2025-02-23T04:00:00Z",
+  "metodologia_versao": "2.0",
   "features": [
     {
       "type": "Feature",
       "properties": {
         "segment_id": "seg_pr_ctba_84920",
-        "imm_score": 78.4,
+        "imv_score": 78.4,
+        "imm_sintese_score": 78.4,
         "faixa_criticidade": "critica",
         "pilar_a_aceleracao_z": 4.12,
         "pilar_b_passagens_confianca": 8,

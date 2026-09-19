@@ -83,7 +83,7 @@ export function Footer() {
                   to="/metodologia"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
                 >
-                  Metodologia Homologada (v1.0)
+                  Metodologia Homologada (v2.0)
                 </Link>
               </li>
               <li>

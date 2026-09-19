@@ -136,6 +136,10 @@ export function DossieJuridicoModal({
           <div class="hash">
             HASH SHA-256 DE AUTENTICIDADE: ${hashSha256 || 'CALCULANDO...'}
           </div>
+
+          <div style="margin-top: 25px; padding-top: 10px; border-top: 1px solid #CBD5E1; font-size: 10px; color: #64748B; text-align: center;">
+            ORBIS.UOS • Urban Operating System • Metodologia Homologada Versão 2.0 (2025) • Índices IMM (Mobilidade), IMV (Manutenção Viária) e IMA (Acessibilidade - Onda 3) • Fé Pública Digital (Lei 14.063/2020).
+          </div>
         </body>
         </html>
       `)
