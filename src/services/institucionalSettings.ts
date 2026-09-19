@@ -41,11 +41,31 @@ export async function getInstitucionalSettings(
   codigoIbge: string = '4106902',
 ): Promise<InstitucionalSettingsRecord | null> {
   const cleanIbge = codigoIbge.replace(/\D/g, '')
+
+  // Se o usuário estiver autenticado, busca da collection institucional_settings diretamente
+  if (pb.authStore.isValid) {
+    try {
+      const record = await pb
+        .collection('institucional_settings')
+        .getFirstListItem(`codigo_ibge = "${cleanIbge}"`)
+      return record as unknown as InstitucionalSettingsRecord
+    } catch (_) {
+      // continua para fallback de endpoint público
+    }
+  }
+
+  // Se não autenticado (ex.: munícipe no Portal do Cidadão), consulta o endpoint público higienizado
   try {
-    const record = await pb
-      .collection('institucional_settings')
-      .getFirstListItem(`codigo_ibge = "${cleanIbge}"`)
-    return record as unknown as InstitucionalSettingsRecord
+    const publicData = await pb.send(`/backend/v1/public/portal-status?codigo_ibge=${cleanIbge}`, {
+      method: 'GET',
+    })
+    return {
+      municipio: publicData.municipio || 'Curitiba',
+      uf: publicData.uf || 'PR',
+      codigo_ibge: publicData.codigo_ibge || cleanIbge,
+      portal_publico_ativo: publicData.portal_publico_ativo === true,
+      portal_mensagem_institucional: publicData.portal_mensagem_institucional || '',
+    } as InstitucionalSettingsRecord
   } catch (_) {
     return null
   }
