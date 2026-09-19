@@ -12,7 +12,7 @@ export interface RelatorioSegurancaResult {
 }
 
 /**
- * Gera e abre a janela de impressão/salvar em PDF com o Relatório Interno de Segurança ORBIS.UOS v0.0.21
+ * Gera e abre a janela de impressão/salvar em PDF com o Relatório Interno de Segurança ORBIS.UOS v0.0.25 (Hardened Build)
  * Documento de fé pública digital com hash SHA-256 no rodapé, utilizável como evidência institucional.
  */
 export async function generateRelatorioSegurancaPdf(
@@ -42,20 +42,24 @@ export async function generateRelatorioSegurancaPdf(
   // 2. Metadados do hash SHA-256
   const hashPayload = {
     documento: 'Relatório Interno de Segurança e Conformidade Regulatória ORBIS.UOS',
-    versao: '0.0.21',
+    versao: '0.0.25',
     protocolo,
     emissaoIso: agora.toISOString(),
     escopo: [
-      'Scan de Regras RLS nas 12 Collections',
+      'Scan de Regras RLS nas 12 Collections com RBAC (admin/operador)',
+      'Bloqueio Total de Auto-registro Público (createRule: @request.auth.id != "" && @request.auth.role = "admin")',
+      'Autoria Obrigatória e Imutável na Trilha de Auditoria (ID, nome, e-mail, papel, data/hora)',
+      'Ciclo de Vida e Purga Automatizada de 180 Dias de Telemetria Inercial (Cron telemetry_purge_180d)',
+      'Controle Estrito de Ciclo de Vida de Contas (status: ativo/desativado) e Termos de Uso B2G (/termos)',
       'Scan de Vulnerabilidades e CVEs de Dependências (npm audit)',
-      'Code Review de Segurança (Auth, Endpoints Públicos, Geração PDF, Trilha de Auditoria)',
-      'Hardening LGPD e Bloqueio de Auto-registro Público (Users create: null)',
+      'Code Review de Segurança (Auth, Endpoints Públicos, Geração PDF, Sanitização XSS)',
     ],
     conformidade: [
       'Marco Legal das Startups (LC 182/2021, Art. 27)',
-      'LGPD (Lei Federal 13.709/2018)',
+      'LGPD (Lei Federal 13.709/2018, Arts. 6º, 12, 16 e 48)',
       'Governo Digital (Lei 14.129/2021)',
       'Assinatura e Integridade Digital (Lei 14.063/2020)',
+      'Termos de Uso Institucionais B2G (Art. 10 MP 2.200-2/2001)',
     ],
     responsavel: options?.responsavelNome || 'Equipe de Segurança & Arquitetura ORBIS.UOS',
   }
@@ -67,7 +71,7 @@ export async function generateRelatorioSegurancaPdf(
     <html lang="pt-BR">
     <head>
       <meta charset="utf-8">
-      <title>Relatorio-Seguranca-ORBIS-UOS-v0.0.21-${agora.getFullYear()}</title>
+      <title>Relatorio-Seguranca-ORBIS-UOS-v0.0.25-${agora.getFullYear()}</title>
       <style>
         @page {
           size: A4 portrait;
@@ -346,7 +350,7 @@ export async function generateRelatorioSegurancaPdf(
             </div>
             <div class="cover-meta-item">
               <strong>Versão da Plataforma</strong>
-              <span>ORBIS.UOS v0.0.21 (Hardened Build)</span>
+              <span>ORBIS.UOS v0.0.25 (Hardened Build RBAC)</span>
             </div>
             <div class="cover-meta-item">
               <strong>Responsável / Validador</strong>
@@ -380,7 +384,7 @@ export async function generateRelatorioSegurancaPdf(
       <!-- =================================================================== -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.21</span>
+          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.25</span>
           <span>Protocolo: ${protocolo}</span>
         </div>
 
@@ -400,21 +404,21 @@ export async function generateRelatorioSegurancaPdf(
         <div class="highlight-box">
           <b>Eixos de Auditoria Executados:</b>
           <ul style="margin: 4px 0 0 16px; padding: 0;">
-            <li><b>Eixo A — Auditoria de Regras de Acesso (RLS / API Rules):</b> Inspeção das 12 collections do banco relacional, garantindo o princípio do menor privilégio.</li>
-            <li><b>Eixo B — Scan de Vulnerabilidades de Dependências:</b> Varredura automatizada da árvore de módulos (npm audit) para identificação de CVEs conhecidas.</li>
-            <li><b>Eixo C — Code Review de Superfície de Ataque:</b> Análise estática do fluxo de autenticação, endpoints públicos do pb_hooks, sanitização de inputs em PDFs e imutabilidade da trilha de auditoria.</li>
+            <li><b>Eixo A — Auditoria de Regras de Acesso (RLS / API Rules):</b> Inspeção das 12 collections do banco relacional, garantindo o princípio do menor privilégio e RBAC estruturado.</li>
+            <li><b>Eixo B — Matriz de Controles RBAC e Gestão de Contas:</b> Verificação da segregação entre <code>admin</code> e <code>operador</code>, bloqueio de auto-registro e status de conta (ativo/desativado).</li>
+            <li><b>Eixo C — Governança de Dados, Retenção Estrita e Purga de 180 Dias:</b> Auditoria do cron job diário de purga de telemetria bruta e preservação de agregados consolidados.</li>
+            <li><b>Eixo D — Scan de Vulnerabilidades e Code Review:</b> Varredura automatizada npm audit, sanitização XSS e registro obrigatório de autoria na trilha de auditoria municipal.</li>
           </ul>
         </div>
 
         <div class="section-header">
           <span class="section-number">2</span>
-          <h2 class="section-title">Matriz de Regras de Acesso por Collection (12 Collections)</h2>
+          <h2 class="section-title">Matriz de Regras de Acesso por Collection (12 Collections) & RBAC</h2>
         </div>
 
         <p>
-          Após a aplicação da Migração de Hardening <code>0017_security_hardening_leads_and_users.js</code>,
-          as 12 collections do banco de dados encontram-se rigorosamente segregadas entre o domínio
-          público de transparência municipal e o domínio restrito a servidores autenticados:
+          Após a aplicação das Migrações de Hardening <code>0017</code>, <code>0020_roles_audit_trail_and_terms.js</code> e <code>0021_seed_audit_trail.js</code>,
+          as 12 collections do banco de dados encontram-se rigorosamente segregadas com base em papéis formais (admin e operador):
         </p>
 
         <table>
@@ -432,10 +436,10 @@ export async function generateRelatorioSegurancaPdf(
             <tr>
               <td><b>users</b></td>
               <td>auth</td>
-              <td><code>id = @request.auth.id</code></td>
-              <td><span class="badge-status badge-green">null (Bloqueado)</span></td>
-              <td><code>id = @request.auth.id</code></td>
-              <td><span class="badge-status badge-green">Hardened</span> Auto-registro desabilitado; login institucional intacto.</td>
+              <td><code>admin || id = @request.auth.id</code></td>
+              <td><span class="badge-status badge-green">admin autenticado</span></td>
+              <td><code>admin || id = @request.auth.id</code> (Delete: admin)</td>
+              <td><span class="badge-status badge-green">RBAC Total</span> Auto-registro bloqueado; admin cria operadores e gerencia ativação/desativação.</td>
             </tr>
             <tr>
               <td><b>leads</b></td>
@@ -534,7 +538,7 @@ export async function generateRelatorioSegurancaPdf(
       <!-- =================================================================== -->
       <div class="page-break">
         <div class="page-running-header">
-          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.21</span>
+          <span>ORBIS.UOS • Relatório Interno de Segurança v0.0.25</span>
           <span>Protocolo: ${protocolo}</span>
         </div>
 
@@ -555,7 +559,7 @@ export async function generateRelatorioSegurancaPdf(
               <th>Versão</th>
               <th>Vulnerabilidade / CVE</th>
               <th>Severidade</th>
-              <th>Status na Versão 0.0.21</th>
+              <th>Status na Versão 0.0.25</th>
             </tr>
           </thead>
           <tbody>
@@ -592,17 +596,19 @@ export async function generateRelatorioSegurancaPdf(
 
         <div class="section-header">
           <span class="section-number">4</span>
-          <h2 class="section-title">Resultados do Code Review de Segurança & Correções Aplicadas</h2>
+          <h2 class="section-title">Resultados do Code Review & Matriz de Novos Controles de Segurança</h2>
         </div>
 
         <div class="success-box">
-          <b>Resumo das Ações Críticas Implementadas na Versão 0.0.21:</b>
+          <b>Resumo dos Controles de Segurança Ativos e Homologados na Versão 0.0.25:</b>
           <ul style="margin: 4px 0 0 16px; padding: 0;">
-            <li><b>Proteção LGPD em <code>leads</code> (Corrigido):</b> Listagem e visualização fechadas para <code>@request.auth.id != ''</code>. Agentes públicos que registraram manifestos não têm seus e-mails e telefones expostos publicamente.</li>
-            <li><b>Bloqueio de Criação em <code>users</code> (Corrigido):</b> Regra <code>create: null</code> impede autorregistro arbitrário via endpoint REST, prevenindo vetores de spam ou escalada de contas.</li>
-            <li><b>Sanitização XSS em Impressão de PDFs (Corrigido):</b> Criação do utilitário <code>sanitizeHtml</code> em <code>pdfReport.ts</code> e aplicação nos motores de Dossiê de Arquitetura, Enquadramento e Dossiê Jurídico.</li>
-            <li><b>Higienização de Endpoints Públicos (Validado):</b> Hook <code>public_portal_status.js</code> higienizado, sem vazamento de chaves CGU ou dados do gabinete.</li>
-            <li><b>Integridade da Trilha de Auditoria (Validado):</b> Reset de senhas e alterações de Fator K gravam hash, carimbo de data ISO e identidade do operador para auditoria do TCE.</li>
+            <li><b>Controle 1 — RBAC Rigoroso (Admin vs. Operador):</b> Segregação formal de responsabilidades. O papel <code>admin</code> possui prerrogativa de gerenciamento de contas, configurações do município e auditoria completa. O papel <code>operador</code> possui acesso estrito à coleta inercial em campo e visualização operacional.</li>
+            <li><b>Controle 2 — Bloqueio de Auto-registro Público (createRule Restrito):</b> A criação de novos usuários é vedada a chamadas anônimas (<code>@request.auth.id != '' && @request.auth.role = 'admin'</code>). Contas são criadas exclusivamente por administradores institucionais autenticados.</li>
+            <li><b>Controle 3 — Autoria Obrigatória e Trilha de Auditoria Imutável:</b> Toda ação de mutação (criação/edição de usuários, alteração de status, reset de senhas, calibração do Fator K e purga de telemetria) registra obrigatoriamente autor com ID, nome, e-mail, papel exercido e timestamp ISO em <code>audit_trail</code>.</li>
+            <li><b>Controle 4 — Purga Automatizada de 180 Dias (Cron Job):</b> Execução diária às 03h30 BRT (<code>telemetry_purge_180d</code>) para deleção física definitiva de leituras inerciais brutas anteriores a 180 dias, preservando apenas os índices consolidados IMV/IMA para prestação de contas.</li>
+            <li><b>Controle 5 — Ciclo de Vida e Status da Conta (ativo/desativado):</b> Agentes públicos desligados do órgão têm o status alterado para <code>desativado</code>, suspendendo imediatamente a autenticação sem exclusão destrutiva do histórico de auditoria.</li>
+            <li><b>Controle 6 — Termos de Uso B2G Publicados (/termos):</b> Rota pública homologada com regras de titularidade pública soberana de dados, não-retenção indevida e exportação aberta sem <i>vendor lock-in</i>.</li>
+            <li><b>Controle 7 — Proteção LGPD em Leads & Sanitização XSS:</b> Restrição de leitura em <code>leads</code> para autenticados e sanitização contínua via <code>sanitizeHtml</code> em todos os geradores de PDF da plataforma.</li>
           </ul>
         </div>
 
@@ -657,9 +663,39 @@ export async function generateRelatorioSegurancaPdf(
               <td>Onda 4 (Homologação Nacional)</td>
             </tr>
             <tr>
+              <td>Controle RBAC (Admin/Operador) & Bloqueio de Auto-registro</td>
+              <td>Gestão de Identidades</td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
+              <td>Março/2026 (Versão 0.0.25)</td>
+            </tr>
+            <tr>
+              <td>Autoria Gravada na Trilha de Auditoria (TCE/CGU)</td>
+              <td>Auditoria & Compliance</td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
+              <td>Março/2026 (Versão 0.0.25)</td>
+            </tr>
+            <tr>
+              <td>Job Diário de Purga de Telemetria Inercial (&gt;180 dias)</td>
+              <td>Retenção & LGPD</td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
+              <td>Março/2026 (Versão 0.0.25)</td>
+            </tr>
+            <tr>
+              <td>Ciclo de Vida de Contas (Ativação / Desativação)</td>
+              <td>Gestão de Acesso</td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
+              <td>Março/2026 (Versão 0.0.25)</td>
+            </tr>
+            <tr>
+              <td>Termos de Uso B2G e Soberania de Dados (/termos)</td>
+              <td>Governança Jurídica</td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
+              <td>Março/2026 (Versão 0.0.25)</td>
+            </tr>
+            <tr>
               <td>Checklist de Segurança Automatizado por Release no CI/CD</td>
               <td>DevSecOps</td>
-              <td><span class="badge-status badge-blue">Em Implantação</span></td>
+              <td><span class="badge-status badge-green">Implantado</span></td>
               <td>Fase Contínua (Releases 0.0.2x)</td>
             </tr>
           </tbody>
@@ -672,7 +708,7 @@ export async function generateRelatorioSegurancaPdf(
         </div>
 
         <div style="margin-top: 25px; border-top: 1px solid #CBD5E1; padding-top: 10px; font-size: 9px; color: #64748B; text-align: center;">
-          ORBIS.UOS • Urban Operating System • Relatório Interno de Segurança da Informação • Versão 0.0.21<br>
+          ORBIS.UOS • Urban Operating System • Relatório Interno de Segurança da Informação • Versão 0.0.25<br>
           Emissão com fé pública digital amparada na Lei Federal nº 14.063/2020 e Art. 27 da Lei Complementar nº 182/2021.
         </div>
       </div>

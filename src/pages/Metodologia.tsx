@@ -20,6 +20,7 @@ import {
   Headphones,
   Database,
   ArrowRight,
+  ChevronRight,
 } from 'lucide-react'
 import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
 import { generateRelatorioSegurancaPdf } from '@/lib/diagnostics/relatorioSegurancaPdf'
@@ -834,6 +835,153 @@ export default function Metodologia() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* NOVA SEÇÃO: Matriz de Controles de Segurança & Governança B2G (Versão 0.0.25) */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#1E3A8A] space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Shield className="w-5 h-5 text-[#10B981]" />
+              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.25)
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+              Auditado & Homologado
+            </span>
+          </div>
+
+          <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            Em conformidade com o <b>Marco Legal das Startups (LC 182/2021, Art. 27)</b>, a{' '}
+            <b>LGPD (Lei 13.709/2018)</b> e as orientações dos Tribunais de Contas (TCEs), a
+            plataforma ORBIS UOS implementa uma matriz de controles ativos de segurança da
+            informação, integrando papéis formais, ciclo de vida de contas e descarte programado de
+            telemetria:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+            {/* Controle 1: RBAC */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">1. RBAC Admin / Operador</span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold">
+                  Ativo
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Segregação de privilégios via API rules: <code>admin</code> gerencia contas, Modo
+                Gabinete e parâmetros municipais; <code>operador</code> restringe-se à coleta
+                inercial e cockpit técnico.
+              </p>
+            </div>
+
+            {/* Controle 2: Auto-registro */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">2. Bloqueio de Auto-registro</span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold">
+                  Ativo
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Criação pública anônima bloqueada via <code>createRule</code> (exige administrador
+                autenticado). Contas geradas sob matrícula e designação oficial.
+              </p>
+            </div>
+
+            {/* Controle 3: Trilha com Autoria */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">3. Autoria Obrigatória</span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold">
+                  Ativo
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Mutação em contas, Fator K ou configurações grava evento na Trilha de Auditoria com
+                ID, nome, e-mail, papel e carimbo de tempo ISO para o TCE.
+              </p>
+            </div>
+
+            {/* Controle 4: Purga 180d */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">4. Purga Diária 180 Dias</span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold">
+                  Cron 03h30
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Job agendado <code>telemetry_purge_180d</code> elimina fisicamente telemetria bruta
+                &gt;180 dias, retendo apenas médias e índices IMV/IMA consolidados.
+              </p>
+            </div>
+
+            {/* Controle 5: Status de Contas */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">5. Status da Conta</span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold">
+                  Ativo/Desat.
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Agentes desligados têm a conta desativada sem apagar logs pretéritos. Acesso
+                bloqueado em tempo real com preservação da custódia probatória.
+              </p>
+            </div>
+
+            {/* Controle 6: Termos de Uso */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-sm">6. Termos de Uso (/termos)</span>
+                <span className="font-mono text-[10px] text-[#38BDF8] bg-[#38BDF8]/15 px-2 py-0.5 rounded font-bold">
+                  Público
+                </span>
+              </div>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Cláusulas de soberania exclusiva de dados do ente público, vedação ao <i>lock-in</i>{' '}
+                e exportação aberta garantidas na página dedicada.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="font-bold text-sm text-white block">
+                Emita o Relatório de Segurança Interno ou consulte os Termos de Uso:
+              </span>
+              <p className="text-xs text-[#94A3B8]">
+                Documentos oficiais com hash criptográfico SHA-256 e fé pública digital para
+                admissibilidade em processos de compras públicas.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                to="/termos"
+                className="px-3.5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#0A1128] hover:bg-[#101B3A] border border-[#38BDF8]/50 text-[#38BDF8] flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <span>Termos de Uso (/termos)</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={handleDownloadRelatorioSeguranca}
+                disabled={isGeneratingSecPdf || isGeneratingPdf}
+                className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#064E3B] hover:bg-[#065F46] border border-[#10B981]/50 shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGeneratingSecPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#A7F3D0]" />
+                    <span>Gerando Relatório...</span>
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4 text-[#A7F3D0]" />
+                    <span>Baixar Relatório (PDF)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 

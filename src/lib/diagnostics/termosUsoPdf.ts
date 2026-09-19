@@ -31,7 +31,7 @@ export async function generateTermosUsoPdf(
   })
 
   const versao = options?.versaoTermos || '1.0 (Pós-Workshop 4 / Onda 1)'
-  const protocolo = generateIntegrityProtocol('ORBIS-TERMS')
+  const protocolo = generateIntegrityProtocol('TERMOS', 'BR')
   const logoDataUrl = getOrbisLogoDataUrl()
 
   const hashPayload = {

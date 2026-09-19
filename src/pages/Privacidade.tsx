@@ -993,7 +993,7 @@ export default function Privacidade() {
           <div className="space-y-4 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
             <p>
               As salvaguardas técnicas do ORBIS UOS foram submetidas ao processo de endurecimento
-              institucional <i>(Hardened Build v0.0.21)</i>, auditável através do{' '}
+              institucional <i>(Hardened Build v0.0.25 RBAC)</i>, auditável através do{' '}
               <b>Relatório Interno de Segurança</b> com hash criptográfico SHA-256 e das seguintes
               diretrizes:
             </p>
@@ -1029,21 +1029,30 @@ export default function Privacidade() {
             <div className="p-4 rounded-xl bg-[#101B3A] border border-[#3B82F6]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="space-y-1 text-xs">
                 <span className="font-bold text-white block">
-                  Consulte a documentação técnica oficial:
+                  Consulte a documentação técnica e os Termos de Uso:
                 </span>
                 <span className="text-[#94A3B8] text-[11px] block">
                   A metodologia completa de cálculo dos índices IMV/IMA, filtros de Fourier (FFT),
-                  Fator K e emissão de relatórios em PDF com assinatura pública está disponível
+                  Fator K e os Termos de Uso para contratação governamental (B2G) estão disponíveis
                   publicamente.
                 </span>
               </div>
-              <Link
-                to="/metodologia"
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center gap-1.5 shrink-0 transition-all shadow-md shadow-[#2563EB]/25"
-              >
-                <span>Acessar /metodologia</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  to="/termos"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#0A1128] hover:bg-[#101B3A] border border-[#38BDF8]/40 text-[#38BDF8] flex items-center gap-1.5 transition-all"
+                >
+                  <span>Termos de Uso (/termos)</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  to="/metodologia"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center gap-1.5 transition-all shadow-md shadow-[#2563EB]/25"
+                >
+                  <span>Acessar /metodologia</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -1062,7 +1071,7 @@ export default function Privacidade() {
           </p>
           <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-[#1A2A5A] font-mono text-[11px]">
             <span>ORBIS UOS GovTech • Encarregado de Proteção de Dados (DPO)</span>
-            <span>Última revisão formal: 15 de Março de 2025 • Versão 1.0 (v0.0.23)</span>
+            <span>Última revisão formal: 15 de Março de 2025 • Versão 1.0 (v0.0.25)</span>
           </div>
         </div>
 

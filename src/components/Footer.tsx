@@ -153,6 +153,10 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]/80">
           <p>© {new Date().getFullYear()} Orbis UOS GovTech. Todos os direitos reservados.</p>
           <div className="flex items-center gap-6">
+            <Link to="/metodologia" className="hover:text-[#F8FAFC] transition-colors">
+              Metodologia
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
             <Link to="/operacao" className="hover:text-[#F8FAFC] transition-colors text-[#10B981]">
               Pacote Operacional
             </Link>
@@ -164,7 +168,7 @@ export function Footer() {
               Política de Privacidade
             </Link>
             <span className="text-[#1A2A5A]">•</span>
-            <Link to="/termos" className="hover:text-[#F8FAFC] transition-colors">
+            <Link to="/termos" className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]">
               Termos de Uso
             </Link>
           </div>

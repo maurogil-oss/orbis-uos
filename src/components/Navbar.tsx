@@ -295,6 +295,14 @@ export function Navbar() {
             </Link>
 
             <Link
+              to="/termos"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#38BDF8] bg-[#0A1128] border border-[#38BDF8]/30 hover:border-[#38BDF8] transition-all gap-1.5"
+            >
+              Termos de Uso (B2G)
+            </Link>
+
+            <Link
               to="/interoperabilidade"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#60A5FA] bg-[#0A1128] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all gap-1.5"
