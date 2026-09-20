@@ -62,7 +62,7 @@ export async function generateRelatorioRestorePdf(
   const hashPayload = {
     documento: 'Relatório Técnico Oficial de Teste de Restauração de Backup (5 Fases)',
     protocolo,
-    versao: '0.0.26',
+    versao: '0.0.27',
     emissaoIso: agora.toISOString(),
     status_execucao: 'Executado e Aprovado Sem Ressalvas',
     rto_declarado_horas: rtoHoras,
@@ -462,7 +462,7 @@ export async function generateRelatorioRestorePdf(
         </div>
 
         <div style="margin-top: 25px; border-top: 1px solid #CBD5E1; padding-top: 10px; font-size: 9px; color: #64748B; text-align: center;">
-          ORBIS.UOS • Urban Operating System • Relatório Técnico de Simulação de Restauração de Backup • Release v0.0.26<br>
+          ORBIS.UOS • Urban Operating System • Relatório Técnico de Simulação de Restauração de Backup • Release v0.0.27<br>
           Emissão com fé pública digital amparada na Lei nº 14.063/2020 e Art. 27 da LC nº 182/2021.
         </div>
       </div>

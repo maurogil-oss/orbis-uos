@@ -88,7 +88,7 @@ export default function Implantacao() {
                 Vigência 2026
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#101B3A] border border-[#1A2A5A] text-[11px] font-mono text-[#94A3B8]">
-                Release v0.0.26 (Hardened B2G)
+                Release v0.0.27 (Hardened B2G)
               </span>
             </div>
 
@@ -505,12 +505,40 @@ export default function Implantacao() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#1A2A5A]">
             <h2 className="text-xl sm:text-2xl font-bold text-[#F8FAFC] flex items-center gap-2.5">
-              <CheckCircle2 className="w-6 h-6 text-[#F59E0B]" />
-              3. Critérios Objetivos de Homologação & Aceite de Go-Live
+              <CheckCircle2 className="w-6 h-6 text-[#10B981]" />
+              3. Critérios Objetivos de Homologação & Aceite de Go-Live (Dry-Run Homologado)
             </h2>
-            <span className="text-xs font-mono font-bold text-[#F59E0B] bg-[#F59E0B]/10 px-2.5 py-1 rounded border border-[#F59E0B]/30">
-              Checklist Auditável
-            </span>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/homologacao"
+                className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/20 hover:bg-[#10B981]/30 px-3 py-1.5 rounded-lg border border-[#10B981]/40 flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Laudo do Dry-Run (/homologacao)</span>
+              </Link>
+              <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/10 px-2.5 py-1 rounded border border-[#10B981]/30">
+                Checklist Auditado
+              </span>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#10B981]/10 border border-[#10B981]/30 text-xs text-[#A7F3D0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="font-bold text-white block">
+                Dry-Run Oficial Pré-Go-Live Executado com Sucesso:
+              </span>
+              <span>
+                Todos os 5 critérios objetivos foram auditados contra o ambiente real de produção
+                (protocolo <b>ORBIS-DRYRUN-2026-001</b>).
+              </span>
+            </div>
+            <Link
+              to="/homologacao"
+              className="px-3.5 py-1.5 rounded-lg bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs transition-colors shrink-0 flex items-center gap-1"
+            >
+              <span>Ver Laudo Completo</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
@@ -689,6 +717,14 @@ export default function Implantacao() {
             </button>
 
             <Link
+              to="/homologacao"
+              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#059669] hover:bg-[#047857] border border-[#10B981]/50 shadow-md text-center transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>Laudo Dry-Run (/homologacao)</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+
+            <Link
               to="/operacao"
               className="px-4 py-2.5 rounded-xl font-bold text-xs text-[#CBD5E1] hover:text-white bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] text-center transition-all flex items-center justify-center gap-1.5"
             >
@@ -708,7 +744,7 @@ export default function Implantacao() {
             Voltar para a página inicial
           </Link>
           <span className="text-[#64748B] font-mono text-[11px]">
-            ORBIS.UOS • Playbook Oficial de Implantação GovTech • Release v0.0.26
+            ORBIS.UOS • Playbook Oficial de Implantação GovTech • Release v0.0.27
           </span>
         </div>
       </div>

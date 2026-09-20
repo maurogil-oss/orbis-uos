@@ -104,6 +104,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/homologacao"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#10B981]"
+                >
+                  Laudo Dry-Run de Homologação (ORBIS-DRYRUN-2026-001)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/interoperabilidade"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
                 >
@@ -174,6 +182,13 @@ export function Footer() {
               className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]"
             >
               Playbook de Implantação
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link
+              to="/homologacao"
+              className="hover:text-[#F8FAFC] transition-colors text-[#10B981]"
+            >
+              Laudo de Homologação
             </Link>
             <span className="text-[#1A2A5A]">•</span>
             <Link

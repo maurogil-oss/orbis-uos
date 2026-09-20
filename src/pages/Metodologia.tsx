@@ -759,27 +759,35 @@ export default function Metodologia() {
           <div className="p-4 rounded-xl bg-[#101B3A] border border-[#10B981]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <span className="font-bold text-sm text-white block">
-                Consulte o Pacote Operacional ou o Playbook de Implantação B2G:
+                Consulte a Documentação de Governança, Implantação e Homologação B2G:
               </span>
               <p className="text-xs text-[#94A3B8]">
                 A página <b>/operacao</b> detalha o 1º Teste de Restauração executado (5 fases, RTO
-                24h) e backups diários; a página <b>/implantacao</b> documenta a Matriz RACI,
-                critérios de homologação e procedimento de go-live.
+                24h); a página <b>/implantacao</b> documenta a Matriz RACI e critérios de aceite; a
+                página <b>/homologacao</b> apresenta o Laudo Oficial do Dry-Run pré-go-live
+                (protocolo ORBIS-DRYRUN-2026-001).
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Link
                 to="/operacao"
-                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#10B981]/20"
+                className="px-3 py-2 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#10B981]/20"
               >
-                <span>Pacote Operacional (/operacao)</span>
+                <span>Operação (/operacao)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
                 to="/implantacao"
-                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#2563EB]/20"
+                className="px-3 py-2 rounded-xl font-bold text-xs text-white bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#2563EB]/20"
               >
-                <span>Playbook Implantação (/implantacao)</span>
+                <span>Implantação (/implantacao)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/homologacao"
+                className="px-3 py-2 rounded-xl font-bold text-xs text-white bg-[#059669] hover:bg-[#047857] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#059669]/20"
+              >
+                <span>Laudo Dry-Run (/homologacao)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -847,12 +855,12 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* NOVA SEÇÃO: Matriz de Controles de Segurança & Governança B2G (Versão 0.0.26) */}
+        {/* NOVA SEÇÃO: Matriz de Controles de Segurança & Governança B2G (Versão 0.0.27) */}
         <div className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#1E3A8A] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
             <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
               <Shield className="w-5 h-5 text-[#10B981]" />
-              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.26)
+              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.27)
             </h2>
             <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
               Auditado & Homologado
@@ -951,6 +959,39 @@ export default function Metodologia() {
                 Cláusulas de soberania exclusiva de dados do ente público, vedação ao <i>lock-in</i>{' '}
                 e exportação aberta garantidas na página dedicada.
               </p>
+            </div>
+
+            {/* Controle 7: Laudo Oficial de Dry-Run de Homologação */}
+            <div className="p-4 rounded-xl bg-[#101B3A] border-2 border-[#10B981]/50 space-y-2 md:col-span-2 lg:col-span-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#F8FAFC] text-sm flex items-center gap-1.5">
+                  <FileCheck2 className="w-4 h-4 text-[#10B981]" />
+                  7. Laudo Oficial de Dry-Run de Homologação (ORBIS-DRYRUN-2026-001)
+                </span>
+                <span className="font-mono text-[10px] text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded font-bold border border-[#10B981]/30">
+                  Homologado com Ressalvas
+                </span>
+              </div>
+              <p className="text-[#CBD5E1] text-[11px] leading-relaxed">
+                Ensaio do primeiro go-live executado item a item contra a base real de produção
+                (Skip Cloud). 5 critérios aprovados Conformes sem ressalvas (RBAC endurecido,
+                k-anonimato H3 k ≥ 3, motor IMV/IMA F ≥ 3, autoria nominal na trilha de auditoria e
+                restauração de backup RTO 1,45s), 1 critério Conforme com Ressalva (fila offline
+                validada em simulação, aguardando túnel com frota física) e 1 critério Não
+                Verificável em Ensaio (portaria discricionária de fiscais do município).
+              </p>
+              <div className="pt-1.5 border-t border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-[10px]">
+                <span className="font-mono text-[#34D399]">
+                  Protocolo: ORBIS-DRYRUN-2026-001 • RTO Aferido: 1,45s • Hash SHA-256 no Laudo
+                </span>
+                <Link
+                  to="/homologacao"
+                  className="font-bold text-[#38BDF8] hover:underline flex items-center gap-1"
+                >
+                  <span>Acessar Laudo Completo (/homologacao)</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -1070,7 +1111,7 @@ export default function Metodologia() {
             Voltar para a página inicial
           </Link>
           <span className="text-[#64748B] font-mono text-[11px]">
-            ORBIS.UOS • Metodologia v2.1 Homologada • 2025–2026
+            ORBIS.UOS • Metodologia v2.2 Homologada • Release v0.0.27 • 2025–2026
           </span>
         </div>
       </div>

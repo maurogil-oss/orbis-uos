@@ -109,6 +109,15 @@ export function Navbar() {
             Implantação
           </Link>
 
+          {/* Link Dry-Run de Homologação */}
+          <Link
+            to="/homologacao"
+            className="text-[11px] font-semibold px-2 py-1 rounded-md text-[#10B981] hover:text-[#34D399] transition-colors"
+            title="Laudo Oficial de Dry-Run de Homologação (ORBIS-DRYRUN-2026-001)"
+          >
+            Homologação
+          </Link>
+
           {/* Link Interoperabilidade API */}
           <Link
             to="/interoperabilidade"
@@ -309,6 +318,14 @@ export function Navbar() {
               className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#60A5FA] bg-[#0A1128] border border-[#3B82F6]/30 hover:border-[#3B82F6] transition-all gap-1.5"
             >
               Playbook de Implantação (RACI & Go-Live)
+            </Link>
+
+            <Link
+              to="/homologacao"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#10B981] bg-[#0A1128] border border-[#10B981]/30 hover:border-[#10B981] transition-all gap-1.5"
+            >
+              Laudo de Homologação (Dry-Run B2G)
             </Link>
 
             <Link
