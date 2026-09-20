@@ -100,6 +100,15 @@ export function Navbar() {
             Operação
           </Link>
 
+          {/* Link Implantação Playbook */}
+          <Link
+            to="/implantacao"
+            className="text-[11px] font-semibold px-2 py-1 rounded-md text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
+            title="Playbook de Implantação (RACI, Critérios de Homologação e Go-Live)"
+          >
+            Implantação
+          </Link>
+
           {/* Link Interoperabilidade API */}
           <Link
             to="/interoperabilidade"
@@ -292,6 +301,14 @@ export function Navbar() {
               className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#10B981] bg-[#0A1128] border border-[#10B981]/30 hover:border-[#10B981] transition-all gap-1.5"
             >
               Pacote Operacional (Backups & SLA)
+            </Link>
+
+            <Link
+              to="/implantacao"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#60A5FA] bg-[#0A1128] border border-[#3B82F6]/30 hover:border-[#3B82F6] transition-all gap-1.5"
+            >
+              Playbook de Implantação (RACI & Go-Live)
             </Link>
 
             <Link

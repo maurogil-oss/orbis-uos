@@ -96,6 +96,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/implantacao"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
+                >
+                  Playbook de Implantação (RACI & Homologação)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/interoperabilidade"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
                 >
@@ -159,6 +167,13 @@ export function Footer() {
             <span className="text-[#1A2A5A]">•</span>
             <Link to="/operacao" className="hover:text-[#F8FAFC] transition-colors text-[#10B981]">
               Pacote Operacional
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link
+              to="/implantacao"
+              className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]"
+            >
+              Playbook de Implantação
             </Link>
             <span className="text-[#1A2A5A]">•</span>
             <Link

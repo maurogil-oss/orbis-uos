@@ -76,12 +76,26 @@ export async function getInstitucionalSettings(
     const publicData = await pb.send(`/backend/v1/public/portal-status?codigo_ibge=${cleanIbge}`, {
       method: 'GET',
     })
+    let trail: any = []
+    if (publicData.audit_trail) {
+      if (typeof publicData.audit_trail === 'string') {
+        try {
+          trail = JSON.parse(publicData.audit_trail)
+        } catch (_) {
+          trail = []
+        }
+      } else {
+        trail = publicData.audit_trail
+      }
+    }
     return {
       municipio: publicData.municipio || 'Curitiba',
       uf: publicData.uf || 'PR',
       codigo_ibge: publicData.codigo_ibge || cleanIbge,
       portal_publico_ativo: publicData.portal_publico_ativo === true,
       portal_mensagem_institucional: publicData.portal_mensagem_institucional || '',
+      cgu_cache_payload: publicData.cgu_cache_payload || null,
+      audit_trail: trail,
     } as InstitucionalSettingsRecord
   } catch (_) {
     return null

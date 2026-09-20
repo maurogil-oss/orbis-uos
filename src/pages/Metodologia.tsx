@@ -759,21 +759,30 @@ export default function Metodologia() {
           <div className="p-4 rounded-xl bg-[#101B3A] border border-[#10B981]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <span className="font-bold text-sm text-white block">
-                Consulte a documentação integral ou baixe o PDF para anexação contratual:
+                Consulte o Pacote Operacional ou o Playbook de Implantação B2G:
               </span>
               <p className="text-xs text-[#94A3B8]">
-                A página dedicada <b>/operacao</b> traz o detalhamento passo a passo dos 3
-                documentos, matriz de criticidade e botão para gerar PDF com hash SHA-256 de fé
-                pública.
+                A página <b>/operacao</b> detalha o 1º Teste de Restauração executado (5 fases, RTO
+                24h) e backups diários; a página <b>/implantacao</b> documenta a Matriz RACI,
+                critérios de homologação e procedimento de go-live.
               </p>
             </div>
-            <Link
-              to="/operacao"
-              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#10B981]/20 shrink-0"
-            >
-              <span>Acessar Pacote Operacional (/operacao)</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Link
+                to="/operacao"
+                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#10B981]/20"
+              >
+                <span>Pacote Operacional (/operacao)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/implantacao"
+                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#2563EB]/20"
+              >
+                <span>Playbook Implantação (/implantacao)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -838,12 +847,12 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* NOVA SEÇÃO: Matriz de Controles de Segurança & Governança B2G (Versão 0.0.25) */}
+        {/* NOVA SEÇÃO: Matriz de Controles de Segurança & Governança B2G (Versão 0.0.26) */}
         <div className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#1E3A8A] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
             <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
               <Shield className="w-5 h-5 text-[#10B981]" />
-              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.25)
+              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.26)
             </h2>
             <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
               Auditado & Homologado
