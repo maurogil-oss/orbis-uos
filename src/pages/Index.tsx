@@ -11,6 +11,7 @@ import { FAQ } from '@/components/FAQ'
 import { PilotForm } from '@/components/PilotForm'
 import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
 import { Onda2Modules } from '@/components/Onda2Modules'
+import { ContactSection } from '@/components/ContactSection'
 import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
@@ -59,8 +60,11 @@ export default function Index() {
       {/* 10. Diagnóstico Express (Pré-diagnóstico Provisório e dimensionamento CPSI) */}
       <ExpressDiagnostic />
 
-      {/* 11. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) */}
+      {/* 11. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) — Conversão B2G */}
       <PilotForm />
+
+      {/* 12. Fale Conosco — Canal Geral Institucional (Dúvidas, Imprensa, Parcerias) */}
+      <ContactSection />
     </div>
   )
 }

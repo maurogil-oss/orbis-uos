@@ -131,9 +131,18 @@ export function Footer() {
                 <Link
                   to="/#manifesto"
                   onClick={(e) => handleAnchorClick(e, '#manifesto')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#10B981]"
+                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#10B981] font-semibold"
                 >
-                  Fale Conosco — Solicitar Piloto
+                  Solicitar Piloto (Manifesto CPSI)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#contato"
+                  onClick={(e) => handleAnchorClick(e, '#contato')}
+                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#CBD5E1]"
+                >
+                  Fale Conosco (Contato Geral & Dúvidas)
                 </Link>
               </li>
             </ul>
@@ -147,12 +156,17 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />
-                <a
-                  href="mailto:contato@orbis-uos.gov.br"
-                  className="hover:text-[#F8FAFC] transition-colors break-all"
-                >
-                  contato@orbis-uos.gov.br
-                </a>
+                <div>
+                  <a
+                    href="mailto:contato@orbis-uos.gov.br"
+                    className="hover:text-[#F8FAFC] transition-colors break-all font-mono font-medium text-[#38BDF8]"
+                  >
+                    contato@orbis-uos.gov.br
+                  </a>
+                  <span className="block text-xs text-[#94A3B8] mt-0.5">
+                    Resposta em até 2 dias úteis (SLA P3)
+                  </span>
+                </div>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />
@@ -160,6 +174,16 @@ export function Footer() {
                   Setor Comercial Sul, Quadra 4, Bloco A, Edifício Capital, 7º Andar — Brasília, DF
                   — CEP 70304-900
                 </span>
+              </li>
+              <li className="pt-1">
+                <Link
+                  to="/#contato"
+                  onClick={(e) => handleAnchorClick(e, '#contato')}
+                  className="text-xs text-[#60A5FA] hover:underline inline-flex items-center gap-1 font-semibold"
+                >
+                  <span>Ver detalhes do canal Fale Conosco</span>
+                  <span>→</span>
+                </Link>
               </li>
             </ul>
           </div>
