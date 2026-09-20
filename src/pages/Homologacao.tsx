@@ -101,7 +101,7 @@ export default function Homologacao() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-semibold text-[#10B981] w-fit">
               <Calendar className="w-3.5 h-3.5" />
-              <span>Ensaio Oficial Pré-Go-Live • Release v0.0.27 • Setembro de 2026</span>
+              <span>Ensaio Oficial Pré-Go-Live • Release v0.0.29 • Setembro de 2026</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -497,7 +497,7 @@ export default function Homologacao() {
             Voltar ao Playbook de Implantação
           </Link>
           <span className="text-[#64748B] font-mono text-[11px]">
-            ORBIS.UOS • Laudo de Homologação v0.0.27 • Protocolo ORBIS-DRYRUN-2026-001
+            ORBIS.UOS • Laudo de Homologação v0.0.29 • Protocolo ORBIS-DRYRUN-2026-001
           </span>
         </div>
       </div>

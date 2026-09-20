@@ -184,6 +184,32 @@ export async function triggerTelemetryPurge(): Promise<{
   })
 }
 
+/**
+ * Registra o início de uma demonstração orientada autoguiada (/demo)
+ * Funciona de forma pública (sem necessidade de token ou autenticação).
+ */
+export async function registerDemoStart(params?: {
+  codigo_ibge?: string
+  origem?: string
+}): Promise<{ success: boolean; event_id?: string; message?: string }> {
+  try {
+    const res = await pb.send('/backend/v1/public/demo-start', {
+      method: 'POST',
+      body: {
+        codigo_ibge: params?.codigo_ibge || '4106902',
+        origem: params?.origem || 'web_demo_tour',
+      },
+    })
+    return res
+  } catch (err) {
+    console.warn('Registro de início de demonstração offline/fallback:', err)
+    return {
+      success: true,
+      message: 'Iniciado em modo local',
+    }
+  }
+}
+
 export async function syncCguPortalData(params: {
   codigo_ibge: string
   cgu_api_key?: string

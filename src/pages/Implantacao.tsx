@@ -88,7 +88,7 @@ export default function Implantacao() {
                 Vigência 2026
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#101B3A] border border-[#1A2A5A] text-[11px] font-mono text-[#94A3B8]">
-                Release v0.0.27 (Hardened B2G)
+                Release v0.0.29 (Hardened B2G)
               </span>
             </div>
 
@@ -744,7 +744,7 @@ export default function Implantacao() {
             Voltar para a página inicial
           </Link>
           <span className="text-[#64748B] font-mono text-[11px]">
-            ORBIS.UOS • Playbook Oficial de Implantação GovTech • Release v0.0.27
+            ORBIS.UOS • Playbook Oficial de Implantação GovTech • Release v0.0.29
           </span>
         </div>
       </div>

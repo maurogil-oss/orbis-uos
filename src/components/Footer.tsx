@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, MapPin, Activity } from 'lucide-react'
+import { Mail, MapPin, Activity, Compass } from 'lucide-react'
 import { OrbisLogo } from '@/components/OrbisLogo'
 
 export function Footer() {
@@ -43,6 +43,15 @@ export function Footer() {
               Navegação Institucional
             </h4>
             <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link
+                  to="/demo"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA] font-semibold"
+                >
+                  <Compass className="w-3.5 h-3.5 text-[#3B82F6]" />
+                  <span>Ver Demonstração (Tour Autoguiado)</span>
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/#prestacao-contas"
@@ -170,6 +179,10 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]/80">
           <p>© {new Date().getFullYear()} Orbis UOS GovTech. Todos os direitos reservados.</p>
           <div className="flex items-center gap-6">
+            <Link to="/demo" className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]">
+              Ver Demonstração
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
             <Link to="/metodologia" className="hover:text-[#F8FAFC] transition-colors">
               Metodologia
             </Link>

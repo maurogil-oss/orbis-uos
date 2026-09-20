@@ -860,7 +860,7 @@ export default function Metodologia() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
             <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
               <Shield className="w-5 h-5 text-[#10B981]" />
-              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.27)
+              Matriz de Controles de Segurança, RBAC & Governança B2G (v0.0.29)
             </h2>
             <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
               Auditado & Homologado
@@ -1111,7 +1111,7 @@ export default function Metodologia() {
             Voltar para a página inicial
           </Link>
           <span className="text-[#64748B] font-mono text-[11px]">
-            ORBIS.UOS • Metodologia v2.2 Homologada • Release v0.0.27 • 2025–2026
+            ORBIS.UOS • Metodologia v2.2 Homologada • Release v0.0.29 • 2025–2026
           </span>
         </div>
       </div>

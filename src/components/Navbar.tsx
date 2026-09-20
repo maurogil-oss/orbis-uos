@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, ArrowRight, Activity, Users, Lock, LogOut, SlidersHorizontal } from 'lucide-react'
+import {
+  Menu,
+  X,
+  ArrowRight,
+  Activity,
+  Users,
+  Lock,
+  LogOut,
+  SlidersHorizontal,
+  Compass,
+} from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { OrbisLogo } from '@/components/OrbisLogo'
 
@@ -82,6 +92,16 @@ export function Navbar() {
           ))}
 
           <span className="h-3 w-[1px] bg-[#1A2A5A]" aria-hidden="true" />
+
+          {/* Link Demonstração Orientada */}
+          <Link
+            to="/demo"
+            className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-[#3B82F6]/15 border border-[#3B82F6]/40 text-[#60A5FA] hover:bg-[#3B82F6]/25 transition-all flex items-center gap-1.5 shadow-sm shadow-[#3B82F6]/20"
+            title="Tour Autoguiado B2G — Modo Demonstração Orientada"
+          >
+            <Compass className="w-3 h-3 text-[#3B82F6]" />
+            <span>Ver Demonstração</span>
+          </Link>
 
           {/* Link Portal do Cidadão */}
           <Link
@@ -184,6 +204,12 @@ export function Navbar() {
             Diagnóstico
           </a>
           <Link
+            to="/demo"
+            className="text-[11px] font-semibold px-2 py-1 rounded-md bg-[#3B82F6]/15 border border-[#3B82F6]/40 text-[#60A5FA]"
+          >
+            Demonstração
+          </Link>
+          <Link
             to="/cidadao"
             className="text-[11px] font-semibold px-2 py-1 rounded-md bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981]"
           >
@@ -275,6 +301,16 @@ export function Navbar() {
           </div>
 
           <div className="pt-4 space-y-2 border-t border-[#1A2A5A]/80">
+            {/* Botão Destaque Demonstração Mobile */}
+            <Link
+              to="/demo"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1A2A5A] to-[#3B82F6] border border-[#3B82F6]/50 shadow-md shadow-[#3B82F6]/25 transition-all gap-2"
+            >
+              <Compass className="w-4 h-4 text-[#60A5FA]" />
+              <span>Ver Demonstração Orientada</span>
+            </Link>
+
             <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/cidadao"

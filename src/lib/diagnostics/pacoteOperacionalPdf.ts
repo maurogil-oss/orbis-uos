@@ -405,7 +405,7 @@ export async function generatePacoteOperacionalPdf(
             </div>
             <div class="cover-meta-item">
               <strong>Versão & Release do Produto</strong>
-              <span>ORBIS.UOS v0.0.27 (Pacote Operacional Homologado)</span>
+              <span>ORBIS.UOS v0.0.29 (Pacote Operacional Homologado)</span>
             </div>
             <div class="cover-meta-item">
               <strong>Responsável / Validador</strong>
@@ -718,7 +718,7 @@ export async function generatePacoteOperacionalPdf(
         </div>
 
         <div style="margin-top: 25px; border-top: 1px solid #CBD5E1; padding-top: 10px; font-size: 9px; color: #64748B; text-align: center;">
-          ORBIS.UOS • Urban Operating System • Pacote Operacional Oficial • Versão 0.0.27<br>
+          ORBIS.UOS • Urban Operating System • Pacote Operacional Oficial • Versão 0.0.29<br>
           Emissão com fé pública digital amparada na Lei Federal nº 14.063/2020 e Art. 27 da Lei Complementar nº 182/2021.
         </div>
       </div>

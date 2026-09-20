@@ -367,7 +367,7 @@ export async function generatePlaybookImplantacaoPdf(
             </div>
             <div class="cover-meta-item">
               <strong>Versão Homologada</strong>
-              <span>ORBIS.UOS v0.0.27 (Hardened B2G)</span>
+              <span>ORBIS.UOS v0.0.29 (Hardened B2G)</span>
             </div>
             <div class="cover-meta-item">
               <strong>Órgão Contratante / Ente</strong>
@@ -509,7 +509,7 @@ export async function generatePlaybookImplantacaoPdf(
         </div>
 
         <div style="margin-top: 25px; border-top: 1px solid #CBD5E1; padding-top: 10px; font-size: 9px; color: #64748B; text-align: center;">
-          ORBIS.UOS • Urban Operating System • Playbook Oficial de Implantação B2G • Versão 0.0.27<br>
+          ORBIS.UOS • Urban Operating System • Playbook Oficial de Implantação B2G • Versão 0.0.29<br>
           Emissão com fé pública digital amparada na Lei nº 14.063/2020 e Art. 27 da Lei Complementar nº 182/2021.
         </div>
       </div>
