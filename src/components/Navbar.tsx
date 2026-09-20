@@ -69,7 +69,7 @@ export function Navbar() {
     }
   }
 
-  // Links secundários reunidos no menu institucional "Mais"
+  // Links secundários reunidos no menu institucional "Soluções"
   const institutionalMoreLinks = [
     {
       label: 'Metodologia',
@@ -185,7 +185,7 @@ export function Navbar() {
             Fale Conosco
           </a>
 
-          {/* 4. Dropdown Menu "Mais" (Agrupa links secundários: Metodologia, Pacote Operacional, Homologação, Implantação, Interoperabilidade, Enquadramento) */}
+          {/* 4. Dropdown Menu "Soluções" (Agrupa links secundários: Metodologia, Pacote Operacional, Homologação, Implantação, Interoperabilidade, Enquadramento) */}
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <button
@@ -195,9 +195,9 @@ export function Navbar() {
                     ? 'bg-[#101B3A] text-white border border-[#3B82F6]/50'
                     : 'text-[#94A3B8] hover:text-white hover:bg-[#101B3A]/60 border border-transparent'
                 }`}
-                aria-label="Menu de recursos institucionais"
+                aria-label="Menu de soluções e recursos institucionais"
               >
-                <span>Mais</span>
+                <span>Soluções</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
                     dropdownOpen ? 'rotate-180 text-[#3B82F6]' : 'text-[#94A3B8]'
@@ -465,7 +465,7 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Seção 2: Links Institucionais e Técnicos (agrupados do Mais) */}
+            {/* Seção 2: Links Institucionais e Técnicos (agrupados em Soluções) */}
             <div className="space-y-1 pt-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] px-2 block">
                 Documentação & Instrumentos B2G
