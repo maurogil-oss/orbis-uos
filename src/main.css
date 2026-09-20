@@ -56,6 +56,23 @@
 
   html {
     scroll-behavior: smooth;
+    /* Variáveis de compensação de altura do cabeçalho fixo */
+    --header-height: 3.5rem; /* 56px no mobile */
+    --scroll-offset: 4.5rem; /* 72px no mobile (56px + 16px de folga de respiro) */
+    scroll-padding-top: var(--scroll-offset);
+  }
+
+  @media (min-width: 640px) {
+    html {
+      --header-height: 4rem; /* 64px no desktop (sm+) */
+      --scroll-offset: 5rem; /* 80px no desktop (64px + 16px de folga) */
+      scroll-padding-top: var(--scroll-offset);
+    }
+  }
+
+  /* Garantir que qualquer elemento com ID como destino de âncora/scroll inicie abaixo do cabeçalho */
+  [id] {
+    scroll-margin-top: var(--scroll-offset);
   }
 
   /* Custom focus states */

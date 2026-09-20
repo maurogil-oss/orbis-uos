@@ -10,6 +10,7 @@ export function Footer() {
       const target = document.querySelector(href)
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' })
+        window.history.pushState(null, '', `/#${href.replace(/^#/, '')}`)
       }
     }
   }
@@ -43,40 +44,40 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <a
-                  href="#prestacao-contas"
+                <Link
+                  to="/#prestacao-contas"
                   onClick={(e) => handleAnchorClick(e, '#prestacao-contas')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
                   Accountability & Sociedade Atendida
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#simulador"
+                <Link
+                  to="/#simulador"
                   onClick={(e) => handleAnchorClick(e, '#simulador')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
                   Dimensionamento do Município
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#beneficios"
+                <Link
+                  to="/#beneficios"
                   onClick={(e) => handleAnchorClick(e, '#beneficios')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
                   Pilares de Governança Pública
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#como-funciona"
+                <Link
+                  to="/#como-funciona"
                   onClick={(e) => handleAnchorClick(e, '#como-funciona')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
                 >
                   Marco Legal CPSI (LC 182/2021)
-                </a>
+                </Link>
               </li>
               <li>
                 <Link
@@ -128,13 +129,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#manifesto"
+                <Link
+                  to="/#manifesto"
                   onClick={(e) => handleAnchorClick(e, '#manifesto')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block text-[#10B981]"
                 >
                   Manifesto de Interesse Institucional
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

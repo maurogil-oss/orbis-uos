@@ -293,9 +293,9 @@ export default function Interoperabilidade() {
       : endpoints.filter((ep) => ep.format.toLowerCase().includes(selectedFormat.toLowerCase()))
 
   return (
-    <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC]">
+    <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] pt-14 sm:pt-16">
       {/* Hero Header */}
-      <section className="relative pt-24 pb-16 border-b border-[#1A2A5A] bg-gradient-to-b from-[#0A1128] via-[#070D1F] to-[#070D1F] overflow-hidden">
+      <section className="relative pt-10 sm:pt-12 pb-16 border-b border-[#1A2A5A] bg-gradient-to-b from-[#0A1128] via-[#070D1F] to-[#070D1F] overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA] mb-4">
             <Code className="w-3.5 h-3.5 text-[#3B82F6]" />

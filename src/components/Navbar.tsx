@@ -36,6 +36,7 @@ export function Navbar() {
         const element = document.getElementById(anchor)
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' })
+          window.history.pushState(null, '', `/#${anchor}`)
         }
       }
     }

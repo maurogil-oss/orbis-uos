@@ -83,9 +83,9 @@ export function Termos() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070C1E] text-[#F8FAFC] pb-24 selection:bg-[#3B82F6]/30">
+    <div className="min-h-screen bg-[#070C1E] text-[#F8FAFC] pt-14 sm:pt-16 pb-24 selection:bg-[#3B82F6]/30">
       {/* Top Banner Institucional */}
-      <div className="border-b border-[#1A2A5A] bg-[#0A1128]/80 backdrop-blur-md sticky top-0 z-40">
+      <div className="border-b border-[#1A2A5A] bg-[#0A1128]/95 backdrop-blur-md sticky top-14 sm:top-16 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-[#94A3B8]">
             <Link to="/" className="hover:text-white transition-colors">

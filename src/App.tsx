@@ -5,6 +5,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { ScrollToTop } from './components/ScrollToTop'
 import Index from './pages/Index'
 import Cockpit from './pages/Cockpit'
 import Enquadramento from './pages/Enquadramento'
@@ -28,6 +29,7 @@ const App = () => (
   <BrowserRouter>
     <AuthProvider>
       <TooltipProvider>
+        <ScrollToTop />
         <Toaster />
         <Sonner />
         <Routes>
