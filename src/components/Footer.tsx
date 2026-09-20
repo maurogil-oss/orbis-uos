@@ -54,6 +54,15 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/#simulador"
+                  onClick={(e) => handleAnchorClick(e, '#simulador')}
+                  className="hover:text-[#F8FAFC] transition-colors inline-block"
+                >
+                  Simulador de Economicidade (Art. 320)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/#prestacao-contas"
                   onClick={(e) => handleAnchorClick(e, '#prestacao-contas')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
@@ -63,53 +72,18 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/#simulador"
-                  onClick={(e) => handleAnchorClick(e, '#simulador')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block"
+                  to="/metodologia"
+                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#CBD5E1]"
                 >
-                  Dimensionamento do Município
+                  Metodologia Científica & IRI
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/#beneficios"
-                  onClick={(e) => handleAnchorClick(e, '#beneficios')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block"
-                >
-                  Pilares de Governança Pública
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/#como-funciona"
-                  onClick={(e) => handleAnchorClick(e, '#como-funciona')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block"
-                >
-                  Marco Legal CPSI (LC 182/2021)
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/termos"
-                  className="text-xs text-[#94A3B8] hover:text-[#38BDF8] transition-colors"
-                >
-                  Termos de Uso (B2G)
-                </Link>
-              </li>{' '}
               <li>
                 <Link
                   to="/operacao"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#10B981]"
                 >
                   Pacote Operacional (Backups, RTO/RPO & SLA)
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/implantacao"
-                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
-                >
-                  Playbook de Implantação (RACI & Homologação)
                 </Link>
               </li>
               <li>
@@ -122,10 +96,26 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/implantacao"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
+                >
+                  Playbook de Implantação (RACI & Homologação)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/interoperabilidade"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA]"
                 >
                   API, Webhooks & Interoperabilidade CIC
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/enquadramento"
+                  className="hover:text-[#F8FAFC] transition-colors inline-block text-[#60A5FA]"
+                >
+                  Enquadramento CPSI (LC 182/2021)
                 </Link>
               </li>
               <li>
@@ -143,7 +133,7 @@ export function Footer() {
                   onClick={(e) => handleAnchorClick(e, '#manifesto')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block text-[#10B981]"
                 >
-                  Manifesto de Interesse Institucional
+                  Fale Conosco — Solicitar Piloto
                 </Link>
               </li>
             </ul>
