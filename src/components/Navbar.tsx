@@ -20,6 +20,7 @@ import {
   Shield,
   HelpCircle,
   MessageSquare,
+  Terminal,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { OrbisLogo } from '@/components/OrbisLogo'
@@ -105,6 +106,13 @@ export function Navbar() {
       href: '/interoperabilidade',
       icon: Code2,
       badge: 'B2G Aberto',
+    },
+    {
+      label: 'Sandbox Playground',
+      desc: 'Ambiente público de teste e k-anonimato H3',
+      href: '/sandbox',
+      icon: Terminal,
+      badge: 'Playground',
     },
     {
       label: 'Enquadramento CPSI',

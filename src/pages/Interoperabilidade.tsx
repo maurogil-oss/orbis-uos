@@ -302,14 +302,25 @@ export default function Interoperabilidade() {
             Arquitetura Aberta & Interoperabilidade B2G
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#F8FAFC] tracking-tight max-w-3xl">
-            Documentação de API, Webhooks & Interoperabilidade
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-[#F8FAFC] tracking-tight max-w-3xl">
+              Documentação de API, Webhooks & Interoperabilidade
+            </h1>
+
+            <Link
+              to="/sandbox"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1D4ED8] hover:to-[#2563EB] shadow-lg shadow-[#3B82F6]/30 shrink-0 transition-all active:scale-95"
+            >
+              <Terminal className="w-4 h-4" />
+              <span>Abrir Sandbox Playground</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
           <p className="text-base sm:text-lg text-[#94A3B8] max-w-3xl mt-4 leading-relaxed">
             Desenvolvido para atender aos requisitos de integração de grandes municípios: Centro
-            Integrado de Comando (CIC), Datalakes municipais, plataformas Waze for Cities e sistemas
-            de engenharia viária legados.
+            Integrado de Comando (CIC / CICC), Datalakes municipais, plataformas Waze for Cities e
+            sistemas de engenharia viária legados.
           </p>
 
           {/* Destaques Técnicos Rápidos */}
@@ -464,8 +475,104 @@ export default function Interoperabilidade() {
         </div>
       </section>
 
+      {/* SEÇÃO NOVA: FLUXO DE CREDENCIAMENTO DO INTEGRADOR (SOLICITAÇÃO → EMISSÃO → HOMOLOGAÇÃO → PRODUÇÃO) */}
+      <section className="py-14 bg-[#0A1128] border-t border-[#1A2A5A]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-xs font-semibold mb-2">
+                <Check className="w-3.5 h-3.5" />
+                Conexão com Órgãos Públicos & Centros de Comando
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#F8FAFC]">
+                Fluxo Oficial de Credenciamento do Integrador
+              </h2>
+              <p className="text-xs sm:text-sm text-[#94A3B8] mt-1.5 leading-relaxed">
+                Rito em 4 etapas estruturado para órgãos municipais (CIC/CICC, Defesa Social,
+                URBS/SPTrans, Datalakes de Governo) conectarem sistemas legados com fé pública e
+                segurança da informação.
+              </p>
+            </div>
+
+            <Link
+              to="/sandbox"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-[#38BDF8] bg-[#101B3A] border border-[#38BDF8]/40 hover:border-[#38BDF8] flex items-center gap-2 transition-all shrink-0"
+            >
+              <Terminal className="w-4 h-4" />
+              <span>Experimentar no Sandbox</span>
+            </Link>
+          </div>
+
+          {/* Cards das 4 Etapas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Etapa 1 */}
+            <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] relative space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 border border-[#3B82F6]/40 text-[#60A5FA] font-mono font-bold text-sm flex items-center justify-center">
+                01
+              </div>
+              <h4 className="text-sm font-bold text-white">Solicitação Formal</h4>
+              <p className="text-xs text-[#94A3B8] leading-relaxed">
+                O órgão municipal ou consórcio público formaliza a demanda indicando CNPJ,
+                responsável técnico do CIC/CICC e finalidade do consumo de dados (vigilância viária
+                ou mobilidade).
+              </p>
+              <span className="text-[10px] font-mono text-[#60A5FA] bg-[#3B82F6]/10 px-2 py-0.5 rounded inline-block">
+                LC 182/2021 CPSI
+              </span>
+            </div>
+
+            {/* Etapa 2 */}
+            <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] relative space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-[#10B981]/20 border border-[#10B981]/40 text-[#10B981] font-mono font-bold text-sm flex items-center justify-center">
+                02
+              </div>
+              <h4 className="text-sm font-bold text-white">Emissão da Chave</h4>
+              <p className="text-xs text-[#94A3B8] leading-relaxed">
+                O administrador de gabinete gera no Cockpit a chave única com prefixo institucional
+                (<code>orbis_live_...</code>). Apenas o hash SHA-256 é armazenado; evento gravado na
+                auditoria.
+              </p>
+              <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded inline-block">
+                API_KEY_CREATED
+              </span>
+            </div>
+
+            {/* Etapa 3 */}
+            <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] relative space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 border border-[#F59E0B]/40 text-[#F59E0B] font-mono font-bold text-sm flex items-center justify-center">
+                03
+              </div>
+              <h4 className="text-sm font-bold text-white">Homologação no Sandbox</h4>
+              <p className="text-xs text-[#94A3B8] leading-relaxed">
+                A equipe técnica do órgão valida a ingestão dos dados GeoJSON (RFC 7946), formatação
+                de anomalias e webhooks em ambiente público com dados sintéticos sem risco de
+                vazamento.
+              </p>
+              <span className="text-[10px] font-mono text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded inline-block">
+                /sandbox público
+              </span>
+            </div>
+
+            {/* Etapa 4 */}
+            <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] relative space-y-3">
+              <div className="w-8 h-8 rounded-lg bg-[#8B5CF6]/20 border border-[#8B5CF6]/40 text-[#A78BFA] font-mono font-bold text-sm flex items-center justify-center">
+                04
+              </div>
+              <h4 className="text-sm font-bold text-white">Go-Live em Produção</h4>
+              <p className="text-xs text-[#94A3B8] leading-relaxed">
+                Ativação dos feeds de telemetria agregada e webhooks do CICC com rate-limit
+                garantido (60 req/min) e k-anonimato H3 (≥3 sessões) estritamente preservado.
+              </p>
+              <span className="text-[10px] font-mono text-[#A78BFA] bg-[#8B5CF6]/10 px-2 py-0.5 rounded inline-block">
+                SLA 99,9% Contínuo
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Seção Autenticação e Boas Práticas B2G */}
-      <section className="py-12 bg-[#0A1128] border-t border-[#1A2A5A]">
+      <section className="py-12 bg-[#070D1F] border-t border-[#1A2A5A]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="max-w-2xl">
             <h2 className="text-2xl font-bold text-[#F8FAFC]">
@@ -480,54 +587,58 @@ export default function Interoperabilidade() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[#CBD5E1]">
             <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
               <Key className="w-5 h-5 text-[#3B82F6]" />
-              <h4 className="text-sm font-bold text-[#F8FAFC]">Chaves de API Institucionais</h4>
+              <h4 className="text-sm font-bold text-[#F8FAFC]">Chaves de API por Consumidor</h4>
               <p className="text-[#94A3B8] leading-relaxed">
-                As requisições exigem o header <code>Authorization: Bearer orbis_live_...</code>. A
-                emissão de chaves é atrelada ao CNPJ do município e ao CPF do Secretário gestor, com
-                registro inalterável em trilha de auditoria.
+                As requisições de integradores exigem o header{' '}
+                <code>Authorization: Bearer orbis_live_...</code> ou <code>x-api-key</code>. O banco
+                armazena exclusivamente o hash SHA-256 da chave, com rate limit de 60 req/min e
+                revogação instantânea com trilha de auditoria.
               </p>
             </div>
 
             <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
               <Shield className="w-5 h-5 text-[#10B981]" />
-              <h4 className="text-sm font-bold text-[#F8FAFC]">Conformidade LGPD & Anonimização</h4>
+              <h4 className="text-sm font-bold text-[#F8FAFC]">k-Anonimato H3 & LGPD Blindada</h4>
               <p className="text-[#94A3B8] leading-relaxed">
                 Nenhum identificador pessoal (nome do motorista, placa do veículo ou trajeto
-                individual residencial) é exposto nas APIs. Todas as grandezas inerciais são
-                agregadas em malhas viárias de 100 metros.
+                individual residencial) é exposto nas APIs. Células hexagonais H3 com menos de 3
+                sessões retornam <code>imv_score: null</code> em qualquer ambiente, inclusive no
+                Sandbox.
               </p>
             </div>
 
             <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
               <Cpu className="w-5 h-5 text-[#F59E0B]" />
-              <h4 className="text-sm font-bold text-[#F8FAFC]">Conexão CIC & Waze for Cities</h4>
+              <h4 className="text-sm font-bold text-[#F8FAFC]">Conexão CIC / CICC & Datalakes</h4>
               <p className="text-[#94A3B8] leading-relaxed">
                 A camada de interoperabilidade disponibiliza feeds estruturados compatíveis com os
-                padrões mundiais de mobilidade urbana (GTFS e NTCIP 1202), integrando-se sem atrito
-                aos Centros Integrados de Comando já existentes.
+                padrões mundiais de mobilidade urbana (GTFS, GeoJSON RFC 7946 e NTCIP 1202),
+                integrando-se sem atrito aos Centros Integrados de Comando já existentes.
               </p>
             </div>
           </div>
 
-          {/* Banner de Chamada para Gabinete */}
+          {/* Banner de Chamada para Gabinete e Sandbox */}
           <div className="p-6 rounded-2xl bg-gradient-to-r from-[#101B3A] to-[#1A2A5A] border border-[#3B82F6]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h4 className="text-base font-bold text-[#F8FAFC]">
-                Precisa de uma chave de homologação para o Datalake do seu Município?
+                Pronto para testar a integração do primeiro órgão no Sandbox público?
               </h4>
               <p className="text-xs text-[#94A3B8] mt-1">
-                Acesse o ambiente institucional do município para solicitar credenciais do ambiente
-                Sandbox.
+                Explore as respostas GeoJSON, envie requisições de exemplo e visualize o k-anonimato
+                no playground interativo.
               </p>
             </div>
 
-            <Link
-              to="/enquadramento"
-              className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-lg shadow-[#3B82F6]/30 flex items-center gap-2 shrink-0 transition-all"
-            >
-              <span>Acessar Enquadramento CPSI</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                to="/sandbox"
+                className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-lg shadow-[#3B82F6]/30 flex items-center gap-2 transition-all"
+              >
+                <span>Acessar Sandbox Playground</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

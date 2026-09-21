@@ -18,6 +18,8 @@ import {
   syncCguPortalData,
 } from '@/services/institucionalSettings'
 import { UsersManagementTab } from './UsersManagementTab'
+import { ApiKeysManagementTab } from './ApiKeysManagementTab'
+import { Key } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface InstitutionalConfigModalProps {
@@ -36,7 +38,7 @@ export function InstitutionalConfigModal({
   onOpenChangePassword,
 }: InstitutionalConfigModalProps) {
   const { isAdmin } = useAuth()
-  const [activeTab, setActiveTab] = useState<'geral' | 'users'>('geral')
+  const [activeTab, setActiveTab] = useState<'geral' | 'users' | 'keys'>('geral')
 
   // Estado da Feature 2: Portal Público do Cidadão (Hooks incondicionais)
   const [portalAtivo, setPortalAtivo] = useState<boolean>(settings?.portal_publico_ativo === true)
@@ -174,31 +176,45 @@ export function InstitutionalConfigModal({
         </div>
 
         {/* Abas Superiores do Modal */}
-        <div className="flex items-center gap-2 border-b border-[#1A2A5A] pb-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#1A2A5A] pb-3">
           <button
             type="button"
             onClick={() => setActiveTab('geral')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'geral'
                 ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/25'
                 : 'text-[#94A3B8] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>Portal & Transparência CGU</span>
+            <span>Portal & CGU</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('users')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'users'
                 ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/25'
                 : 'text-[#94A3B8] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Contas Individuais, Papéis & Auditoria</span>
+            <span>Contas & Auditoria</span>
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('keys')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'keys'
+                  ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/25'
+                  : 'text-[#94A3B8] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
+              }`}
+            >
+              <Key className="w-3.5 h-3.5 text-[#38BDF8]" />
+              <span>Chaves de API (Consumidores)</span>
+            </button>
+          )}
         </div>
 
         {/* Notificações / Feedback */}
@@ -221,7 +237,12 @@ export function InstitutionalConfigModal({
           </div>
         )}
 
-        {activeTab === 'users' ? (
+        {activeTab === 'keys' && isAdmin ? (
+          <ApiKeysManagementTab
+            settings={settings}
+            onAuditTrailUpdated={(updated) => onSettingsUpdated(updated)}
+          />
+        ) : activeTab === 'users' ? (
           <UsersManagementTab
             settings={settings}
             onAuditTrailUpdated={(updated) => onSettingsUpdated(updated)}

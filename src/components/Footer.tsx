@@ -112,6 +112,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/sandbox"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#38BDF8]"
+                >
+                  Sandbox Playground & Chaves de API
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/enquadramento"
                   className="hover:text-[#F8FAFC] transition-colors inline-block text-[#60A5FA]"
                 >
@@ -229,7 +237,17 @@ export function Footer() {
             <Link to="/termos" className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]">
               Termos de Uso
             </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link to="/sandbox" className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]">
+              Sandbox
+            </Link>
           </div>
+        </div>
+
+        {/* Versão do Sistema */}
+        <div className="mt-4 text-center text-[11px] font-mono text-[#64748B]">
+          ORBIS UOS GovTech • v0.0.33 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
+          Art. 12 LGPD
         </div>
       </div>
     </footer>

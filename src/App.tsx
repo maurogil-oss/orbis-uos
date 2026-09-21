@@ -19,6 +19,7 @@ import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
 import Interoperabilidade from './pages/Interoperabilidade'
+import Sandbox from './pages/Sandbox'
 import Demo from './pages/Demo'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/acesso" element={<Login />} />
             <Route path="/cidadao" element={<PortalCidadao />} />
             <Route path="/portal-cidadao" element={<PortalCidadao />} />
+            <Route path="/sandbox" element={<Sandbox />} />
             <Route path="/interoperabilidade" element={<Interoperabilidade />} />
             <Route path="/api" element={<Interoperabilidade />} />
 

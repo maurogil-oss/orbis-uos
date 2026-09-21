@@ -28,7 +28,15 @@ import {
   getInstitucionalSettings,
   InstitucionalSettingsRecord,
 } from '@/services/institucionalSettings'
-import { Settings, LogOut, UserCheck, FileCheck, KeyRound, SlidersHorizontal } from 'lucide-react'
+import {
+  Settings,
+  LogOut,
+  UserCheck,
+  FileCheck,
+  KeyRound,
+  SlidersHorizontal,
+  Terminal,
+} from 'lucide-react'
 
 export default function Cockpit() {
   const { user, isAdmin, logout } = useAuth()
@@ -238,11 +246,21 @@ export default function Cockpit() {
               type="button"
               onClick={() => setShowConfigModal(true)}
               className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
-              title="Configurações do Município, Contas & Auditoria"
+              title="Configurações do Município, Contas, Chaves de API & Auditoria"
             >
               <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
-              <span>Configurações</span>
+              <span>Configurações & Chaves</span>
             </button>
+
+            {/* Link para o Sandbox Público */}
+            <Link
+              to="/sandbox"
+              className="hidden lg:inline-flex px-3.5 py-2 rounded-xl text-xs font-bold text-[#60A5FA] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#3B82F6]/30 hover:border-[#3B82F6] items-center gap-1.5 transition-all shadow-sm"
+              title="Abrir Sandbox Público de Interoperabilidade"
+            >
+              <Terminal className="w-3.5 h-3.5 text-[#3B82F6]" />
+              <span>Sandbox</span>
+            </Link>
 
             {/* Botão de Manifestos de Interesse & Diagnósticos Capturados */}
             <button
