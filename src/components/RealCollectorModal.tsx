@@ -17,10 +17,18 @@ import {
   Activity,
   Layers,
   Lock,
+  Unlock,
   Radio,
   FileCheck2,
+  Pause,
+  RotateCcw,
+  Zap,
 } from 'lucide-react'
-import { useDeviceMotionCollector, DetectedAnomaly } from '@/hooks/useDeviceMotionCollector'
+import {
+  useDeviceMotionCollector,
+  DetectedAnomaly,
+  PhoneMountPosition,
+} from '@/hooks/useDeviceMotionCollector'
 import { createRoadEvent, RoadEventRecord } from '@/services/roadEvents'
 import { VeiculoTipoCalibracao, VEICULO_TIPOS_CONFIG } from '@/services/fatorKCalibration'
 import { toast } from '@/hooks/use-toast'
@@ -54,6 +62,7 @@ export function RealCollectorModal({
   // Persisting state
   const [persistedAnomalyIds, setPersistedAnomalyIds] = useState<Set<string>>(new Set())
   const [isPersistingAll, setIsPersistingAll] = useState(false)
+  const [initialPhonePosition, setInitialPhonePosition] = useState<PhoneMountPosition>('painel')
 
   // Sensor collector hook
   const veiculoAtualConfig =
@@ -65,6 +74,13 @@ export function RealCollectorModal({
     permissionError,
     isWakeLocked,
     wakeLockSupported,
+    toggleWakeLock,
+    phonePosition,
+    setPhonePosition,
+    routeCoverage,
+    discardedLowSpeedCount,
+    isAutoPaused,
+    canResumePrevious,
     samplingRateHz,
     currentZ,
     currentRoll,
@@ -85,6 +101,8 @@ export function RealCollectorModal({
     speedKmh,
     startSession,
     stopSession,
+    pauseSession,
+    resumeSession,
     setManualLocation,
     buildEventPayload,
   } = useDeviceMotionCollector({
@@ -96,6 +114,7 @@ export function RealCollectorModal({
     veiculoTipoCanonico,
     modoColeta: veiculoAtualConfig.modoCategoria,
     indiceAlvo: veiculoAtualConfig.indiceAlvo,
+    phonePosition: initialPhonePosition,
     codigoIbge: '4106902',
     manualLat,
     manualLng,
@@ -204,6 +223,7 @@ export function RealCollectorModal({
 
   const isCollecting = status === 'collecting'
   const isCalibrating = status === 'calibrating'
+  const isPaused = status === 'paused'
 
   return (
     <div
@@ -289,34 +309,90 @@ export function RealCollectorModal({
           </div>
         )}
 
-        {/* Banner de Boas Práticas de Operação: Wake Lock & Manter Tela em Foco */}
-        <div className="mx-5 mt-4 p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2 text-[#94A3B8]">
-            <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
-            <span>
-              <b>Operação Contínua:</b> Mantenha a aba aberta e o smartphone no suporte do painel.
-            </span>
+        {/* Banner de Auto-Retomada se a sessão foi suspensa por segundo plano / perda de visibilidade */}
+        {(isAutoPaused || isPaused) && (
+          <div className="mx-5 mt-4 p-4 rounded-xl bg-[#F59E0B]/15 border-2 border-[#F59E0B] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#FDE68A] animate-in fade-in">
+            <div className="flex items-start gap-2.5">
+              <Pause className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className="font-bold text-white block">
+                  {isAutoPaused
+                    ? 'Coleta Pausada Automaticamente (Aba em Segundo Plano / Sensores Suspensos)'
+                    : 'Coleta em Pausa'}
+                </span>
+                <p className="text-[11px] text-[#CBD5E1] leading-relaxed">
+                  Os dados capturados permanecem 100% seguros na fila offline local (IndexedDB).
+                  Toque em retomar para religar os sensores inerciais imediatamente.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={resumeSession}
+              className="px-4 py-2 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] flex items-center gap-1.5 shadow-md shadow-[#10B981]/25 shrink-0"
+            >
+              <Play className="w-3.5 h-3.5 fill-white" />
+              <span>Retomar Sessão com 1 Toque</span>
+            </button>
+          </div>
+        )}
+
+        {/* Banner de Boas Práticas de Operação: Wake Lock Explícito & Posição do Aparelho */}
+        <div className="mx-5 mt-4 p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-[#3B82F6]" />
+                Caminho 2 — PWA + Wake Lock Ativo
+              </span>
+              <span className="text-[10px] font-mono text-[#94A3B8]">
+                Aba em primeiro plano • Celular no suporte
+              </span>
+            </div>
+            <p className="text-[11px] text-[#94A3B8]">
+              Restrição da Web: navegadores suspendem sensores em segundo plano. Mantenha a tela
+              travada acesa durante o turno.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] font-mono">
-            {isWakeLocked ? (
-              <span className="bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 px-2 py-0.5 rounded flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                Wake Lock Ativo (Tela não apaga)
-              </span>
-            ) : wakeLockSupported ? (
-              <span className="text-[#94A3B8] bg-[#101B3A] border border-[#1A2A5A] px-2 py-0.5 rounded">
-                Wake Lock Standby
-              </span>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* Botão / Indicador Explícito de Wake Lock */}
+            {wakeLockSupported ? (
+              <button
+                type="button"
+                onClick={toggleWakeLock}
+                className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                  isWakeLocked
+                    ? 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/60 shadow-sm shadow-[#10B981]/20'
+                    : 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/40 hover:bg-[#EF4444]/25'
+                }`}
+                title={
+                  isWakeLocked
+                    ? 'Wake Lock ATIVO. Clique para liberar.'
+                    : 'Wake Lock INATIVO. Toque para travar tela acesa.'
+                }
+              >
+                {isWakeLocked ? (
+                  <>
+                    <Lock className="w-3.5 h-3.5 text-[#10B981]" />
+                    <span>Tela Travada Acesa (Ativa)</span>
+                  </>
+                ) : (
+                  <>
+                    <Unlock className="w-3.5 h-3.5 text-[#EF4444]" />
+                    <span>Travar Tela Acesa (Inativa — Toque)</span>
+                  </>
+                )}
+              </button>
             ) : (
-              <span className="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/30 px-2 py-0.5 rounded">
-                Sem Wake Lock nativo (mantenha em foco)
+              <span className="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/30 px-2 py-1 rounded text-[11px]">
+                Aviso: Screen Wake Lock API indisponível neste navegador
               </span>
             )}
 
-            <span className="bg-[#3B82F6]/15 text-[#60A5FA] border border-[#3B82F6]/30 px-2 py-0.5 rounded flex items-center gap-1">
+            <span className="bg-[#3B82F6]/15 text-[#60A5FA] border border-[#3B82F6]/30 px-2 py-1 rounded text-[11px] font-mono flex items-center gap-1">
               <Radio className="w-3 h-3 animate-pulse" />
-              {samplingRateHz} Hz
+              {samplingRateHz} Hz (Resample 50Hz)
             </span>
           </div>
         </div>
@@ -339,7 +415,7 @@ export function RealCollectorModal({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-center">
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
                   <span className="text-[10px] text-[#94A3B8] block">Duração</span>
                   <span className="font-mono font-bold text-sm text-[#F8FAFC]">
@@ -355,27 +431,33 @@ export function RealCollectorModal({
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Cobertura de Rota</span>
+                  <span className="font-mono font-bold text-sm text-[#10B981]">
+                    {sessionSummary.routeCoverage.coveragePct}%
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
                   <span className="text-[10px] text-[#94A3B8] block">Janelas FFT</span>
                   <span className="font-mono font-bold text-sm text-[#F8FAFC]">
                     {sessionSummary.windowsProcessed}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Impactos / Picos</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Impactos Válidos</span>
                   <span className="font-mono font-bold text-sm text-[#EF4444]">
                     {sessionSummary.impactsDetected}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Desvios de Obstáculo</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Descarte &lt;15 km/h</span>
                   <span className="font-mono font-bold text-sm text-[#F59E0B]">
-                    {sessionSummary.desviosDetectados}
+                    {sessionSummary.discardedLowSpeedCount}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Segmentos 100m</span>
-                  <span className="font-mono font-bold text-sm text-[#10B981]">
-                    {sessionSummary.segmentsCovered.length}
+                  <span className="text-[10px] text-[#94A3B8] block">Posição Aparelho</span>
+                  <span className="font-mono font-bold text-xs text-[#38BDF8]">
+                    {sessionSummary.phonePosition === 'painel' ? 'Suporte Painel' : 'Bolso / Outro'}
                   </span>
                 </div>
               </div>
@@ -383,11 +465,15 @@ export function RealCollectorModal({
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-1 text-xs text-[#94A3B8]">
                 <span>
                   Alimentou o <b>{sessionSummary.indiceAlvo}</b> com <b>+1 passagem</b> para o Fator
-                  de Confiança (meta ≥ 3).
-                  {sessionSummary.desviosDetectados > 0 && (
+                  de Confiança (meta ≥ 3). Cobertura temporal dos sensores:{' '}
+                  <strong className="text-white font-mono">
+                    {sessionSummary.routeCoverage.coveragePct}% ativo
+                  </strong>{' '}
+                  ({Math.round(sessionSummary.routeCoverage.gapsMs / 1000)}s em lacuna/background).
+                  {sessionSummary.discardedLowSpeedCount > 0 && (
                     <span className="text-[#FBBF24] ml-1">
-                      • Viés de desvio tratado: {sessionSummary.desviosDetectados} manobra(s)
-                      lateral(is) mapeada(s).
+                      • {sessionSummary.discardedLowSpeedCount} pico(s) descartado(s) por velocidade
+                      &lt;15 km/h (sem energia de suspensão).
                     </span>
                   )}
                 </span>
@@ -516,28 +602,28 @@ export function RealCollectorModal({
                     <span className="font-mono font-bold text-[#EF4444]">{anomalies.length}</span>
                   </div>
                   <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                    <span className="text-[9px] text-[#94A3B8] block">RMS Borda</span>
-                    <span className="font-mono font-bold text-[#60A5FA]">
-                      {latestWindowMetrics?.rmsVerticalG ?? 0.12}g
+                    <span className="text-[9px] text-[#94A3B8] block">Cobertura Rota</span>
+                    <span className="font-mono font-bold text-[#10B981]">
+                      {routeCoverage.coveragePct}%
                     </span>
                   </div>
                   <div className="p-2 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
                     <span className="text-[9px] text-[#94A3B8] block">IRI Estimado</span>
-                    <span className="font-mono font-bold text-[#10B981]">{calculatedIRI}</span>
+                    <span className="font-mono font-bold text-[#38BDF8]">{calculatedIRI}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Painel Espectro FFT em Tempo Real (SDK Edge 1-20 Hz) */}
+            {/* Painel Espectro FFT em Tempo Real (SDK Edge 1-20 Hz com Janela de Hann e Bandas Documentadas) */}
             <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono uppercase bg-[#3B82F6]/20 text-[#3B82F6] px-2 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
-                    FFT Embarcada na Borda
+                    Janela de Hann + FFT 50Hz Fixo
                   </span>
                   <span className="text-xs font-bold text-[#F8FAFC]">
-                    Espectro de Frequência Eixo Z (0–25 Hz)
+                    Bandas Espectrais: 1–4 Hz (Suspensão/IRI) & 5–20 Hz (Impacto/Buraco)
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-[11px] font-mono text-[#94A3B8]">
@@ -551,12 +637,13 @@ export function RealCollectorModal({
                   </span>
                   <span>•</span>
                   <span>
-                    Banda Alvo (1–20Hz):{' '}
-                    <b className="text-[#10B981]">
-                      {spectrumAnalysis?.targetBandEnergy !== undefined
-                        ? `${spectrumAnalysis.targetBandEnergy}%`
-                        : '92%'}
-                    </b>
+                    Suspensão 1–4Hz:{' '}
+                    <b className="text-[#38BDF8]">{spectrumAnalysis?.suspensionEnergyPct ?? 42}%</b>
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Impactos 5–20Hz:{' '}
+                    <b className="text-[#10B981]">{spectrumAnalysis?.anomalyEnergyPct ?? 52}%</b>
                   </span>
                 </div>
               </div>
@@ -611,7 +698,7 @@ export function RealCollectorModal({
               <div className="flex items-center justify-between text-[10px] text-[#94A3B8] font-mono">
                 <span>0 Hz (Componente DC removida)</span>
                 <span className="text-[#10B981]">
-                  Janelamento Hanning • Filtro de Borda 1–20 Hz
+                  Janela de Hann • 1–4 Hz (Suspensão/IRI) • 5–20 Hz (Buracos) • Resample 50Hz
                 </span>
                 <span>25 Hz (Nyquist @ 50Hz)</span>
               </div>
@@ -635,6 +722,11 @@ export function RealCollectorModal({
                   <span className="text-[10px] font-mono bg-[#10B981]/15 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/30">
                     Fator Confiança: +1 Passagem
                   </span>
+                  {discardedLowSpeedCount > 0 && (
+                    <span className="text-[10px] font-mono bg-[#F59E0B]/15 text-[#FBBF24] px-2 py-0.5 rounded border border-[#F59E0B]/30">
+                      {discardedLowSpeedCount} descartados &lt;15km/h
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -659,9 +751,21 @@ export function RealCollectorModal({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {speedKmh !== undefined && (
+                  {speedKmh !== undefined ? (
                     <span className="text-[#94A3B8] font-mono">
-                      Velocidade: <b className="text-[#60A5FA]">{speedKmh} km/h</b>
+                      Velocidade:{' '}
+                      <b className={speedKmh >= 15 ? 'text-[#10B981]' : 'text-[#F59E0B]'}>
+                        {speedKmh} km/h
+                      </b>
+                      {speedKmh < 15 && (
+                        <span className="text-[10px] text-[#F59E0B] ml-1">
+                          (&lt;15 km/h: sem energia de suspensão)
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-[#94A3B8] font-mono text-[10px]">
+                      Velocidade GPS em aquisição
                     </span>
                   )}
                   <button
@@ -723,9 +827,89 @@ export function RealCollectorModal({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5 text-[#3B82F6]" />
-                Metadados da Coleta & Frota Pública
+                Metadados da Coleta, Posição & Frota Pública
               </span>
               <span className="text-[10px] text-[#94A3B8]">Gravados no evento auditável</span>
+            </div>
+
+            {/* PERGUNTA DE 1 CLIQUE: POSIÇÃO DO CELULAR COMO FEATURE */}
+            <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                  <Smartphone className="w-4 h-4 text-[#38BDF8]" />
+                  Posição do Smartphone na Sessão (Feature Inercial):
+                </label>
+                <span className="text-[10px] font-mono text-[#94A3B8]">
+                  Pergunta de 1 clique • Gravada no evento
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhonePosition('painel')
+                    setInitialPhonePosition('painel')
+                  }}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 ${
+                    phonePosition === 'painel'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-sm'
+                      : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:text-[#CBD5E1]'
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      phonePosition === 'painel'
+                        ? 'border-[#3B82F6] bg-[#3B82F6]'
+                        : 'border-[#64748B]'
+                    }`}
+                  >
+                    {phonePosition === 'painel' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs block text-white">
+                      Suporte Firme do Painel (Recomendado)
+                    </span>
+                    <span className="text-[10px] text-[#94A3B8] block">
+                      Acoplamento mecânico direto ao chassi veicular
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhonePosition('bolso_outro')
+                    setInitialPhonePosition('bolso_outro')
+                  }}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 ${
+                    phonePosition === 'bolso_outro'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-sm'
+                      : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8] hover:text-[#CBD5E1]'
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      phonePosition === 'bolso_outro'
+                        ? 'border-[#3B82F6] bg-[#3B82F6]'
+                        : 'border-[#64748B]'
+                    }`}
+                  >
+                    {phonePosition === 'bolso_outro' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs block text-white">
+                      Bolso / Mochila / Outro
+                    </span>
+                    <span className="text-[10px] text-[#94A3B8] block">
+                      Atenuação biomecânica (calibrada pelo Fator K)
+                    </span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* SELEÇÃO DO MODO DE MOBILIDADE & TIPO DE VEÍCULO-SENSOR (ONDA 3) */}
@@ -1058,7 +1242,29 @@ export function RealCollectorModal({
               Fechar
             </button>
 
-            {!isCollecting && !isCalibrating ? (
+            {isPaused && (
+              <button
+                type="button"
+                onClick={resumeSession}
+                className="px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-[#10B981]/20 active:scale-95 transition-all"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                Retomar Coleta
+              </button>
+            )}
+
+            {isCollecting && (
+              <button
+                type="button"
+                onClick={pauseSession}
+                className="px-4 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-[#F59E0B]/20 active:scale-95 transition-all"
+              >
+                <Pause className="w-4 h-4 fill-white" />
+                Pausar
+              </button>
+            )}
+
+            {!isCollecting && !isCalibrating && !isPaused ? (
               <button
                 type="button"
                 onClick={startSession}

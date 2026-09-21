@@ -609,6 +609,377 @@ export default function Metodologia() {
           </div>
         </div>
 
+        {/* SEÇÃO NOVA: Arquitetura de Três Caminhos de Captura de Telemetria */}
+        <div
+          id="caminhos-captura"
+          className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6] space-y-6 scroll-mt-24"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1A2A5A]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/20 border border-[#3B82F6]/50 flex items-center justify-center text-[#3B82F6]">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-[#F8FAFC]">
+                  Caminhos de Captura de Telemetria
+                </h2>
+                <span className="text-xs text-[#94A3B8]">
+                  Arquitetura de Coleta Veicular e Ativa com Capacidades Reais por Plataforma
+                </span>
+              </div>
+            </div>
+            <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-3 py-1 rounded-full border border-[#10B981]/30 w-fit">
+              Honestidade Técnica Homologada • 3 Estratégias
+            </span>
+          </div>
+
+          <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            Para compatibilizar a realidade operacional dos municípios brasileiros com os requisitos
+            de auditoria dos Tribunais de Contas (TCEs), a plataforma ORBIS.UOS disponibiliza{' '}
+            <b>três estratégias formais de captura inercial</b>. Documentamos publicamente as
+            capacidades <b>reais</b> de cada plataforma, sem promessas fictícias de coleta em
+            segundo plano na web aberta (PWA) — restrição mandatória imposta pelos sistemas
+            operacionais móveis (Android e iOS) por segurança e economia de bateria.
+          </p>
+
+          {/* Cards dos Três Caminhos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            {/* Caminho 1 */}
+            <div className="p-5 rounded-xl bg-[#101B3A] border-2 border-[#3B82F6]/50 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-[#60A5FA] text-sm">Caminho 1</span>
+                  <span className="text-[10px] font-mono bg-[#3B82F6]/20 text-[#60A5FA] px-2 py-0.5 rounded font-bold">
+                    SDK Embutido
+                  </span>
+                </div>
+                <h3 className="font-bold text-[#F8FAFC] text-sm">SDK Embutido no App do Cliente</h3>
+                <p className="text-[#94A3B8] leading-relaxed text-[11px]">
+                  Embutimos o módulo <b>ORBIS Core SDK</b> diretamente no aplicativo institucional
+                  que o órgão municipal já possui (ex: app da bilhetagem eletrônica, app da Guarda
+                  Municipal ou app de trânsito dos agentes).
+                </p>
+                <div className="space-y-1 pt-2 border-t border-[#1A2A5A] text-[11px] font-mono">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Segundo Plano Android:</span>
+                    <span className="text-[#10B981] font-bold">✅ Serviço Foreground</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Segundo Plano iOS:</span>
+                    <span className="text-[#EF4444] font-bold">❌ Suspenso pelo SO</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Aceites do Motorista:</span>
+                    <span className="text-[#10B981] font-bold">ZERO durante o dia</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Custo de Implantação:</span>
+                    <span className="text-[#60A5FA] font-bold">Baixo-Médio (módulo)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 rounded bg-[#0A1128] border border-[#1A2A5A] text-[10px] text-[#A7F3D0]">
+                <b>Quando usar:</b> Órgão já tem app ativo na frota e quer zero atrito com o
+                motorista.
+              </div>
+            </div>
+
+            {/* Caminho 2 */}
+            <div className="p-5 rounded-xl bg-[#101B3A] border-2 border-[#10B981]/60 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-[#10B981] text-sm">Caminho 2</span>
+                  <span className="text-[10px] font-mono bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded font-bold">
+                    PWA + Wake Lock (Atual)
+                  </span>
+                </div>
+                <h3 className="font-bold text-[#F8FAFC] text-sm">PWA + Screen Wake Lock API</h3>
+                <p className="text-[#CBD5E1] leading-relaxed text-[11px]">
+                  <b>Atual, em produção no produto</b>. Coletor web progressivo com zero instalação
+                  na loja de apps. Celular fixado no suporte do painel veicular com tela travada
+                  acesa via Screen Wake Lock API e aba em primeiro plano.
+                </p>
+                <div className="space-y-1 pt-2 border-t border-[#1A2A5A] text-[11px] font-mono">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Segundo Plano (Web):</span>
+                    <span className="text-[#EF4444] font-bold">❌ Impossível na Web</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Modo de Operação:</span>
+                    <span className="text-[#10B981] font-bold">Tela Acesa no Painel</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Aceites do Motorista:</span>
+                    <span className="text-[#CBD5E1] font-bold">
+                      1/turno (Android) • 1/sessão (iOS)
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Custo de Implantação:</span>
+                    <span className="text-[#10B981] font-bold">ZERO (Sem app stores)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 rounded bg-[#0A1128] border border-[#1A2A5A] text-[10px] text-[#A7F3D0]">
+                <b>Quando usar:</b> Pilotos rápidos CPSI, frotas terceirizadas ou início sem
+                desenvolvimento.
+              </div>
+            </div>
+
+            {/* Caminho 3 */}
+            <div className="p-5 rounded-xl bg-[#101B3A] border-2 border-[#F59E0B]/50 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-[#F59E0B] text-sm">Caminho 3</span>
+                  <span className="text-[10px] font-mono bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded font-bold">
+                    App Dedicado ORBIS
+                  </span>
+                </div>
+                <h3 className="font-bold text-[#F8FAFC] text-sm">
+                  App Dedicado ORBIS (SDK Próprio)
+                </h3>
+                <p className="text-[#94A3B8] leading-relaxed text-[11px]">
+                  Aplicativo APK dedicado ORBIS para órgãos municipais sem app institucional
+                  próprio, que exijam coleta ininterrupta 24/7 sem dependência de interação da
+                  equipe de campo.
+                </p>
+                <div className="space-y-1 pt-2 border-t border-[#1A2A5A] text-[11px] font-mono">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Segundo Plano Android:</span>
+                    <span className="text-[#10B981] font-bold">✅ Serviço Foreground</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Segundo Plano iOS:</span>
+                    <span className="text-[#EF4444] font-bold">❌ Suspenso pelo SO</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Aceites do Motorista:</span>
+                    <span className="text-[#10B981] font-bold">ZERO (inicia no boot)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#94A3B8]">Custo de Implantação:</span>
+                    <span className="text-[#F59E0B] font-bold">Alto (APK, MDM, lojas)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 rounded bg-[#0A1128] border border-[#1A2A5A] text-[10px] text-[#A7F3D0]">
+                <b>Quando usar:</b> Frotas cativas municipais com tablets/celulares dedicados sob
+                MDM.
+              </div>
+            </div>
+          </div>
+
+          {/* Nota de Honestidade Técnica e Compartilhamento de SDK */}
+          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-2 text-xs">
+            <div className="flex items-center gap-2 font-bold text-white text-sm">
+              <Shield className="w-4 h-4 text-[#38BDF8]" />
+              <span>
+                Unificação Tecnológica & Nota de Honestidade Técnica Plataforma-Específica
+              </span>
+            </div>
+            <p className="text-[#CBD5E1] leading-relaxed">
+              <b>Mesmo Motor Inercial:</b> Os{' '}
+              <b>Caminhos 1 e 3 utilizam rigorosamente o mesmo SDK (ORBIS Core)</b>. A única
+              diferença é o hospedeiro do binário (um módulo importado no app já existente do
+              município vs. um aplicativo APK nativo dedicado empacotado pela ORBIS).
+            </p>
+            <div className="p-3 rounded-lg bg-[#070D1F] border border-[#EF4444]/40 text-[#FCA5A5] font-mono text-[11px] leading-relaxed">
+              <b>Declaração Pública de Transparência (iOS vs. Android):</b> No iOS (Apple), nenhum
+              caminho realiza coleta contínua 24/7 em segundo plano — trata-se de restrição
+              fundamental do sistema operacional iOS/iPadOS, que suspende o acesso contínuo aos
+              sensores inerciais (CoreMotion/DeviceMotion) para evitar consumo involuntário de
+              bateria. Essa restrição vale para qualquer desenvolvedor de software no mundo. No
+              ecossistema ORBIS: <b>Android opera com telemetria completa em segundo plano</b> via
+              Foreground Service com notificação persistente;{' '}
+              <b>iOS opera em modo turno com suporte e tela travada acesa</b> (Caminho 2 ou
+              aplicativo em primeiro plano).
+            </div>
+          </div>
+
+          {/* Especificação Wake-on-Motion em Duas Etapas */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[#070D1F] border border-[#10B981]/50 space-y-3 text-xs">
+            <div className="flex items-center gap-2 font-bold text-white text-sm">
+              <Zap className="w-4 h-4 text-[#10B981]" />
+              <span>
+                Especificação Técnica Wake-on-Motion em Duas Etapas (Correção Arquitetural)
+              </span>
+            </div>
+            <p className="text-[#CBD5E1] leading-relaxed">
+              Para preservar a bateria do dispositivo embarcado e evitar acionamentos falsos quando
+              o veículo está estacionado ou desligado, o pipeline de captura implementa o protocolo{' '}
+              <b>Wake-on-Motion em duas etapas hierárquicas</b>:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] font-mono">
+              <div className="p-3 rounded-lg bg-[#101B3A] border border-[#1A2A5A] space-y-1">
+                <span className="text-[#38BDF8] font-bold block">
+                  Etapa 1: Acelerômetro de Baixo Consumo (Low-Power Interrupt)
+                </span>
+                <p className="text-[#94A3B8]">
+                  O acelerômetro de baixo consumo (~10–20 μA) monitora vibrações contínuas. Ele{' '}
+                  <b>não mede velocidade</b> (sensores inerciais não calculam velocidade escalar
+                  veicular de forma estável). O threshold exige a detecção de{' '}
+                  <b>MOVIMENTO SUSTENTADO por ~10 segundos ininterruptos</b>.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-[#101B3A] border border-[#1A2A5A] space-y-1">
+                <span className="text-[#10B981] font-bold block">
+                  Etapa 2: Confirmação por GPS (&gt; 5 km/h)
+                </span>
+                <p className="text-[#94A3B8]">
+                  Somente após a confirmação do movimento sustentado pela Etapa 1, o circuito de
+                  alta potência de <b>GPS/Geolocalização é ligado</b>. O GPS confirma se o veículo
+                  está de fato em deslocamento viário real com <b>velocidade &gt; 5 km/h</b>. Se
+                  confirmado, a amostragem inercial a 50 Hz e o janelamento FFT entram em operação
+                  plena.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabela Comparativa dos 3 Caminhos */}
+          <div className="space-y-2">
+            <h3 className="font-bold text-[#F8FAFC] text-sm">
+              Tabela Comparativa dos 3 Caminhos de Captura
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="text-[10px] font-mono uppercase text-[#94A3B8] border-b border-[#1A2A5A] bg-[#101B3A]">
+                  <tr>
+                    <th className="py-2.5 px-3">Critério / Capacidade</th>
+                    <th className="py-2.5 px-3 text-[#60A5FA]">
+                      Caminho 1 (SDK no App do Cliente)
+                    </th>
+                    <th className="py-2.5 px-3 text-[#10B981]">
+                      Caminho 2 (PWA + Wake Lock — Atual)
+                    </th>
+                    <th className="py-2.5 px-3 text-[#F59E0B]">Caminho 3 (App Dedicado ORBIS)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1A2A5A]">
+                  <tr>
+                    <td className="py-2.5 px-3 font-semibold text-[#CBD5E1]">
+                      Segundo Plano (Background)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#CBD5E1]">
+                      <span className="text-[#10B981]">✅ Android</span> /{' '}
+                      <span className="text-[#EF4444]">❌ iOS</span>
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#EF4444]">
+                      ❌ (Não é possível na web)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#CBD5E1]">
+                      <span className="text-[#10B981]">✅ Android</span> /{' '}
+                      <span className="text-[#EF4444]">❌ iOS</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-3 font-semibold text-[#CBD5E1]">
+                      Interação / Aceites do Motorista
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">Zero durante o dia</td>
+                    <td className="py-2.5 px-3 font-mono text-[#CBD5E1]">
+                      1 no início do turno (Android) • 1 por sessão (iOS)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">
+                      Zero (auto-start no boot Android)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-3 font-semibold text-[#CBD5E1]">
+                      Custo de Distribuição / Manutenção
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#60A5FA]">
+                      Baixo-Médio (módulo em app existente)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">
+                      Zero (Web App nativo / HTTPS)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#F59E0B]">
+                      Alto (APK, homologação MDM, lojas)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-3 font-semibold text-[#CBD5E1]">
+                      Fila Offline-First (IndexedDB/SQLite)
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">✅ SQLite Nativo</td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">
+                      ✅ IndexedDB do Navegador
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-[#10B981]">✅ SQLite Nativo</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-3 font-semibold text-[#CBD5E1]">Quando Adotar</td>
+                    <td className="py-2.5 px-3 text-[#CBD5E1]">
+                      Município já tem app próprio instalado nos celulares dos servidores/motoristas
+                    </td>
+                    <td className="py-2.5 px-3 text-[#A7F3D0] font-semibold">
+                      Pilotos CPSI, demonstrações imediatas, frotas terceirizadas e zero atrito de
+                      instalação
+                    </td>
+                    <td className="py-2.5 px-3 text-[#CBD5E1]">
+                      Órgãos sem app próprio que exijam coleta contínua 24/7 em dispositivos Android
+                      corporativos
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Pipeline Detalhado do Coletor PWA (Filtros, Bandas, Limiares e Calibração) */}
+          <div className="p-5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-3 text-xs">
+            <div className="flex items-center gap-2 font-bold text-white text-sm">
+              <Activity className="w-4 h-4 text-[#38BDF8]" />
+              <span>Pipeline DSP Detalhado do Coletor PWA (Borda Ativa & FFT)</span>
+            </div>
+            <p className="text-[#CBD5E1] leading-relaxed">
+              O pipeline do coletor PWA implementa em JavaScript/TypeScript puro no navegador o
+              mesmo rigor matemático do SDK C++/Kotlin embarcado:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px]">
+              <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
+                <span className="font-bold text-[#38BDF8] block">1. Resample para 50 Hz Fixo</span>
+                <p className="text-[#94A3B8]">
+                  Compensa o jitter e a taxa variável de sensores móveis (30–100 Hz), interpolando
+                  linearmente para um passo exato de Δt = 20ms antes de alimentar a FFT Radix-2.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
+                <span className="font-bold text-[#10B981] block">2. Janela de Hann & Bandas</span>
+                <p className="text-[#94A3B8]">
+                  Elimina o <i>spectral leakage</i> com Janelamento de Hann (0.5*(1-cos)). Isola as
+                  bandas canônicas: <b>1–4 Hz</b> (resposta da suspensão/IRI) e <b>5–20 Hz</b>{' '}
+                  (impactos de anomalias).
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
+                <span className="font-bold text-[#F59E0B] block">
+                  3. Descarte de Eventos &lt;15 km/h
+                </span>
+                <p className="text-[#94A3B8]">
+                  Veículos trafegando a menos de 15 km/h não transferem energia suficiente para a
+                  suspensão. Impactos em baixíssima velocidade são descartados para evitar
+                  falso-positivo em manobras.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
+                <span className="font-bold text-[#60A5FA] block">
+                  4. Calibração em Operação Assistida
+                </span>
+                <p className="text-[#94A3B8]">
+                  O ajuste fino do Fator K do município ocorre durante a{' '}
+                  <b>Operação Assistida do Piloto CPSI</b>, calibrando as leituras contra trechos
+                  viários com IRI previamente homologado por perfilômetro laser.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 4. Motor do IMV Físico (Auditoria Inercial Contínua da Malha Viária) */}
         <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#3B82F6]/40 space-y-4">
           <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">

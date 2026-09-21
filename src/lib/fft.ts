@@ -52,6 +52,11 @@ export const FFT_BANDS_BY_MODE: Record<
   },
 }
 
+export interface BandEnergyBreakdown {
+  suspensionBandEnergyPct: number // 1–4 Hz: resposta da suspensão mecânica (correlação com IRI aproximado)
+  anomalyBandEnergyPct: number // 5–20 Hz: impacto pontual de anomalia (buraco / lombada / trilho)
+}
+
 export interface SpectrumAnalysisResult {
   bins: SpectrumBin[]
   dominantFrequency: number // Hz
@@ -60,6 +65,8 @@ export interface SpectrumAnalysisResult {
   peakMagnitude: number
   targetBandMinHz: number
   targetBandMaxHz: number
+  suspensionEnergyPct: number // 1–4 Hz
+  anomalyEnergyPct: number // 5–20 Hz
   spectralSignature:
     | 'vibracao_continua'
     | 'impacto_buraco'
@@ -94,6 +101,62 @@ export function applyHanningWindow(samples: number[]): number[] {
     windowed[i] = samples[i] * factor
   }
   return windowed
+}
+
+/**
+ * Reamostragem (Resample) temporal para taxa de amostragem fixa (ex: 50 Hz, passo dt = 20ms)
+ * usando interpolação linear contínua.
+ *
+ * Justificativa técnica: navegadores e sistemas móveis (iOS/Android) entregam
+ * eventos de `devicemotion` com jitter e taxa variável (30 Hz a 100 Hz).
+ * Uma FFT Radix-2 exige que as amostras sejam temporalmente equidistantes (Δt constante = 1/targetRateHz)
+ * para que os bins de frequência em Hz sejam física e matematicamente exatos.
+ */
+export function resampleToFixedRate(
+  samples: Array<{ timestamp: number; value: number }>,
+  targetRateHz: number = 50,
+): number[] {
+  if (samples.length < 2) {
+    return samples.map((s) => s.value)
+  }
+
+  const dtMs = 1000 / targetRateHz
+  const tStart = samples[0].timestamp
+  const tEnd = samples[samples.length - 1].timestamp
+  const durationMs = tEnd - tStart
+
+  if (durationMs <= 0) {
+    return samples.map((s) => s.value)
+  }
+
+  const outputCount = Math.floor(durationMs / dtMs) + 1
+  if (outputCount <= 1) {
+    return [samples[0].value]
+  }
+
+  const resampled: number[] = new Array(outputCount)
+  let srcIdx = 0
+
+  for (let i = 0; i < outputCount; i++) {
+    const targetT = tStart + i * dtMs
+
+    while (srcIdx < samples.length - 2 && samples[srcIdx + 1].timestamp < targetT) {
+      srcIdx++
+    }
+
+    const p0 = samples[srcIdx]
+    const p1 = samples[srcIdx + 1] || p0
+
+    const span = p1.timestamp - p0.timestamp
+    if (span <= 0) {
+      resampled[i] = p0.value
+    } else {
+      const alpha = Math.max(0, Math.min(1, (targetT - p0.timestamp) / span))
+      resampled[i] = p0.value + alpha * (p1.value - p0.value)
+    }
+  }
+
+  return resampled
 }
 
 /**
@@ -230,6 +293,23 @@ export function computeZAccelerationSpectrum(
     }
   }
 
+  // Bandas espectrais canônicas documentadas:
+  // 1–4 Hz: Resposta da suspensão do chassi (indicador direto de IRI aproximado)
+  // 5–20 Hz: Impacto mecânico de anomalia (buraco, fissura, ondulação, lombada)
+  let suspensionEnergy = 0
+  let anomalyEnergy = 0
+  for (const rb of rawBins) {
+    const p = rb.mag * rb.mag
+    if (rb.freq >= 1.0 && rb.freq <= 4.0) {
+      suspensionEnergy += p
+    }
+    if (rb.freq > 4.0 && rb.freq <= 20.0) {
+      anomalyEnergy += p
+    }
+  }
+  const suspensionPct = totalEnergy > 0 ? Math.round((suspensionEnergy / totalEnergy) * 100) : 40
+  const anomalyPct = totalEnergy > 0 ? Math.round((anomalyEnergy / totalEnergy) * 100) : 50
+
   // Interpolação para targetBinsCount (ex: 24 barras entre 0.5Hz e 25Hz)
   const bins: SpectrumBin[] = []
   const step = maxFreq / targetBinsCount
@@ -288,6 +368,8 @@ export function computeZAccelerationSpectrum(
     peakMagnitude: Number(peakMag.toFixed(2)),
     targetBandMinHz: bandConfig.minHz,
     targetBandMaxHz: bandConfig.maxHz,
+    suspensionEnergyPct: suspensionPct,
+    anomalyEnergyPct: anomalyPct,
     spectralSignature,
   }
 }

@@ -3,10 +3,17 @@ import { RoadAnomalyType, RoadSeverity, CreateRoadEventPayload } from '@/service
 import {
   computeZAccelerationSpectrum,
   extractWindowMetrics,
+  resampleToFixedRate,
   SpectrumAnalysisResult,
   WindowMetricsResult,
   FFT_BANDS_BY_MODE,
 } from '@/lib/fft'
+import {
+  saveOfflineSession,
+  getLatestPausedSession,
+  enqueueOfflineWindow,
+  OfflineSessionRecord,
+} from '@/lib/collectorOfflineDb'
 import {
   computeSegmentId,
   createSegmentReading,
@@ -20,6 +27,8 @@ import {
   ModoMobilidadeColeta,
   VEICULO_TIPOS_CONFIG,
 } from '@/services/fatorKCalibration'
+
+export type PhoneMountPosition = 'painel' | 'bolso_outro'
 
 export interface MotionSample {
   timestamp: number
@@ -59,6 +68,14 @@ export interface AggregatedWindowData {
   isPersisted: boolean
 }
 
+export interface RouteCoverageMetrics {
+  totalSessionMs: number
+  activeSensorsMs: number
+  gapsMs: number
+  coveragePct: number // % do tempo com sensores ativos vs lacunas
+  discardedLowSpeedCount: number // eventos descartados por velocidade < 15 km/h
+}
+
 export interface SessionSummary {
   durationMs: number
   distanceMeters: number
@@ -70,6 +87,9 @@ export interface SessionSummary {
   peakG: number
   modoColeta: ModoMobilidadeColeta
   indiceAlvo: 'IMV' | 'IMA'
+  phonePosition: PhoneMountPosition
+  routeCoverage: RouteCoverageMetrics
+  discardedLowSpeedCount: number
 }
 
 export interface CollectorConfig {
@@ -82,6 +102,7 @@ export interface CollectorConfig {
   veiculoTipoCanonico?: VeiculoTipoCalibracao
   modoColeta?: ModoMobilidadeColeta
   indiceAlvo?: 'IMV' | 'IMA'
+  phonePosition?: PhoneMountPosition
   veiculoId?: string
   codigoIbge?: string
   manualLat?: number
@@ -112,6 +133,27 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   // Wake Lock state
   const [isWakeLocked, setIsWakeLocked] = useState<boolean>(false)
   const [wakeLockSupported, setWakeLockSupported] = useState<boolean>(false)
+  const [wakeLockExplicitDisabled, setWakeLockExplicitDisabled] = useState<boolean>(false)
+
+  // Posição do celular na sessão de coleta (suporte do painel vs bolso/outro)
+  const [phonePosition, setPhonePosition] = useState<PhoneMountPosition>(
+    config.phonePosition || 'painel',
+  )
+
+  // Auto-retomada e suspensão de sessão (background/visibility)
+  const [canResumePrevious, setCanResumePrevious] = useState<boolean>(false)
+  const [pausedSessionData, setPausedSessionData] = useState<OfflineSessionRecord | null>(null)
+  const [isAutoPaused, setIsAutoPaused] = useState<boolean>(false)
+
+  // Indicador de cobertura de rota (% de tempo com sensores ativos vs lacunas)
+  const [routeCoverage, setRouteCoverage] = useState<RouteCoverageMetrics>({
+    totalSessionMs: 0,
+    activeSensorsMs: 0,
+    gapsMs: 0,
+    coveragePct: 100,
+    discardedLowSpeedCount: 0,
+  })
+  const [discardedLowSpeedCount, setDiscardedLowSpeedCount] = useState<number>(0)
 
   // Leituras inerciais em tempo real
   const [currentZ, setCurrentZ] = useState<number>(0) // em g
@@ -170,10 +212,18 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
 
   // Amostragem e janelamento (Edge Windowing)
   const sampleTimestampsRef = useRef<number[]>([])
+  const windowTimedSamplesRef = useRef<Array<{ timestamp: number; value: number }>>([])
   const windowZBufferRef = useRef<number[]>([])
   const windowAngularBufferRef = useRef<{ roll: number; pitch: number }[]>([])
   const lastWindowFlushRef = useRef<number>(Date.now())
   const totalDesviosSessionRef = useRef<number>(0)
+
+  // Métricas de cobertura de rota e monitoramento de lacunas (gaps)
+  const activeSensorsMsRef = useRef<number>(0)
+  const gapsMsRef = useRef<number>(0)
+  const lastSensorEventTimeRef = useRef<number>(Date.now())
+  const discardedLowSpeedRef = useRef<number>(0)
+  const sessionIdRef = useRef<string>(`SES-${Date.now().toString(36).toUpperCase()}`)
 
   // Configuração canônica do tipo / modo
   const canonicoTipo = config.veiculoTipoCanonico || 'onibus'
@@ -222,8 +272,22 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     }
   }, [])
 
-  // Wake Lock acquirer & releaser
+  // Checar se há sessão pausada no IndexedDB para auto-retomada
+  useEffect(() => {
+    getLatestPausedSession().then((session) => {
+      if (session && session.status === 'paused_background') {
+        const diffHours = (Date.now() - session.updated) / (1000 * 60 * 60)
+        if (diffHours < 12) {
+          setCanResumePrevious(true)
+          setPausedSessionData(session)
+        }
+      }
+    })
+  }, [])
+
+  // Wake Lock acquirer & releaser explícito
   const requestWakeLock = useCallback(async () => {
+    setWakeLockExplicitDisabled(false)
     if ('wakeLock' in navigator) {
       try {
         const sentinel = await (navigator as any).wakeLock.request('screen')
@@ -232,14 +296,18 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         sentinel.addEventListener('release', () => {
           setIsWakeLocked(false)
         })
+        return true
       } catch (err) {
         console.warn('Wake Lock não disponível ou negado:', err)
         setIsWakeLocked(false)
+        return false
       }
     }
+    return false
   }, [])
 
   const releaseWakeLock = useCallback(() => {
+    setWakeLockExplicitDisabled(true)
     if (wakeLockSentinelRef.current) {
       try {
         wakeLockSentinelRef.current.release()
@@ -250,6 +318,15 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       setIsWakeLocked(false)
     }
   }, [])
+
+  // Toggle explícito de Wake Lock pelo usuário
+  const toggleWakeLock = useCallback(async () => {
+    if (isWakeLocked) {
+      releaseWakeLock()
+    } else {
+      await requestWakeLock()
+    }
+  }, [isWakeLocked, releaseWakeLock, requestWakeLock])
 
   // Timer para duração de sessão
   useEffect(() => {
@@ -294,19 +371,23 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   // Processamento e fechamento de Janela de Borda (Edge Window Flush a cada ~2.5 segundos ou ~100m)
   const flushEdgeWindow = useCallback(
     async (currentSegment: string, viaName: string, bairroName: string, veiculoId: string) => {
-      const zBuffer = [...windowZBufferRef.current]
+      const timedSamples = [...windowTimedSamplesRef.current]
       const angBuffer = [...windowAngularBufferRef.current]
+      windowTimedSamplesRef.current = []
       windowZBufferRef.current = []
       windowAngularBufferRef.current = []
       lastWindowFlushRef.current = Date.now()
 
-      if (zBuffer.length < 8) return
+      if (timedSamples.length < 8) return
+
+      // Resample para frequência fixa de 50 Hz antes da FFT (taxa pedida 50 Hz vs taxa real variável)
+      const resampledZ = resampleToFixedRate(timedSamples, 50)
 
       const metrics = extractWindowMetrics(
-        zBuffer,
+        resampledZ,
         angBuffer,
         thresholdG,
-        samplingRateHz,
+        50, // Frequência rigorosamente equalizada em 50 Hz
         bandConfigFft,
       )
       setLatestWindowMetrics(metrics)
@@ -381,13 +462,24 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             prev.map((w) => (w.id === windowData.id ? { ...w, isPersisted: true } : w)),
           )
         } catch (err) {
-          console.warn('Persistência de janela no PocketBase adiada:', err)
+          console.warn(
+            'Persistência de janela no PocketBase adiada (enfileirando em IndexedDB):',
+            err,
+          )
+          // Fallback para fila offline IndexedDB
+          await enqueueOfflineWindow({
+            id: windowData.id,
+            sessionId: sessionIdRef.current,
+            timestamp: windowData.timestamp,
+            segmentoId: currentSegment,
+            payload: windowData,
+            persisted: false,
+          })
         }
       }
     },
     [
       thresholdG,
-      samplingRateHz,
       config.autoPersistWindows,
       config.veiculoTipo,
       codigoIbge,
@@ -401,6 +493,30 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
   const handleMotion = useCallback(
     (event: DeviceMotionEvent) => {
       const now = Date.now()
+
+      // Contabilizar tempo ativo de sensores vs lacunas (gap detection)
+      if (lastSensorEventTimeRef.current) {
+        const delta = now - lastSensorEventTimeRef.current
+        if (delta > 250) {
+          // Lacuna detectada (sensor suspendeu ou sofreu lag > 250ms)
+          gapsMsRef.current += delta
+        } else {
+          activeSensorsMsRef.current += delta
+        }
+      }
+      lastSensorEventTimeRef.current = now
+
+      // Atualizar métrica de cobertura de rota em tempo real
+      const totalObserved = activeSensorsMsRef.current + gapsMsRef.current
+      const covPct =
+        totalObserved > 0 ? Math.round((activeSensorsMsRef.current / totalObserved) * 100) : 100
+      setRouteCoverage({
+        totalSessionMs: totalObserved,
+        activeSensorsMs: activeSensorsMsRef.current,
+        gapsMs: gapsMsRef.current,
+        coveragePct: Math.min(100, Math.max(0, covPct)),
+        discardedLowSpeedCount: discardedLowSpeedRef.current,
+      })
 
       // Calcular cadência real de amostragem em Hz
       sampleTimestampsRef.current.push(now)
@@ -475,8 +591,12 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       setCurrentZ(roundedG)
       setPeakSessionG((prev) => Math.max(prev, absG))
 
-      // Acumular no buffer da janela
+      // Acumular no buffer da janela com timestamp explícito para o resampling a 50 Hz
+      windowTimedSamplesRef.current.push({ timestamp: now, value: roundedG })
       windowZBufferRef.current.push(roundedG)
+      if (windowTimedSamplesRef.current.length > 512) {
+        windowTimedSamplesRef.current.shift()
+      }
       if (windowZBufferRef.current.length > 512) {
         windowZBufferRef.current.shift()
       }
@@ -520,37 +640,47 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       // Detecção de impacto pontual acima do limiar
       if (!isCalibratingRef.current && absG >= thresholdG) {
         if (now - lastEventTimeRef.current > 1200) {
-          lastEventTimeRef.current = now
-          const severity = deriveSeverity(absG)
-          const tipo = deriveAnomalyType(absG)
-          const coords = coordsRef.current
-          const segId = computeSegmentId(coords.latitude, coords.longitude, codigoIbge)
+          // Descarte de eventos abaixo de ~15 km/h para veículos (sem energia de suspensão)
+          // Em modos ativos (pedestre / ciclista), a velocidade natural é baixa, então o descarte só se aplica a veículos de frota
+          const currentSpeed = speedRef.current ?? (modoAtivoEfetivo === 'veiculo_frota' ? 30 : 5)
+          const isVehicleMode = modoAtivoEfetivo === 'veiculo_frota'
 
-          const recentZ = [absG, absG * 0.8, absG * 0.5, 0.2, 0.1]
-          const quickSpec = computeZAccelerationSpectrum(recentZ, samplingRateHz, 16, bandConfigFft)
+          if (isVehicleMode && currentSpeed < 15) {
+            discardedLowSpeedRef.current += 1
+            setDiscardedLowSpeedCount(discardedLowSpeedRef.current)
+            // Descartado: veículo parado em semáforo ou manobra lenta sem excitação mecânica da suspensão
+          } else {
+            lastEventTimeRef.current = now
+            const severity = deriveSeverity(absG)
+            const tipo = deriveAnomalyType(absG)
+            const coords = coordsRef.current
+            const segId = computeSegmentId(coords.latitude, coords.longitude, codigoIbge)
 
-          const newAnomaly: DetectedAnomaly = {
-            id: `real-${now}-${Math.random().toString(36).substr(2, 5)}`,
-            timestamp: now,
-            peakG: roundedG,
-            severity,
-            tipo,
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            isApproxLocation: coords.isApprox,
-            dominantFreq: quickSpec.dominantFrequency,
-            spectralSignature: quickSpec.spectralSignature,
-            segmentoId: segId,
+            const recentZ = [absG, absG * 0.8, absG * 0.5, 0.2, 0.1]
+            const quickSpec = computeZAccelerationSpectrum(recentZ, 50, 16, bandConfigFft)
+
+            const newAnomaly: DetectedAnomaly = {
+              id: `real-${now}-${Math.random().toString(36).substr(2, 5)}`,
+              timestamp: now,
+              peakG: roundedG,
+              severity,
+              tipo,
+              latitude: coords.latitude,
+              longitude: coords.longitude,
+              isApproxLocation: coords.isApprox,
+              dominantFreq: quickSpec.dominantFrequency,
+              spectralSignature: quickSpec.spectralSignature,
+              segmentoId: segId,
+            }
+
+            setAnomalies((prev) => [newAnomaly, ...prev])
           }
-
-          setAnomalies((prev) => [newAnomaly, ...prev])
         }
       }
     },
     [
       baselineDurationMs,
       thresholdG,
-      samplingRateHz,
       deriveSeverity,
       deriveAnomalyType,
       flushEdgeWindow,
@@ -558,6 +688,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       config.bairro,
       config.veiculoTipo,
       codigoIbge,
+      modoAtivoEfetivo,
     ],
   )
 
@@ -739,6 +870,17 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     const segSet = new Set(processedWindows.map((w) => w.segmentoId))
     if (currentSegmentId) segSet.add(currentSegmentId)
 
+    const totalObserved = activeSensorsMsRef.current + gapsMsRef.current
+    const covPct =
+      totalObserved > 0 ? Math.round((activeSensorsMsRef.current / totalObserved) * 100) : 100
+    const finalCoverage: RouteCoverageMetrics = {
+      totalSessionMs: totalObserved || elapsedMs,
+      activeSensorsMs: activeSensorsMsRef.current || elapsedMs,
+      gapsMs: gapsMsRef.current,
+      coveragePct: Math.min(100, Math.max(0, covPct)),
+      discardedLowSpeedCount: discardedLowSpeedRef.current,
+    }
+
     const summary: SessionSummary = {
       durationMs: elapsedMs,
       distanceMeters: Math.round(totalDistMeters),
@@ -750,6 +892,9 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       peakG: peakSessionG,
       modoColeta: modoAtivoEfetivo,
       indiceAlvo: indiceAlvoEfetivo,
+      phonePosition,
+      routeCoverage: finalCoverage,
+      discardedLowSpeedCount: discardedLowSpeedRef.current,
     }
 
     // Persistir registro formal da sessão de campo para alimentação da Calibração do Fator K e IMA
@@ -811,6 +956,111 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     calculatedIRI,
     peakSessionG,
   ])
+
+  // Auto-retomada & detecção de suspensão de sensores / background (Page Visibility API)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Se a aba foi minimizada ou o navegador foi para segundo plano
+        if (status === 'collecting' || status === 'calibrating') {
+          // Pausa a coleta ativa e grava estado no IndexedDB
+          setIsAutoPaused(true)
+          setStatus('paused')
+          window.removeEventListener('devicemotion', handleMotion, true)
+
+          // Salvar sessão offline para retomada garantida
+          const totalMs = sessionStartTime ? Date.now() - sessionStartTime : elapsedMs
+          saveOfflineSession({
+            id: sessionIdRef.current,
+            sessionCode: sessionIdRef.current,
+            codigoIbge,
+            via: config.via || 'Via Municipal',
+            bairro: config.bairro || 'Centro',
+            linhaFrota: config.linhaFrota || 'Linha Operacional',
+            veiculoTipo: config.veiculoTipo || 'Smartphone',
+            veiculoTipoCanonico: canonicoTipo,
+            phonePosition,
+            status: 'paused_background',
+            startTime: sessionStartTime || Date.now(),
+            lastActiveTime: Date.now(),
+            pausedAt: Date.now(),
+            elapsedMs: totalMs,
+            activeSensorsMs: activeSensorsMsRef.current,
+            totalGapsMs: gapsMsRef.current,
+            windowsCount: processedWindows.length,
+            impactsCount: anomalies.length,
+            routeCoveragePct: routeCoverage.coveragePct,
+            created: sessionStartTime || Date.now(),
+            updated: Date.now(),
+          })
+        }
+      } else if (document.visibilityState === 'visible') {
+        // Retornou à aba em primeiro plano
+        if (status === 'paused' || isAutoPaused) {
+          // Re-adquirir Wake Lock se suportado e não desligado explicitamente
+          if (!wakeLockExplicitDisabled && !isWakeLocked) {
+            requestWakeLock()
+          }
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [
+    status,
+    isAutoPaused,
+    handleMotion,
+    sessionStartTime,
+    elapsedMs,
+    codigoIbge,
+    config.via,
+    config.bairro,
+    config.linhaFrota,
+    config.veiculoTipo,
+    canonicoTipo,
+    phonePosition,
+    processedWindows.length,
+    anomalies.length,
+    routeCoverage.coveragePct,
+    wakeLockExplicitDisabled,
+    isWakeLocked,
+    requestWakeLock,
+  ])
+
+  // Retomada de sessão com um toque (manual ou pós-background)
+  const resumeSession = useCallback(async () => {
+    const granted = await requestMotionPermission()
+    if (!granted) return false
+
+    if (!wakeLockExplicitDisabled) {
+      await requestWakeLock()
+    }
+
+    lastSensorEventTimeRef.current = Date.now()
+    setIsAutoPaused(false)
+    setStatus('collecting')
+    window.addEventListener('devicemotion', handleMotion, true)
+    startGpsWatch()
+
+    return true
+  }, [
+    handleMotion,
+    requestMotionPermission,
+    requestWakeLock,
+    startGpsWatch,
+    wakeLockExplicitDisabled,
+  ])
+
+  // Pausa manual
+  const pauseSession = useCallback(() => {
+    window.removeEventListener('devicemotion', handleMotion, true)
+    setStatus('paused')
+    setIsAutoPaused(false)
+    releaseWakeLock()
+  }, [handleMotion, releaseWakeLock])
 
   // Limpeza no unmount
   useEffect(() => {
@@ -889,6 +1139,18 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     speedKmh,
     startSession,
     stopSession,
+    pauseSession,
+    resumeSession,
+    requestWakeLock,
+    releaseWakeLock,
+    toggleWakeLock,
+    phonePosition,
+    setPhonePosition,
+    routeCoverage,
+    discardedLowSpeedCount,
+    isAutoPaused,
+    canResumePrevious,
+    pausedSessionData,
     setManualLocation,
     desviosContagem,
     buildEventPayload,
