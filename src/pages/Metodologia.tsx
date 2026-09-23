@@ -531,18 +531,25 @@ export default function Metodologia() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#EF4444]/40 space-y-1.5">
-                <span className="text-[#EF4444] font-bold block text-xs">
-                  1. Sinistralidade (3 Presets)
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#EF4444] font-bold block text-xs">
+                    1. Sinistralidade (3 Presets & API PRF)
+                  </span>
+                  <span className="text-[9px] font-mono text-[#EF4444] bg-[#EF4444]/15 px-1.5 py-0.5 rounded border border-[#EF4444]/30">
+                    API REST 1-Clique
+                  </span>
+                </div>
                 <p className="text-[11px] text-[#CBD5E1]">
                   Suporte nativo a <b>PRF (Polícia Rodoviária Federal)</b>,{' '}
                   <b>Corpo de Bombeiros (SIATE/CBMSC)</b> e{' '}
                   <b>CSV Livre do Órgão (SAMU, Guarda Municipal e Boletins de Ocorrência)</b>.
                 </p>
-                <span className="text-[10px] text-[#94A3B8] block">
-                  * Os schemas dos datasets estaduais e municipais são validados e homologados na
-                  implantação por município através de mapeamento assistido tolerante.
-                </span>
+                <div className="p-2 rounded bg-[#0A1128] border border-[#1A2A5A] text-[10px] text-[#94A3B8] space-y-0.5">
+                  <b className="text-[#60A5FA]">Exceção Arquitetural Documentada:</b> A PRF admite
+                  sincronização automática em tempo real via API oficial (dadosabertos.prf.gov.br)
+                  em 1 clique no Cockpit, mantendo as demais fontes por upload soberano para
+                  blindagem do runtime.
+                </div>
               </div>
 
               <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#10B981]/40 space-y-1.5">

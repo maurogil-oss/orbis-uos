@@ -39,6 +39,8 @@ import {
 } from '@/services/sinistralidadeExposicao'
 import { SinistralidadeH3Map } from '@/components/SinistralidadeH3Map'
 import { AuditTrailAuthor } from '@/services/institucionalSettings'
+import { PrfSyncModal } from '@/components/PrfSyncModal'
+import { Globe2 } from 'lucide-react'
 
 interface CamadasDadosExternosTabProps {
   sinistros: SinistroImportadoRecord[]
@@ -97,6 +99,9 @@ export function CamadasDadosExternosTab({
   const [editLat, setEditLat] = useState<string>('')
   const [editLng, setEditLng] = useState<string>('')
   const [isSavingGeocoding, setIsSavingGeocoding] = useState<boolean>(false)
+
+  // Modal de Conexão Oficial PRF via API
+  const [isPrfModalOpen, setIsPrfModalOpen] = useState<boolean>(false)
 
   // Filtros de busca na tabela
   const [searchSinistros, setSearchSinistros] = useState<string>('')
@@ -315,6 +320,17 @@ export function CamadasDadosExternosTab({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsPrfModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#EF4444] to-[#B91C1C] hover:from-[#DC2626] hover:to-[#991B1B] text-white text-xs font-bold shadow-lg shadow-[#EF4444]/25 flex items-center gap-2 border border-[#EF4444]/60 transition-all cursor-pointer"
+            >
+              <Globe2 className="w-4 h-4 text-white" />
+              <span>Sincronizar Sinistros PRF</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/30 border border-white/20">
+                API 1-Clique
+              </span>
+            </button>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#10B981]/15 border border-[#10B981]/30 text-xs font-mono font-bold text-[#10B981]">
               <Shield className="w-3.5 h-3.5" />
               <span>LGPD: Descarte de PII</span>
@@ -692,6 +708,33 @@ export function CamadasDadosExternosTab({
             </p>
           </div>
 
+          {/* Banner de Destaque: Conector PRF via API */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-[#101B3A] via-[#0A1128] to-[#101B3A] border-2 border-[#EF4444]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase bg-[#EF4444]/20 text-[#EF4444] px-2 py-0.5 rounded border border-[#EF4444]/30 font-bold">
+                  Novo Conector PRF via API
+                </span>
+                <span className="text-[10px] text-[#94A3B8]">Exceção Arquitetural Homologada</span>
+              </div>
+              <h4 className="text-sm font-bold text-[#F8FAFC]">
+                Deseja sincronizar direto da API REST da PRF em 1 clique?
+              </h4>
+              <p className="text-xs text-[#94A3B8]">
+                Consulte acidentes das BRs da região (Linha Verde BR-116, BR-277, etc.) sem precisar
+                baixar arquivo CSV manualmente.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPrfModalOpen(true)}
+              className="px-5 py-2.5 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white font-bold text-xs flex items-center gap-2 shrink-0 shadow-lg shadow-[#EF4444]/25 transition-all cursor-pointer"
+            >
+              <Globe2 className="w-4 h-4" />
+              <span>Sincronizar Sinistros PRF</span>
+            </button>
+          </div>
+
           {/* Seleção do Preset */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button
@@ -706,10 +749,10 @@ export function CamadasDadosExternosTab({
               <span className="text-xs font-mono font-bold text-[#EF4444] uppercase block">
                 Preset 1
               </span>
-              <h4 className="font-bold text-sm text-[#F8FAFC] mt-0.5">PRF (Polícia Rodoviária)</h4>
+              <h4 className="font-bold text-sm text-[#F8FAFC] mt-0.5">PRF (Arquivo CSV)</h4>
               <p className="text-[11px] text-[#94A3B8] mt-1">
-                Dataset aberto do Governo Federal (datatran): data, horário, km, br, latitude,
-                longitude, mortos, feridos.
+                Dataset aberto do Governo Federal (datatran baixado): data, horário, km, br,
+                latitude, longitude, mortos, feridos.
               </p>
             </button>
 
@@ -1501,6 +1544,16 @@ export function CamadasDadosExternosTab({
           </div>
         </div>
       )}
+
+      {/* Modal de Sincronização Direta da API PRF */}
+      <PrfSyncModal
+        isOpen={isPrfModalOpen}
+        onClose={() => setIsPrfModalOpen(false)}
+        codigoIbge="4106902"
+        municipio="Curitiba"
+        uf="PR"
+        onSyncCompleted={onDataChanged}
+      />
     </div>
   )
 }

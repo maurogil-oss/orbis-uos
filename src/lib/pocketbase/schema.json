@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-23T13:27:14.539Z",
+  "generatedAt": "2026-09-23T13:54:25.698Z",
   "collections": [
     {
       "name": "users",
@@ -1984,6 +1984,122 @@
         "CREATE INDEX idx_exposicao_ibge ON camadas_exposicao (codigo_ibge)",
         "CREATE INDEX idx_exposicao_tipo ON camadas_exposicao (tipo_camada)",
         "CREATE INDEX idx_exposicao_h3 ON camadas_exposicao (h3_index)"
+      ]
+    },
+    {
+      "name": "connectors_prf",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != '' && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "codigo_ibge",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "municipio",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "uf",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "endpoint_url",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "exercicios",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "brs_alvo",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["pronto", "sincronizando", "sucesso", "erro_conexao", "degradado"]
+        },
+        {
+          "name": "ultima_sincronizacao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_importados",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "total_descartados",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "detalhes_execucao",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operador_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operador_nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "operador_email",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_conn_prf_ibge ON connectors_prf (codigo_ibge)",
+        "CREATE INDEX idx_conn_prf_status ON connectors_prf (status)"
       ]
     }
   ]

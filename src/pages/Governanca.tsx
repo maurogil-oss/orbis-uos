@@ -194,6 +194,20 @@ const AUDIT_EVENTS_LIST = [
     escopo: 'Admin / Operador',
     compliance: 'Art. 27 LC 182/2021',
   },
+  {
+    code: 'SINISTROS_PRF_SINCRONIZADOS',
+    name: 'Sincronização de Sinistros Federais via API PRF',
+    desc: 'Disparo nominal pelo operador do conector automatizado da Polícia Rodoviária Federal (dadosabertos.prf.gov.br) com filtragem regional, saneamento de PII e indexação H3.',
+    escopo: 'Admin / Operador',
+    compliance: 'Art. 12 LGPD & PNATRANS (Lei 13.614/2018)',
+  },
+  {
+    code: 'CONECTOR_PRF_HABILITADO',
+    name: 'Habilitação Estrutural do Conector PRF',
+    desc: 'Ativação do conector PRF na governança do sistema como exceção documental única ao fluxo padrão de upload, com endpoint homologado e regras de degradação.',
+    escopo: 'SISTEMA (Migração)',
+    compliance: 'Art. 27 LC 182/2021',
+  },
 ]
 
 export default function Governanca() {
@@ -815,17 +829,17 @@ export default function Governanca() {
                 </div>
               </div>
 
-              {/* Estágio 2: Transmissão */}
+              {/* Estágio 2: Transmissão & Ingestão */}
               <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono text-[#F59E0B]">
                   <span>ESTÁGIO 2</span>
-                  <span>Offline-First</span>
+                  <span>TLS 1.3 & API PRF</span>
                 </div>
-                <h4 className="font-bold text-white text-sm">Transmissão Segura</h4>
+                <h4 className="font-bold text-white text-sm">Transmissão & Conectores</h4>
                 <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                  Fila IndexedDB no PWA com envio idempotente criptografado via TLS 1.3. O trajeto
-                  pessoal do motorista não é armazenado; enviam-se apenas leituras agregadas por
-                  segmento viário.
+                  Fila IndexedDB no PWA com envio idempotente TLS 1.3. Para dados externos, fluxo
+                  soberano com upload ou conector REST governamental direto (API Oficial PRF), com
+                  higienização imediata de dados sensíveis na borda do servidor.
                 </p>
                 <div className="text-[10px] font-mono text-[#F59E0B] bg-[#0A1128] p-2 rounded">
                   Imune a túneis e sombras de sinal 4G com sincronização posterior.
