@@ -54,6 +54,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/governanca"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#38BDF8] font-semibold"
+                >
+                  Governança Verificável (6 Peças B2G)
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/#simulador"
                   onClick={(e) => handleAnchorClick(e, '#simulador')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
@@ -205,6 +213,13 @@ export function Footer() {
               Ver Demonstração
             </Link>
             <span className="text-[#1A2A5A]">•</span>
+            <Link
+              to="/governanca"
+              className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]"
+            >
+              Governança
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
             <Link to="/metodologia" className="hover:text-[#F8FAFC] transition-colors">
               Metodologia
             </Link>
@@ -246,7 +261,7 @@ export function Footer() {
 
         {/* Versão do Sistema */}
         <div className="mt-4 text-center text-[11px] font-mono text-[#64748B]">
-          ORBIS UOS GovTech • v0.0.33 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
+          ORBIS UOS GovTech • v0.0.34 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
           Art. 12 LGPD
         </div>
       </div>

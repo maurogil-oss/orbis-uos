@@ -73,6 +73,13 @@ export function Navbar() {
   // Links secundários reunidos no menu institucional "Soluções"
   const institutionalMoreLinks = [
     {
+      label: 'Governança Verificável',
+      desc: 'Conformidade normativa, auditoria e cadeia de custódia',
+      href: '/governanca',
+      icon: Shield,
+      badge: '6 Peças',
+    },
+    {
       label: 'Metodologia',
       desc: 'Ciência de dados, IRI, FFT e k-anonimato',
       href: '/metodologia',

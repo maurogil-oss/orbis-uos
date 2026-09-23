@@ -15,6 +15,7 @@ import Operacao from './pages/Operacao'
 import Implantacao from './pages/Implantacao'
 import Homologacao from './pages/Homologacao'
 import Termos from './pages/Termos'
+import Governanca from './pages/Governanca'
 import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/sandbox" element={<Sandbox />} />
             <Route path="/interoperabilidade" element={<Interoperabilidade />} />
             <Route path="/api" element={<Interoperabilidade />} />
+            <Route path="/governanca" element={<Governanca />} />
 
             {/* Rotas Protegidas Institucionais (Exigem autenticação institucional) */}
             <Route
