@@ -90,8 +90,8 @@ const NORMATIVE_DATA: NormativeRow[] = [
     requisito:
       'Zeladoria preventiva voltada à eliminação de armadilhas viárias em trechos com alta concentração de acidentes e vulnerabilidade.',
     atendimento:
-      'Matriz de Prioridade Zero que cruza severidade de pavimento (IMV) com zonas escolares e manchas históricas de sinistros, priorizando ordens de serviço preventivas.',
-    evidenciaLink: '/metodologia#matriz-prioridade-zero',
+      'Matriz de Prioridade Zero que cruza severidade de pavimento (IMV) com zonas escolares (INEP), transporte (GTFS) e sinistralidade real com procedência declarada (PRF, Bombeiros e Boletins Municipais) ancorados em células hexagonais H3.',
+    evidenciaLink: '/metodologia',
     evidenciaLabel: 'Prioridade Zero (/metodologia)',
     status: 'Implementado',
   },
@@ -179,6 +179,20 @@ const AUDIT_EVENTS_LIST = [
     desc: 'Rotina diária automatizada de expurgo de leituras brutas (> 180 dias), preservando índices agregados por segmento.',
     escopo: 'Cron Automatizado',
     compliance: 'Art. 16 LGPD (Retenção 180d)',
+  },
+  {
+    code: 'SINISTRALIDADE_IMPORTADA',
+    name: 'Carga de Sinistralidade com Procedência Declarada',
+    desc: 'Importação assistida de sinistros viários (PRF, Bombeiros ou CSV do órgão) com sanitização de PII e ancoragem H3.',
+    escopo: 'Admin / Operador',
+    compliance: 'Metas PNATRANS & LGPD Art. 12',
+  },
+  {
+    code: 'CAMADA_EXPOSICAO_IMPORTADA',
+    name: 'Carga de Camadas de Exposição (INEP / GTFS)',
+    desc: 'Importação de polos geradores (Escolas Censo INEP e Pontos de Ônibus GTFS) com raio de influência e indexação H3.',
+    escopo: 'Admin / Operador',
+    compliance: 'Art. 27 LC 182/2021',
   },
 ]
 

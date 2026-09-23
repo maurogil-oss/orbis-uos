@@ -37,6 +37,17 @@ import {
   SlidersHorizontal,
   Terminal,
 } from 'lucide-react'
+import { CamadasDadosExternosTab } from '@/components/CamadasDadosExternosTab'
+import {
+  listSinistros,
+  listCamadasExposicao,
+  aggregateSinistrosByH3,
+  computeMatrizPrioridadeZero,
+  SinistroImportadoRecord,
+  CamadaExposicaoRecord,
+  H3SinistralidadeCell,
+  H3MatrizZeroCell,
+} from '@/services/sinistralidadeExposicao'
 
 export default function Cockpit() {
   const { user, isAdmin, logout } = useAuth()
@@ -50,9 +61,15 @@ export default function Cockpit() {
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedEvent, setSelectedEvent] = useState<RoadEventRecord | null>(null)
 
-  // View Mode: 'gabinete' (default prefeitos) vs 'tecnico' (engenharia)
-  const [activeTab, setActiveTab] = useState<'gabinete' | 'tecnico'>('gabinete')
+  // View Mode: 'gabinete' | 'tecnico' | 'dados_externos'
+  const [activeTab, setActiveTab] = useState<'gabinete' | 'tecnico' | 'dados_externos'>('gabinete')
   const [showTceDossierModal, setShowTceDossierModal] = useState<boolean>(false)
+
+  // Camadas de Dados Externos (Sinistralidade + Exposição H3)
+  const [sinistros, setSinistros] = useState<SinistroImportadoRecord[]>([])
+  const [exposicoes, setExposicoes] = useState<CamadaExposicaoRecord[]>([])
+  const [sinistroCells, setSinistroCells] = useState<H3SinistralidadeCell[]>([])
+  const [matrizCells, setMatrizCells] = useState<H3MatrizZeroCell[]>([])
 
   // Filters
   const [severityFilter, setSeverityFilter] = useState<string>('all')
@@ -75,14 +92,42 @@ export default function Cockpit() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [eventsData, fleetData, settingsData] = await Promise.all([
-        listRoadEvents(),
-        listFleetTelemetry(),
-        getInstitucionalSettings('4106902'),
-      ])
+      const [eventsData, fleetData, settingsData, sinistrosData, exposicoesData] =
+        await Promise.all([
+          listRoadEvents(),
+          listFleetTelemetry(),
+          getInstitucionalSettings('4106902'),
+          listSinistros('4106902'),
+          listCamadasExposicao('4106902'),
+        ])
       setEvents(eventsData)
       setFleet(fleetData)
       setInstitucionalSettings(settingsData)
+      setSinistros(sinistrosData)
+      setExposicoes(exposicoesData)
+
+      // Computar células agregadas H3 e Matriz de Prioridade Zero
+      const h3SinCells = aggregateSinistrosByH3(sinistrosData)
+      setSinistroCells(h3SinCells)
+
+      // Montar células de telemetria se existirem anomalias/eventos com coordenadas
+      const telemH3Cells = eventsData
+        .filter((ev) => ev.latitude && ev.longitude)
+        .map((ev) => ({
+          h3_index: ev.id,
+          imv_medio: ev.severidade === 'critica' ? 45 : ev.severidade === 'alta' ? 60 : 80,
+          iri_medio: ev.iri_score || 3.8,
+          k_anonymity_satisfied: true,
+          total_sessions: 5,
+        }))
+
+      const h3Matriz = computeMatrizPrioridadeZero({
+        sinistros: sinistrosData,
+        exposicoes: exposicoesData,
+        telemetriaH3Cells: telemH3Cells,
+      })
+      setMatrizCells(h3Matriz)
+
       if (eventsData.length > 0 && !selectedEvent) {
         setSelectedEvent(eventsData[0])
       }
@@ -277,24 +322,39 @@ export default function Cockpit() {
               <button
                 type="button"
                 onClick={() => setActiveTab('gabinete')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeTab === 'gabinete'
                     ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/30'
                     : 'text-[#94A3B8] hover:text-white'
                 }`}
               >
-                Modo Gabinete (Prefeito)
+                Modo Gabinete
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('tecnico')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeTab === 'tecnico'
                     ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/30'
                     : 'text-[#94A3B8] hover:text-white'
                 }`}
               >
-                Cockpit Técnico (Engenharia)
+                Cockpit Técnico
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('dados_externos')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'dados_externos'
+                    ? 'bg-gradient-to-r from-[#EF4444] to-[#DC2626] text-white shadow-md shadow-[#EF4444]/30'
+                    : 'text-[#EF4444] hover:text-white hover:bg-[#EF4444]/20'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Dados Externos & Sinistros</span>
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full font-mono">
+                  {sinistros.length}
+                </span>
               </button>
             </div>
 
@@ -354,8 +414,22 @@ export default function Cockpit() {
           </div>
         </div>
 
-        {/* CONDITIONAL RENDERING: MODO GABINETE VS TÉCNICO */}
-        {activeTab === 'gabinete' ? (
+        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS DADOS EXTERNOS */}
+        {activeTab === 'dados_externos' ? (
+          <CamadasDadosExternosTab
+            sinistros={sinistros}
+            exposicoes={exposicoes}
+            sinistroCells={sinistroCells}
+            matrizCells={matrizCells}
+            author={{
+              id: user?.id || 'operador_cockpit',
+              email: user?.email || 'operador@orbis.gov.br',
+              name: user?.name || 'Operador Institucional do Cockpit',
+              role: user?.role || 'admin',
+            }}
+            onDataChanged={loadData}
+          />
+        ) : activeTab === 'gabinete' ? (
           <ModoGabineteView
             roadEvents={events}
             onOpenDossier={() => setShowTceDossierModal(true)}

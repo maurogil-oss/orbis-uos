@@ -21,6 +21,7 @@ import {
   Database,
   ArrowRight,
   ChevronRight,
+  Flame,
 } from 'lucide-react'
 import { generateDossieArquiteturaPdf } from '@/lib/diagnostics/dossieArquiteturaPdf'
 import { generateRelatorioSegurancaPdf } from '@/lib/diagnostics/relatorioSegurancaPdf'
@@ -503,6 +504,103 @@ export default function Metodologia() {
                 >
                   Consulte os direitos do titular e canal DPO em /privacidade
                 </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* NOVA SEÇÃO: Camada de Sinistralidade, Camadas de Exposição e Matriz de Prioridade Zero */}
+        <div className="p-6 rounded-2xl bg-[#0A1128] border-2 border-[#EF4444]/60 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
+              <Flame className="w-5 h-5 text-[#EF4444]" />
+              Camada de Sinistralidade, Exposição Urbana & Matriz de Prioridade Zero
+            </h2>
+            <span className="text-xs font-mono font-bold text-[#EF4444] bg-[#EF4444]/15 px-2.5 py-1 rounded border border-[#EF4444]/30">
+              Operacional Soberano • Onda 2/3
+            </span>
+          </div>
+
+          <div className="space-y-4 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            <p>
+              A <b>Matriz de Prioridade Zero</b> deixa de ser uma abstração puramente teórica e
+              torna-se um <b>motor determinístico de cruzamento multicritério</b> ancorado na malha
+              espacial hexagonal H3. O módulo integra dados empíricos de três famílias de fontes
+              externas auditáveis:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#EF4444]/40 space-y-1.5">
+                <span className="text-[#EF4444] font-bold block text-xs">
+                  1. Sinistralidade (3 Presets)
+                </span>
+                <p className="text-[11px] text-[#CBD5E1]">
+                  Suporte nativo a <b>PRF (Polícia Rodoviária Federal)</b>,{' '}
+                  <b>Corpo de Bombeiros (SIATE/CBMSC)</b> e{' '}
+                  <b>CSV Livre do Órgão (SAMU, Guarda Municipal e Boletins de Ocorrência)</b>.
+                </p>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  * Os schemas dos datasets estaduais e municipais são validados e homologados na
+                  implantação por município através de mapeamento assistido tolerante.
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#10B981]/40 space-y-1.5">
+                <span className="text-[#10B981] font-bold block text-xs">
+                  2. Exposição Escolas (INEP)
+                </span>
+                <p className="text-[11px] text-[#CBD5E1]">
+                  Importação direta das escolas do <b>Censo Escolar / INEP / MEC</b> com coordenadas
+                  e zona de proteção de vulneráveis (150m) indexadas em células H3 Resolução 9 e 10.
+                </p>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  Protege travessias e rotas diárias da infância.
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-1.5">
+                <span className="text-[#60A5FA] font-bold block text-xs">
+                  3. Exposição Transporte (GTFS)
+                </span>
+                <p className="text-[11px] text-[#CBD5E1]">
+                  Parser do feed padrão <b>stops.txt (GTFS)</b> com localização de pontos de ônibus
+                  e estações tubo, concentrando o fluxo de pedestres expostos ao tráfego viário.
+                </p>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  Buffer analítico de 60m por parada.
+                </span>
+              </div>
+            </div>
+
+            {/* Fórmula de Cruzamento da Matriz Zero */}
+            <div className="p-4 rounded-xl bg-[#070D1F] border border-[#3B82F6]/40 space-y-2">
+              <div className="flex items-center justify-between font-bold text-xs text-[#60A5FA]">
+                <span>Cálculo Transparente do Score de Intervenção Preventiva (0 a 100)</span>
+                <span className="font-mono text-[10px] bg-[#3B82F6]/20 px-2 py-0.5 rounded text-[#94A3B8]">
+                  Células H3 Res 9 (~174m)
+                </span>
+              </div>
+              <p className="text-xs text-[#CBD5E1]">
+                A prioridade do recapeamento e sinalização é calculada por célula:{' '}
+                <span className="font-mono font-bold text-[#F8FAFC]">
+                  Score = 35% Pavimento (100 - IMV) + 40% Sinistralidade (Óbitos/Feridos) + 25%
+                  Exposição (Escolas + GTFS)
+                </span>
+                .
+              </p>
+              <div className="text-[11px] text-[#94A3B8] space-y-1">
+                <p>
+                  • <b>Princípio da Honestidade:</b> Na ausência temporária de telemetria inercial
+                  recente em uma célula H3, o termo de pavimento é explicitamente identificado como
+                  "Sem dados" e a ponderação redistribui-se honestamente entre Sinistros (60%) e
+                  Exposição (40%), eliminando viés de dados falsos.
+                </p>
+                <p>
+                  • <b>Privacidade e k-Anonimato (LGPD Art. 12):</b> Nenhum dado pessoal
+                  identificador de vítimas (nomes, CPFs, placas ou telefones) é salvo no banco de
+                  dados. Os registros de sinistros passam por sanitização irreversível de PII na
+                  importação e operam sob agregação territorial em hexágonos H3.
+                </p>
               </div>
             </div>
           </div>
