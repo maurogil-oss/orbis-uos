@@ -80,6 +80,13 @@ export function Navbar() {
       badge: '6 Peças',
     },
     {
+      label: 'Painel de Status & Uptime',
+      desc: 'Monitoramento ativo 24/7, latência e evidência de SLA',
+      href: '/status',
+      icon: Activity,
+      badge: '99,9% SLA',
+    },
+    {
       label: 'Metodologia',
       desc: 'Ciência de dados, IRI, FFT e k-anonimato',
       href: '/metodologia',

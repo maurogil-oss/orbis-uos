@@ -62,6 +62,15 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/status"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#10B981] font-semibold"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>Painel de Disponibilidade & Status (/status)</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/#simulador"
                   onClick={(e) => handleAnchorClick(e, '#simulador')}
                   className="hover:text-[#F8FAFC] transition-colors inline-block"
@@ -218,6 +227,10 @@ export function Footer() {
               className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]"
             >
               Governança
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link to="/status" className="hover:text-[#F8FAFC] transition-colors text-[#10B981]">
+              Status
             </Link>
             <span className="text-[#1A2A5A]">•</span>
             <Link to="/metodologia" className="hover:text-[#F8FAFC] transition-colors">

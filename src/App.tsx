@@ -16,6 +16,7 @@ import Implantacao from './pages/Implantacao'
 import Homologacao from './pages/Homologacao'
 import Termos from './pages/Termos'
 import Governanca from './pages/Governanca'
+import Status from './pages/Status'
 import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
 import PortalCidadao from './pages/PortalCidadao'
@@ -55,6 +56,8 @@ const App = () => (
             <Route path="/interoperabilidade" element={<Interoperabilidade />} />
             <Route path="/api" element={<Interoperabilidade />} />
             <Route path="/governanca" element={<Governanca />} />
+            <Route path="/status" element={<Status />} />
+            <Route path="/disponibilidade" element={<Status />} />
 
             {/* Rotas Protegidas Institucionais (Exigem autenticação institucional) */}
             <Route

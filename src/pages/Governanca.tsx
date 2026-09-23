@@ -699,7 +699,7 @@ export default function Governanca() {
                 step: '04',
                 title: 'Correção',
                 time: 'RTO máx. 24h',
-                desc: 'Restauração de dados a partir do backup diário ou hotfix emergencial. Em ensaio formal, RTO aferido foi de 1,45s.',
+                desc: 'Restauração de dados a partir do backup diário ou hotfix emergencial. Em ensaio formal, RTO aferido foi de 1,45s. Acompanhe a saúde contínua em /status.',
                 color: 'border-[#10B981]/40 bg-[#0A1128]',
                 textColor: 'text-[#10B981]',
               },
@@ -734,25 +734,34 @@ export default function Governanca() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
                 <span className="text-xs font-bold uppercase font-mono text-[#10B981]">
-                  Ensaio Oficial de Restauração Auditado
+                  Ensaio Oficial de Restauração Auditado & Monitoramento Ativo
                 </span>
               </div>
               <h4 className="text-base font-bold text-white">
                 RTO Contratual: 24 Horas • RTO Real Auditado em Produção: 1,45 Segundo
               </h4>
               <p className="text-xs text-[#94A3B8] leading-relaxed">
-                A política de backup com retenção de 30 dias em repouso e execução do teste de
-                restauração (protocolo ORBIS-RESTORE-TEST-2026-001) garantem que a continuidade não
-                é apenas um documento teórico, mas uma rotina testada com PRAGMA integrity_check.
+                A política de backup com retenção em repouso, execução de teste de restauração
+                (protocolo ORBIS-RESTORE-TEST-2026-001) e o monitoramento ativo com sondas a cada 5
+                minutos garantem que a continuidade é verificável em tempo real.
               </p>
             </div>
-            <Link
-              to="/operacao"
-              className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] transition-all flex items-center justify-center gap-1.5 shrink-0"
-            >
-              <span>Ver Pacote Operacional (/operacao)</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Link
+                to="/status"
+                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Painel /status</span>
+                <Activity className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/operacao"
+                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Pacote Operacional (/operacao)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -1079,6 +1088,10 @@ export default function Governanca() {
             <span>•</span>
             <Link to="/operacao" className="hover:text-[#94A3B8] transition-colors">
               Operação
+            </Link>
+            <span>•</span>
+            <Link to="/status" className="hover:text-[#94A3B8] transition-colors">
+              Status
             </Link>
             <span>•</span>
             <a href="#conformidade-normativa" className="text-[#38BDF8] hover:underline">

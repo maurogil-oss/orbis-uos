@@ -231,7 +231,7 @@ export default function Operacao() {
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="font-mono text-[#60A5FA] select-all">
                   contato@orbis-uos.gov.br
-                </span>
+                </span>{' '}
                 <button
                   type="button"
                   onClick={handleCopyEmail}
@@ -317,6 +317,80 @@ export default function Operacao() {
             </p>
           </a>
         </div>
+
+        {/* =================================================================== */}
+        {/* SEÇÃO COMPLEMENTAR: MONITORAMENTO ATIVO & PAINEL DE STATUS (/status) */}
+        {/* =================================================================== */}
+        <section
+          id="monitoramento-ativo"
+          className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#0A1128] via-[#101B3A] to-[#0A1128] border-2 border-[#3B82F6]/50 space-y-6 scroll-mt-24 shadow-xl"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#1A2A5A]">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#3B82F6]/20 border border-[#3B82F6]/40 text-xs font-mono font-bold text-[#38BDF8]">
+                <Activity className="w-3.5 h-3.5" />
+                CONTINUIDADE VERIFICÁVEL EM TEMPO REAL
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
+                Monitoramento Ativo 24/7 & Painel Público (/status)
+              </h2>
+            </div>
+            <Link
+              to="/status"
+              className="px-4 py-2 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto shrink-0"
+            >
+              <span>Acessar Painel /status</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="space-y-4 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            <p>
+              Em complemento à <b>Política de Backup Diário</b> e ao <b>RTO de 24 horas</b> (aferido
+              em 1,45s no ensaio formal), o ORBIS UOS implementa <b>monitoramento ativo contínuo</b>{' '}
+              via sondas automáticas agendadas (<code>cronAdd health_check_5min</code>) que testam
+              as rotas críticas da aplicação, a integridade física do SQLite WAL e as APIs de
+              interoperabilidade B2G a cada 5 minutos.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#38BDF8]" />
+                  Cadência Contínua de 5 Minutos
+                </span>
+                <p className="text-[#94A3B8] leading-relaxed">
+                  Registros agregados na collection soberana <code>health_checks</code> com carimbo
+                  de data/hora, código de status HTTP e latência medida em milissegundos.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-[#F59E0B]" />
+                  Alertas Automáticos de SLA
+                </span>
+                <p className="text-[#94A3B8] leading-relaxed">
+                  Disparo de e-mail institucional e registro de evento{' '}
+                  <code>HEALTH_CHECK_ALERT_TRIGGERED</code> se houver 3 falhas consecutivas ou queda
+                  do uptime 24h abaixo de 99,5%.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-[#10B981]" />
+                  Transparência Pública Aberta
+                </span>
+                <p className="text-[#94A3B8] leading-relaxed">
+                  O painel aberto em <code>/status</code> expõe uptime das últimas 24h, 48h e 72h,
+                  latência média e estado dos 4 componentes da arquitetura para cidadãos e órgãos de
+                  controle.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* =================================================================== */}
         {/* DOCUMENTO 1: POLÍTICA DE BACKUP E RESTAURAÇÃO                       */}
@@ -1002,14 +1076,24 @@ export default function Operacao() {
         </div>
 
         {/* Botão de Retorno */}
-        <div className="pt-2 flex items-center justify-between text-xs">
-          <Link
-            to="/"
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white flex items-center gap-1.5 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Voltar para a página inicial
-          </Link>
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="text-xs font-semibold text-[#CBD5E1] hover:text-white flex items-center gap-1.5 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Voltar para a página inicial
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link
+              to="/status"
+              className="text-xs font-semibold text-[#10B981] hover:underline flex items-center gap-1"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Painel de Disponibilidade (/status)</span>
+            </Link>
+          </div>
           <span className="text-[#64748B] font-mono text-[11px]">
             ORBIS.UOS • Pacote Operacional Homologado • Release v0.0.29
           </span>
