@@ -79,7 +79,7 @@ export async function generatePacoteOperacionalPdf(
       {
         id: 'POL-OPS-03',
         titulo: 'Política de Suporte Técnico, SLAs e Gestão de Incidentes',
-        canalOficial: 'contato@orbis-uos.gov.br',
+        canalOficial: 'contato@orbis-uos.com.br',
         horarioAtendimento: 'Segunda a Sexta-feira, das 08h00 às 18h00 (Horário de Brasília - BRT)',
         niveisSla: {
           P1_critico: 'Resposta em até 4 horas úteis',
@@ -634,7 +634,7 @@ export async function generatePacoteOperacionalPdf(
         <div class="highlight-box">
           <b>Canais Oficiais de Atendimento & Horário de Funcionamento:</b>
           <div style="margin-top: 5px; font-size: 10.5px;">
-            • <b>Canal Oficial de E-mail de Incidentes:</b> <code style="font-weight: bold; color: #1D4ED8;">contato@orbis-uos.gov.br</code> (canal padronizado e unificado com a Política de Privacidade)<br>
+            • <b>Canal Oficial de E-mail de Incidentes:</b> <code style="font-weight: bold; color: #1D4ED8;">contato@orbis-uos.com.br</code> (canal padronizado e unificado com a Política de Privacidade)<br>
             • <b>Horário Padrão de Atendimento:</b> Segunda a Sexta-feira, das 08h00 às 18h00 (Horário Oficial de Brasília - BRT), exceto feriados nacionais.<br>
             • <b>Plantão de Monitoramento P1:</b> Monitoramento automatizado de disponibilidade 24x7 para eventos de parada crítica do serviço.
           </div>

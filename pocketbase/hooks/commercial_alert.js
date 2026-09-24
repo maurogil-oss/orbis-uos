@@ -4,7 +4,7 @@
 // REQUISITOS:
 // 1. Gatilho: onRecordAfterCreateSuccess('leads') e onRecordAfterCreateSuccess('express_diagnostics')
 // 2. Canal: Envio transacional de e-mail via $app.newMailClient() com fallback de log
-// 3. Destinatários: secret COMMERCIAL_ALERT_EMAILS ou ORBIS_COMERCIAL_EMAIL ou institucional@orbis.gov.br
+// 3. Destinatários: secret COMMERCIAL_ALERT_EMAILS ou ORBIS_COMERCIAL_EMAIL ou comercial@orbis-uos.com.br
 // 4. Se falhar, NÃO quebrar a captura do lead (try/catch seguro)
 
 onRecordAfterCreateSuccess((e) => {
@@ -28,13 +28,13 @@ onRecordAfterCreateSuccess((e) => {
     const envDest =
       $os.getenv('COMMERCIAL_ALERT_EMAILS') ||
       $os.getenv('ORBIS_COMERCIAL_EMAIL') ||
-      'comercial@orbis.gov.br'
+      'comercial@orbis-uos.com.br'
     const recipients = envDest
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)
 
-    const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis.gov.br'
+    const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis-uos.com.br'
     const senderName = $app.settings()?.meta?.senderName || 'ORBIS.UOS Comercial'
 
     const htmlBody = `
@@ -116,13 +116,13 @@ onRecordAfterCreateSuccess((e) => {
     const envDest =
       $os.getenv('COMMERCIAL_ALERT_EMAILS') ||
       $os.getenv('ORBIS_COMERCIAL_EMAIL') ||
-      'comercial@orbis.gov.br'
+      'comercial@orbis-uos.com.br'
     const recipients = envDest
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)
 
-    const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis.gov.br'
+    const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis-uos.com.br'
     const senderName = $app.settings()?.meta?.senderName || 'ORBIS.UOS Comercial'
 
     const htmlBody = `

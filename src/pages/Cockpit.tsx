@@ -423,7 +423,7 @@ export default function Cockpit() {
             matrizCells={matrizCells}
             author={{
               id: user?.id || 'operador_cockpit',
-              email: user?.email || 'operador@orbis.gov.br',
+              email: user?.email || 'operador@orbis-uos.com.br',
               name: user?.name || 'Operador Institucional do Cockpit',
               role: user?.role || 'admin',
             }}

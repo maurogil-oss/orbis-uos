@@ -119,7 +119,7 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
             <div>
               <h2 className="text-base sm:text-lg font-bold text-[#F8FAFC]">Alterar Minha Senha</h2>
               <span className="text-xs text-[#94A3B8]">
-                Conta institucional: <b>{user?.email || 'servidor@orbis.gov.br'}</b>
+                Conta institucional: <b>{user?.email || 'servidor@orbis-uos.com.br'}</b>
               </span>
             </div>
           </div>

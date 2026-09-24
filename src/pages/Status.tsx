@@ -483,7 +483,7 @@ export default function Status() {
                   </strong>
                   <p className="text-[11px] text-[#94A3B8] mt-0.5">
                     Disparo instantâneo de e-mail institucional para{' '}
-                    <code>contato@orbis-uos.gov.br</code> e registro do evento{' '}
+                    <code>contato@orbis-uos.com.br</code> e registro do evento{' '}
                     <code>HEALTH_CHECK_ALERT_TRIGGERED</code> na trilha de auditoria.
                   </p>
                 </div>
@@ -588,8 +588,8 @@ export default function Status() {
         <div className="pt-4 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#64748B] font-mono">
           <div>
             ORBIS UOS GovTech • Painel de Monitoramento Ativo (/status) • Canal:{' '}
-            <a href="mailto:contato@orbis-uos.gov.br" className="text-[#38BDF8] underline">
-              contato@orbis-uos.gov.br
+            <a href="mailto:contato@orbis-uos.com.br" className="text-[#38BDF8] underline">
+              contato@orbis-uos.com.br
             </a>
           </div>
           <div className="flex items-center gap-3">

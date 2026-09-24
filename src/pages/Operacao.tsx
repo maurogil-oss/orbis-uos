@@ -37,7 +37,7 @@ export default function Operacao() {
   const [copiedEmail, setCopiedEmail] = useState(false)
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('contato@orbis-uos.gov.br')
+    navigator.clipboard.writeText('contato@orbis-uos.com.br')
     setCopiedEmail(true)
     setTimeout(() => setCopiedEmail(false), 2500)
   }
@@ -230,7 +230,7 @@ export default function Operacao() {
               </span>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="font-mono text-[#60A5FA] select-all">
-                  contato@orbis-uos.gov.br
+                  contato@orbis-uos.com.br
                 </span>{' '}
                 <button
                   type="button"
@@ -917,11 +917,11 @@ export default function Operacao() {
                 </p>
                 <div className="flex items-center gap-2 pt-1">
                   <a
-                    href="mailto:contato@orbis-uos.gov.br?subject=[INCIDENTE%20OPERACIONAL]%20Orbis%20UOS"
-                    className="font-mono text-sm font-bold text-[#38BDF8] hover:underline"
+                    href="mailto:contato@orbis-uos.com.br?subject=[INCIDENTE%20OPERACIONAL]%20Orbis%20UOS"
+                    className="font-mono text-[#38BDF8] hover:underline font-bold"
                   >
-                    contato@orbis-uos.gov.br
-                  </a>
+                    contato@orbis-uos.com.br
+                  </a>{' '}
                   <button
                     type="button"
                     onClick={handleCopyEmail}

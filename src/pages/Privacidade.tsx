@@ -32,7 +32,7 @@ export default function Privacidade() {
   const [formSent, setFormSent] = useState(false)
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('contato@orbis-uos.gov.br')
+    navigator.clipboard.writeText('contato@orbis-uos.com.br')
     setCopiedEmail(true)
     setTimeout(() => setCopiedEmail(false), 2500)
   }
@@ -107,7 +107,7 @@ export default function Privacidade() {
               </span>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="font-mono text-[#60A5FA] select-all">
-                  contato@orbis-uos.gov.br
+                  contato@orbis-uos.com.br
                 </span>
                 <button
                   type="button"
@@ -630,10 +630,10 @@ export default function Privacidade() {
                 </span>
                 <div className="flex items-center justify-between gap-2">
                   <a
-                    href="mailto:contato@orbis-uos.gov.br?subject=Solicitacao%20LGPD%20Titular%20de%20Dados"
+                    href="mailto:contato@orbis-uos.com.br?subject=Solicitacao%20LGPD%20Titular%20de%20Dados"
                     className="font-mono text-sm text-[#38BDF8] hover:underline font-bold break-all"
                   >
-                    contato@orbis-uos.gov.br
+                    contato@orbis-uos.com.br
                   </a>
                   <button
                     type="button"

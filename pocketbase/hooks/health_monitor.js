@@ -2,7 +2,7 @@
 // 1. Job Agendado de Health Check (a cada 5 minutos via cronAdd 'health_check_5min', '*/5 * * * *')
 // 2. Verifica rotas críticas da aplicação, integridade do banco SQLite e APIs de interoperabilidade
 // 3. Registra latência_ms, HTTP status e ok na collection health_checks
-// 4. Dispara e-mail de alerta para o canal institucional contato@orbis-uos.gov.br caso:
+// 4. Dispara e-mail de alerta para o canal institucional contato@orbis-uos.com.br caso:
 //    - Uma verificação falhe 3 vezes consecutivas; OU
 //    - O uptime das últimas 24h caia abaixo de 99,5%
 // 5. Registra evento de alerta (HEALTH_CHECK_ALERT_TRIGGERED) na trilha de auditoria em institucional_settings (autoria SISTEMA)
@@ -173,8 +173,8 @@ cronAdd('health_check_5min', '*/5 * * * *', () => {
       )
 
       // 1. Enviar e-mail de alerta institucional
-      const alertRecipients = ['contato@orbis-uos.gov.br']
-      const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis.gov.br'
+      const alertRecipients = ['contato@orbis-uos.com.br']
+      const senderEmail = $app.settings()?.meta?.senderAddress || 'noreply@orbis-uos.com.br'
       const senderName = $app.settings()?.meta?.senderName || 'ORBIS.UOS Monitoramento Ativo'
 
       const alertReason = triggerConsecutiveAlert
@@ -190,7 +190,7 @@ cronAdd('health_check_5min', '*/5 * * * *', () => {
             <tr><td style="padding: 6px 0; color: #94A3B8; width: 180px;"><strong>Motivo do Alerta:</strong></td><td style="color: #F87171; font-weight: bold;">${alertReason}</td></tr>
             <tr><td style="padding: 6px 0; color: #94A3B8;"><strong>Uptime 24h Calculado:</strong></td><td style="color: #F8FAFC;">${uptime24hPct.toFixed(2)}%</td></tr>
             <tr><td style="padding: 6px 0; color: #94A3B8;"><strong>Data / Hora (UTC):</strong></td><td style="color: #F8FAFC;">${nowIso}</td></tr>
-            <tr><td style="padding: 6px 0; color: #94A3B8;"><strong>Canal Institucional:</strong></td><td style="color: #60A5FA;">contato@orbis-uos.gov.br</td></tr>
+            <tr><td style="padding: 6px 0; color: #94A3B8;"><strong>Canal Institucional:</strong></td><td style="color: #60A5FA;">contato@orbis-uos.com.br</td></tr>
             <tr><td style="padding: 6px 0; color: #94A3B8;"><strong>Painel Público:</strong></td><td style="color: #38BDF8;"><a href="/status" style="color: #38BDF8;">/status</a></td></tr>
           </table>
           <div style="margin-top: 20px; padding: 12px; background: #0A1128; border-radius: 8px; border: 1px solid #EF4444; font-size: 12px; color: #FCA5A5;">
@@ -236,7 +236,7 @@ cronAdd('health_check_5min', '*/5 * * * *', () => {
             event: 'HEALTH_CHECK_ALERT_TRIGGERED',
             author: {
               id: 'system_health_monitor',
-              email: 'sistema@orbis.gov.br',
+              email: 'sistema@orbis-uos.com.br',
               name: 'SISTEMA (Monitoramento Ativo 5min)',
               role: 'system',
             },
@@ -247,7 +247,7 @@ cronAdd('health_check_5min', '*/5 * * * *', () => {
               threshold_consecutive: 3,
               threshold_min_uptime: 99.5,
               action_taken:
-                'Alerta enviado para contato@orbis-uos.gov.br e registrado no Livro de Incidentes',
+                'Alerta enviado para contato@orbis-uos.com.br e registrado no Livro de Incidentes',
               public_status_page: '/status',
             },
             compliance: 'Art. 27 LC 182/2021 & Compromisso de Continuidade B2G (/operacao)',
@@ -481,7 +481,7 @@ routerAdd('GET', '/backend/v1/public/status', (e) => {
     total_verificacoes_registradas: totalAll,
     componentes: componentesArray,
     timeline_historica: timeline.slice(-72), // até 72 pontos horários
-    canal_suporte: 'contato@orbis-uos.gov.br',
+    canal_suporte: 'contato@orbis-uos.com.br',
     ambiente: 'Skip Cloud Produção B2G',
   })
 })

@@ -36,7 +36,7 @@ routerAdd(
     const authUser = e.auth
     const operadorId = authUser ? authUser.id : 'sistema_conector'
     const operadorNome = authUser ? authUser.getString('name') : 'Operador Institucional'
-    const operadorEmail = authUser ? authUser.getString('email') : 'operador@orbis.gov.br'
+    const operadorEmail = authUser ? authUser.getString('email') : 'operador@orbis-uos.com.br'
     const operadorRole = authUser ? authUser.getString('role') : 'operador'
 
     // 1. Atualizar ou recuperar registro em 'connectors_prf'

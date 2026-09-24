@@ -183,10 +183,10 @@ export function Footer() {
                 <Mail className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />
                 <div>
                   <a
-                    href="mailto:contato@orbis-uos.gov.br"
+                    href="mailto:contato@orbis-uos.com.br"
                     className="hover:text-[#F8FAFC] transition-colors break-all font-mono font-medium text-[#38BDF8]"
                   >
-                    contato@orbis-uos.gov.br
+                    contato@orbis-uos.com.br
                   </a>
                   <span className="block text-xs text-[#94A3B8] mt-0.5">
                     Resposta em até 2 dias úteis (SLA P3)
@@ -217,6 +217,31 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-14 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]/80">
           <p>© {new Date().getFullYear()} Orbis UOS GovTech. Todos os direitos reservados.</p>
+          <div className="text-[11px] text-[#94A3B8]">
+            Domínio Oficial:{' '}
+            <a
+              href="https://www.orbis-uos.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#38BDF8] hover:underline font-mono"
+            >
+              https://www.orbis-uos.com.br
+            </a>{' '}
+            • Canal:{' '}
+            <a
+              href="mailto:contato@orbis-uos.com.br"
+              className="text-[#38BDF8] hover:underline font-mono"
+            >
+              contato@orbis-uos.com.br
+            </a>{' '}
+            • DPO:{' '}
+            <a
+              href="mailto:privacidade@orbis-uos.com.br"
+              className="text-[#38BDF8] hover:underline font-mono"
+            >
+              privacidade@orbis-uos.com.br
+            </a>
+          </div>
           <div className="flex items-center gap-6">
             <Link to="/demo" className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]">
               Ver Demonstração

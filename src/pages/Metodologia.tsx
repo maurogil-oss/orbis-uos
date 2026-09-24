@@ -1222,7 +1222,7 @@ export default function Metodologia() {
                 <span>3. Suporte & SLAs</span>
               </div>
               <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                Canal oficial <code>contato@orbis-uos.gov.br</code>, atendimento em horário
+                Canal oficial <code>contato@orbis-uos.com.br</code>, atendimento em horário
                 comercial (08h às 18h BRT) e matriz de SLA: P1 em 4h úteis, P2 em 8h úteis e P3 em 2
                 dias úteis. Harmonizado com o Art. 48 da LGPD em <code>/privacidade</code>.
               </p>

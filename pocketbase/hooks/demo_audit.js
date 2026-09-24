@@ -48,7 +48,7 @@ routerAdd('POST', '/backend/v1/public/demo-start', (e) => {
         event: 'DEMO_STARTED',
         author: {
           id: 'public_demo_visitor',
-          email: 'visitante.demo@orbis.gov.br',
+          email: 'visitante.demo@orbis-uos.com.br',
           name: 'SISTEMA (Modo Demonstração Orientada)',
           role: 'system',
         },

@@ -57,7 +57,7 @@ cronAdd('telemetry_purge_180d', '30 6 * * *', () => {
         event: 'TELEMETRY_RAW_PURGE_EXECUTED',
         author: {
           id: 'system_cron_job',
-          email: 'sistema@orbis.gov.br',
+          email: 'sistema@orbis-uos.com.br',
           name: 'SISTEMA (Job Agendado 03h30 BRT)',
           role: 'system',
         },

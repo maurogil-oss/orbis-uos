@@ -413,8 +413,9 @@ export default function Homologacao() {
                 <span className="font-mono text-[#60A5FA] font-bold">3 registros</span>
               </div>
               <p className="text-[11px] text-[#94A3B8]">
-                2 administradores (maurog1@hotmail.com e institucional@orbis.gov.br) e 1 operador
-                (operador@orbis.gov.br). Bloqueio total de auto-registro anônimo via RLS.
+                2 administradores (maurog1@hotmail.com e institucional@orbis-uos.com.br) e 1
+                operador (operador@orbis-uos.com.br). Bloqueio total de auto-registro anônimo via
+                RLS.
               </p>
             </div>
 

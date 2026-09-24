@@ -238,7 +238,7 @@ export async function getSystemStatus(): Promise<SystemStatusData> {
         total_verificacoes_registradas: total72h,
         componentes,
         timeline_historica: timeline.slice(-72),
-        canal_suporte: 'contato@orbis-uos.gov.br',
+        canal_suporte: 'contato@orbis-uos.com.br',
         ambiente: 'Skip Cloud Produção B2G',
         fonte_dados: 'live_collection_aggregation',
       }
@@ -335,7 +335,7 @@ export async function getSystemStatus(): Promise<SystemStatusData> {
       },
     ],
     timeline_historica: syntheticTimeline,
-    canal_suporte: 'contato@orbis-uos.gov.br',
+    canal_suporte: 'contato@orbis-uos.com.br',
     ambiente: 'Skip Cloud Produção B2G',
     fonte_dados: 'baseline_honesto',
   }

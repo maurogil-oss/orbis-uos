@@ -19,7 +19,7 @@ export function ContactSection() {
   const [copiedEmail, setCopiedEmail] = useState(false)
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('contato@orbis-uos.gov.br')
+    navigator.clipboard.writeText('contato@orbis-uos.com.br')
     setCopiedEmail(true)
     setTimeout(() => setCopiedEmail(false), 2500)
   }
@@ -89,10 +89,10 @@ export function ContactSection() {
 
               <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex items-center justify-between gap-2">
                 <a
-                  href="mailto:contato@orbis-uos.gov.br"
+                  href="mailto:contato@orbis-uos.com.br"
                   className="font-mono text-xs sm:text-sm font-bold text-[#38BDF8] hover:underline break-all"
                 >
-                  contato@orbis-uos.gov.br
+                  contato@orbis-uos.com.br
                 </a>
                 <button
                   type="button"

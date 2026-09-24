@@ -22,7 +22,7 @@ export default function Login() {
   // Rota de retorno após autenticação ou default /cockpit
   const fromLocation = (location.state as any)?.from?.pathname || '/cockpit'
 
-  const [email, setEmail] = useState('institucional@orbis.gov.br')
+  const [email, setEmail] = useState('institucional@orbis-uos.com.br')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -169,8 +169,8 @@ export default function Login() {
             <p className="text-[11px] leading-relaxed">
               Servidores e avaliadores municipais podem utilizar as credenciais institucionais
               homologadas para testar o acesso: <br />• <b>Administrador:</b>{' '}
-              institucional@orbis.gov.br (Gabinete)
-              <br />• <b>Operador:</b> operador@orbis.gov.br (Fiscalização/Coleta)
+              institucional@orbis-uos.com.br (Gabinete)
+              <br />• <b>Operador:</b> operador@orbis-uos.com.br (Fiscalização/Coleta)
             </p>
           </div>
         </div>

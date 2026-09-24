@@ -631,7 +631,7 @@ export default function Governanca() {
               </p>
               <ul className="text-xs text-[#94A3B8] space-y-1.5 list-disc pl-4">
                 <li>
-                  Canal oficial de atendimento: dpo@orbis-uos.gov.br e privacidade@orbis-uos.gov.br.
+                  Canal oficial de atendimento: dpo@orbis-uos.com.br e privacidade@orbis-uos.com.br.
                 </li>
                 <li>Prazo legal de resposta a requisições do titular em até 15 dias corridos.</li>
                 <li>Emissão do Relatório de Impacto à Proteção de Dados Pessoais (RIPD).</li>
