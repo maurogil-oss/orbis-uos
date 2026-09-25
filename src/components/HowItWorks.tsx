@@ -91,7 +91,7 @@ export function HowItWorks() {
                     {/* Top row: Badge and Number marker */}
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#0A1128] border border-[#1A2A5A] text-[#3B82F6]">
-                        {s.timeframe}
+                        {step.badge}
                       </span>{' '}
                       <span className="font-mono text-2xl font-black text-[#94A3B8]/30 group-hover:text-[#3B82F6] transition-colors">
                         {step.number}

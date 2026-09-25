@@ -34,6 +34,13 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
   const glb: GreenLightBridgeMetrics = data.greenLightBridge
   const mfv: MeioFioVagasMetrics = data.meioFioVagas
 
+  const tierLabel =
+    selectedTier === 'pequena'
+      ? 'Cidade Pequena'
+      : selectedTier === 'grande'
+        ? 'Cidade Grande'
+        : 'Cidade Média'
+
   const formatBRL = (val: number) =>
     new Intl.NumberFormat('pt-BR', {
       style: 'currency',

@@ -552,8 +552,9 @@ export function ExpressDiagnostic() {
                   <input
                     type="number"
                     min="0"
-                    value={formData.frota_coleta_lixo}
-                    onChange={(e) => handleChange('frota_coleta_lixo', Number(e.target.value) || 0)}
+                    name="frota_caminhoes_coleta"
+                    value={formData.frota_caminhoes_coleta || ''}
+                    onChange={handleChange}
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
                   <span className="text-xs text-[#94A3B8]">Rotas diárias</span>
@@ -565,24 +566,26 @@ export function ExpressDiagnostic() {
                   <input
                     type="number"
                     min="0"
-                    value={formData.frota_viaturas}
-                    onChange={(e) => handleChange('frota_viaturas', Number(e.target.value) || 0)}
+                    name="frota_viaturas"
+                    value={formData.frota_viaturas || ''}
+                    onChange={handleChange}
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
                   <span className="text-xs text-[#94A3B8]">Guarda / Trânsito</span>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-[#CBD5E1] block mb-1">
-                    Veículos Operacionais
+                    Orçamento Pavimentação (R$)
                   </label>
                   <input
                     type="number"
                     min="0"
-                    value={formData.frota_outros}
-                    onChange={(e) => handleChange('frota_outros', Number(e.target.value) || 0)}
+                    name="orcamento_anual_pavimentacao"
+                    value={formData.orcamento_anual_pavimentacao || ''}
+                    onChange={handleChange}
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
-                  <span className="text-xs text-[#94A3B8]">Tapa-buraco / recapeamento</span>
+                  <span className="text-xs text-[#94A3B8]">Recapeamento anual</span>
                 </div>{' '}
               </div>
 

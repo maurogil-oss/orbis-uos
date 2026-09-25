@@ -505,7 +505,7 @@ export function PilotForm() {
                         }`}
                       >
                         Até 50k habitantes
-                        <span className="block text-[10px] text-[#10B981] font-normal">
+                        <span className="block text-xs text-[#10B981] font-normal">
                           Diagnóstico 30 dias
                         </span>
                       </button>
@@ -519,7 +519,7 @@ export function PilotForm() {
                         }`}
                       >
                         50k a 300k hab.
-                        <span className="block text-[10px] text-[#3B82F6] font-normal">
+                        <span className="block text-xs text-[#3B82F6] font-normal">
                           Zeladoria + Art. 320
                         </span>
                       </button>
@@ -533,7 +533,7 @@ export function PilotForm() {
                         }`}
                       >
                         Metrópole / Consórcio
-                        <span className="block text-[10px] text-[#818CF8] font-normal">
+                        <span className="block text-xs text-[#818CF8] font-normal">
                           Padrão Global ISO
                         </span>
                       </button>
@@ -549,7 +549,7 @@ export function PilotForm() {
                       >
                         Telefone Institucional de Gabinete
                       </label>
-                      <span className="text-[11px] text-[#94A3B8]">Opcional</span>
+                      <span className="text-xs text-[#94A3B8]">Opcional</span>
                     </div>
                     <input
                       id="form-telefone"
@@ -583,7 +583,7 @@ export function PilotForm() {
                     </button>
                   </div>
 
-                  <p className="text-[11px] text-center text-[#94A3B8]/80 pt-1">
+                  <p className="text-xs text-center text-[#94A3B8]/80 pt-1">
                     Este manifesto não gera obrigações orçamentárias imediatas e preserva
                     integralmente o sigilo institucional previsto na legislação.
                   </p>
