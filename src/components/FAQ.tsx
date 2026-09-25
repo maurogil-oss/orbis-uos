@@ -20,7 +20,7 @@ export function FAQ() {
       badge: 'Arquitetura por Porte de Cidade',
       question: 'Qual a diferença entre a contratação para Cidade Pequena, Média e Grande?',
       answer:
-        'Para Cidades Pequenas (até ~50k hab.), oferecemos pacote único e fechado com telemetria na frota existente, mapa de asfalto, one-page do prefeito e dossiê pronto, com IA pré-calibrada "modo cidade pequena" (sem thresholds complexos para o cliente calibrar). Para Cidades Médias (~50k–300k), adiciona-se Central 156+ preditiva, gestão de OS e Green Light Bridge. Para Cidades Grandes (300k+), camada de KPIs por corredor, padrão ISO 37120/37122/37125 e dados para financiamentos internacionais (BID/BNDES).',
+        'Para Cidades Pequenas (até ~50k hab.), oferecemos pacote único e fechado com telemetria na frota existente, mapa de asfalto, one-page do prefeito e dossiê pronto, com IA pré-calibrada "modo cidade pequena" (sem thresholds complexos para o cliente calibrar). Para Cidades Médias (~50k–300k), adiciona-se Central 156+ preditiva, gestão de OS e insumos semafóricos do Green Light Bridge (Onda 2). Para Cidades Grandes (300k+), camada de KPIs por corredor, padrão ISO 37120/37122/37125 e dados para financiamentos internacionais (BID/BNDES).',
     },
     {
       id: 'item-3',

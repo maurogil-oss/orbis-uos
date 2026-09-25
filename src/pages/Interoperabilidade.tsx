@@ -265,9 +265,9 @@ export default function Interoperabilidade() {
     {
       method: 'GET',
       path: '/backend/v1/interop/ntcip-1202-actuation',
-      title: 'Padrão NTCIP 1202 (Controle de Atuação Semafórica)',
+      title: 'Padrão NTCIP 1202 (Insumos para Engenharia Semafórica)',
       description:
-        'Compatibilidade com controladores semafóricos NTCIP 1202 e SCOOT/SCATS para priorização semafórica preventiva e desaceleração automática em trechos com alta severidade de sinistralidade.',
+        'Camada de compatibilidade de dados e insumos para centrais semafóricas NTCIP 1202 e sistemas adaptativos, orientada ao fornecimento de dados para subsidiar planos semafóricos preventivos mediante integração técnica com os controladores locais.',
       status: 'roadmap',
       authRequired: true,
       updateFrequency: 'Planejado para Q3/2025',
@@ -276,7 +276,7 @@ export default function Interoperabilidade() {
   "status": "em_desenvolvimento",
   "protocolo": "NTCIP 1202 v03 (National Transportation Communications for ITS Protocol)",
   "previsao_lancamento": "Q3/2025",
-  "destinacao": "Centrais Semafóricas Inteligentes e CIC"
+  "destinacao": "Centrais Semafóricas Inteligentes e CIC (Insumo Técnico)"
 }`,
     },
   ]

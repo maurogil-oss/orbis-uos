@@ -46,13 +46,13 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
       pilotDays: 'Diagnóstico preliminar em 30 dias',
     },
     media: {
-      badge: 'MUNICÍPIOS DE 50 A 300 MIL HAB. • ONDA 2: GREEN LIGHT BRIDGE & MEIO-FIO',
+      badge: 'MUNICÍPIOS DE 50 A 300 MIL HAB. • ONDA 2 (ROADMAP): GREEN LIGHT BRIDGE & MEIO-FIO',
       headlinePrefix: 'Cada quilômetro da malha viária, ',
       headlineHighlight: 'otimizado com Green Light Bridge e auditoria passiva de meio-fio',
       description:
-        'Onda 2 em destaque: sincronismo semafórico adaptativo (Green Light Bridge) e auditoria de estacionamento/faixa amarela pela frota existente (Zero CAPEX). Gestão integrada entre zeladoria, engenharia de tráfego e conformidade estrita ao Art. 320 do CTB.',
+        'Onda 2 (fase de expansão / roadmap): insumos de sincronismo semafórico adaptativo (Green Light Bridge) para engenharia de tráfego e auditoria de estacionamento/faixa amarela pela frota existente (Zero CAPEX). Gestão integrada entre zeladoria, mobilidade e conformidade estrita ao Art. 320 do CTB.',
       honestCoverage: `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km monitorados com integridade`,
-      entryArg: 'Green Light Bridge + Meio-fio & Vagas • Onda 2 ativa',
+      entryArg: 'Green Light Bridge + Meio-fio & Vagas • Onda 2 (Expansão)',
       batteryTrust: '1,2–1,8%/h de bateria',
       pilotDays: 'Piloto institucional em 60 dias',
     },

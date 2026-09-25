@@ -26,12 +26,12 @@ export function Benefits() {
     {
       title: 'Google Green Light & Central 156+ Preditiva',
       tag: 'Engenharia Semafórica',
-      badge: 'Zero Obras',
+      badge: 'Insumo & Integração',
       description:
-        'Ondas verdes sincronizadas por inteligência artificial e conectores com controladores de tráfego (Siemens, Dataprom, Digicon). Menos retenções, menos combustível queimado e OSs de reparo despachadas antes das reclamações da população no 156.',
-      metric: '-20%',
-      metricLabel: 'de redução em filas de trânsito',
-      submetric: 'Até 30 toneladas de CO₂ poupadas anualmente por corredor',
+        'Mapas de retenção e sincronismo que alimentam a engenharia semafórica do órgão, com integração a controladores (Siemens, Dataprom, Digicon) mediante parceria técnica com os fornecedores. Menos retenções, menos combustível queimado e OSs de reparo despachadas antes das reclamações da população no 156.',
+      metric: '-20%*',
+      metricLabel: 'potencial de redução em filas (estimativa de referência)',
+      submetric: 'Potencial de até 30 t de CO₂ poupadas anualmente por corredor integrado',
       icon: TrafficCone,
       accent: '#10B981',
     },

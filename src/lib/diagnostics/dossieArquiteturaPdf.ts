@@ -849,12 +849,12 @@ export async function generateDossieArquiteturaPdf(
 
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <b>NTCIP 1202 / SCOOT & SCATS</b>
+              <b>NTCIP 1202 / Insumos Semafóricos</b>
               <span style="font-size: 9px; font-weight: 700; background: #FEF3C7; color: #D97706; padding: 2px 6px; border-radius: 4px;">ROADMAP Q3/2025</span>
             </div>
             <p style="margin-top: 6px; font-size: 10px;">
-              Compatibilidade com centrais semafóricas inteligentes NTCIP 1202 v03 para modulação adaptativa
-              de ciclos em cruzamentos com anomalias graves e redução preventiva de velocidade.
+              Compatibilidade de dados com centrais semafóricas NTCIP 1202 v03 para subsidiar planos semafóricos
+              preventivos mediante integração técnica com os controladores locais.
             </p>
           </div>
         </div>

@@ -90,7 +90,7 @@ export function gerarDossieJuridicoCpsi(params: {
     metodoTradicionalDescricao: `Contratação periódica de caminhão com perfilômetro laser com alta mobilização ou fiscalização puramente visual reativa. Auditoria única ao ano, sem capacidade preditiva contínua da malha (${malha} km).`,
     metodoOrbisNome: 'Auditoria Inercial Contínua por Smartphone (ORBIS.UOS / CPSI)',
     metodoOrbisCustoAnual: custoCpsiPiloto,
-    metodoOrbisDescricao: `Aproveitamento da frota pública municipal e concessionárias existentes (ônibus e coleta). Leituras 24/7 com inteligência preditiva de degradação asfáltica e Matriz de Prioridade Zero. Zero investimento em hardware proprietário.`,
+    metodoOrbisDescricao: `Aproveitamento da frota pública municipal e veículos de concessionárias parceiras (ônibus e coleta) mediante termo aditivo de cooperação. Leituras contínuas com inteligência preditiva de degradação asfáltica e Matriz de Prioridade Zero. Zero investimento em hardware proprietário.`,
     economiaDiretaAnual: economiaDireta,
     economiaPercentual: economiaPct,
     reducaoRetrabalhoAsfaltoEstimada: reducaoRetrabalho,

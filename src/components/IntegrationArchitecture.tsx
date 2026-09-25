@@ -23,11 +23,16 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
   const architectures = [
     {
       category: 'Engenharia Semafórica & Mobilidade',
-      title: 'Green Light Bridge & Controladores Semafóricos',
-      tag: 'Ondas Verdes & Tráfego Fluido',
+      title: 'Green Light Bridge & Insumos Semafóricos',
+      tag: 'Insumo de Tráfego & Fluidez',
       description:
-        'Camada de abstração e sincronismo semafórico para controladores legados e modernos (Siemens, Dataprom, Digicon, Meng Engenharia). Conexão lógica de planos de tempo via Google Green Light e laços virtuais baseados na telemetria inercial passiva.',
-      protocols: ['NTCIP 1202', 'Green Light API', 'Modbus / RS-485', 'MQTT / WebSocket Seguros'],
+        'Camada de abstração e insumos de sincronismo semafórico para engenharia de tráfego, estruturada para integração com controladores (Siemens, Dataprom, Digicon, Meng Engenharia) mediante parceria técnica com os fornecedores. Subsídios a planos de tempo e laços virtuais lógicos alimentados pela telemetria inercial passiva.',
+      protocols: [
+        'NTCIP 1202 (Roadmap)',
+        'Green Light API',
+        'Modbus / RS-485',
+        'MQTT / WebSocket Seguros',
+      ],
       icon: Zap,
     },
     {
@@ -49,7 +54,7 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
       title: 'Integração com Centrais 156, Obras & Tributos',
       tag: 'Governança & Despacho de OS',
       description:
-        'Conexão nativa e documentada com sistemas de protocolo, orçamento e obras dos principais ERPs municipais (Betha, IPM Sistemas, Betha Cloud, Atende.Net, Fly e-Cidades, CIGA). Despacho automático de Ordens de Serviço a partir de limiares críticos de IRI.',
+        'Conectores e APIs documentadas para integração com sistemas de protocolo, orçamento e obras dos principais ERPs municipais (Betha, IPM Sistemas, Betha Cloud, Atende.Net, Fly e-Cidades, CIGA). Permite subsidiar a abertura e despacho de Ordens de Serviço quando integrado ao ERP do órgão.',
       protocols: [
         'RESTful / OpenAPI 3.1',
         'Webhooks HMAC-SHA256',
@@ -145,9 +150,10 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
         <div className="p-4 rounded-xl bg-[#101B3A]/40 border border-[#1A2A5A] flex items-center gap-3 text-xs text-[#94A3B8]">
           <ShieldCheck className="w-5 h-5 text-[#10B981] shrink-0" />
           <span>
-            <b>Posicionamento de Engenharia:</b> O ORBIS.UOS não requer a substituição de
-            controladores de tráfego, softwares de zeladoria ou bilhetagem eletrônica. Os conectores
-            operam por APIs documentadas e barramentos seguros.
+            <b>Posicionamento de Engenharia:</b> O ORBIS.UOS produz insumos de decisão e não requer
+            a substituição de controladores de tráfego, softwares de zeladoria ou bilhetagem
+            eletrônica. A integração com controladores semafóricos opera mediante parceria técnica
+            com os fornecedores e barramentos seguros de dados.
           </span>
         </div>
       </div>
