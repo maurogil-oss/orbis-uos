@@ -109,13 +109,13 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
                     <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6]">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[10px] font-mono uppercase bg-[#0A1128] text-[#10B981] px-2.5 py-1 rounded border border-[#1A2A5A] font-bold">
+                    <span className="text-xs uppercase bg-[#0A1128] text-[#10B981] px-2.5 py-1 rounded border border-[#1A2A5A] font-semibold">
                       {item.tag}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#94A3B8] block">
+                    <span className="text-xs uppercase tracking-wider text-[#94A3B8] font-semibold block">
                       {item.category}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-[#F8FAFC] tracking-tight mt-0.5">
@@ -127,14 +127,14 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
                 </div>
 
                 <div className="pt-4 border-t border-[#1A2A5A]/60">
-                  <span className="text-[10px] uppercase font-mono text-[#94A3B8] block mb-2">
+                  <span className="text-xs uppercase font-semibold text-[#94A3B8] block mb-2">
                     Protocolos e Padrões Suportados:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {item.protocols.map((p, i) => (
                       <span
                         key={i}
-                        className="text-[10px] font-mono text-[#60A5FA] bg-[#0A1128] px-2 py-0.5 rounded border border-[#1A2A5A]"
+                        className="text-xs text-[#60A5FA] bg-[#0A1128] px-2.5 py-1 rounded border border-[#1A2A5A] font-medium"
                       >
                         {p}
                       </span>

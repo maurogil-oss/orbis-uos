@@ -71,7 +71,7 @@ export function Navbar() {
   }
 
   // Links secundários reunidos no menu institucional "Soluções"
-  const institutionalMoreLinks = [
+  const baseInstitutionalLinks = [
     {
       label: 'Governança Verificável',
       desc: 'Conformidade normativa, auditoria e cadeia de custódia',
@@ -99,13 +99,6 @@ export function Navbar() {
       href: '/operacao',
       icon: Server,
       badge: 'SLA 99,9%',
-    },
-    {
-      label: 'Homologação Dry-Run',
-      desc: 'Laudo oficial B2G e critérios de auditoria',
-      href: '/homologacao',
-      icon: CheckCircle2,
-      badge: 'Laudo Oficial',
     },
     {
       label: 'Playbook de Implantação',
@@ -136,6 +129,21 @@ export function Navbar() {
       badge: 'LC 182/2021',
     },
   ]
+
+  // Homologação Dry-Run é rota operacional — apenas para usuários autenticados
+  const institutionalMoreLinks = isAuthenticated
+    ? [
+        ...baseInstitutionalLinks.slice(0, 4),
+        {
+          label: 'Homologação Dry-Run',
+          desc: 'Laudo oficial B2G e critérios de auditoria',
+          href: '/homologacao',
+          icon: CheckCircle2,
+          badge: 'Laudo Oficial',
+        },
+        ...baseInstitutionalLinks.slice(4),
+      ]
+    : baseInstitutionalLinks
 
   const governanceAnchors = [
     { label: 'Accountability & Gestão', href: '/#prestacao-contas' },
@@ -233,9 +241,9 @@ export function Navbar() {
               sideOffset={10}
               className="w-80 p-2 bg-[#0A1128]/98 backdrop-blur-xl border border-[#1A2A5A] rounded-xl shadow-2xl text-[#F8FAFC] z-50 animate-in fade-in-0 zoom-in-95"
             >
-              <DropdownMenuLabel className="px-2.5 py-1.5 text-[11px] font-mono uppercase tracking-wider text-[#94A3B8] flex items-center justify-between">
+              <DropdownMenuLabel className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#94A3B8] flex items-center justify-between">
                 <span>Dossiês & Instrumentos B2G</span>
-                <span className="text-[10px] text-[#3B82F6] font-semibold">LC 182/2021</span>
+                <span className="text-xs text-[#3B82F6] font-semibold">LC 182/2021</span>
               </DropdownMenuLabel>
 
               <div className="space-y-0.5">
@@ -263,11 +271,11 @@ export function Navbar() {
                             <span className="text-xs font-semibold text-[#F8FAFC] truncate">
                               {item.label}
                             </span>
-                            <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.2 rounded border border-[#10B981]/25 shrink-0">
+                            <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded border border-[#10B981]/25 shrink-0 font-medium">
                               {item.badge}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#94A3B8] leading-snug line-clamp-1">
+                          <p className="text-xs text-[#94A3B8] leading-snug line-clamp-1">
                             {item.desc}
                           </p>
                         </div>
@@ -279,7 +287,7 @@ export function Navbar() {
 
               <DropdownMenuSeparator className="my-1.5 bg-[#1A2A5A]" />
 
-              <DropdownMenuLabel className="px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider text-[#94A3B8]">
+              <DropdownMenuLabel className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">
                 Navegação na Página Principal
               </DropdownMenuLabel>
 
@@ -304,19 +312,19 @@ export function Navbar() {
               <DropdownMenuSeparator className="my-1.5 bg-[#1A2A5A]" />
 
               {/* Acesso rápido Cidadão & Termos */}
-              <div className="px-2 py-1 flex items-center justify-between text-[11px]">
+              <div className="px-2 py-1 flex items-center justify-between text-xs">
                 <Link
                   to="/cidadao"
                   onClick={() => setDropdownOpen(false)}
                   className="text-[#10B981] hover:underline flex items-center gap-1 font-semibold"
                 >
-                  <Users className="w-3 h-3" />
+                  <Users className="w-3.5 h-3.5" />
                   <span>Portal Cidadão</span>
                 </Link>
                 <Link
                   to="/termos"
                   onClick={() => setDropdownOpen(false)}
-                  className="text-[#94A3B8] hover:text-[#38BDF8] transition-colors"
+                  className="text-[#94A3B8] hover:text-[#38BDF8] transition-colors font-medium"
                 >
                   Termos B2G
                 </Link>
@@ -337,26 +345,26 @@ export function Navbar() {
             <span>Portal Cidadão</span>
           </Link>
 
-          {/* Cockpit link */}
-          <Link
-            to="/cockpit"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-[#CBD5E1] hover:text-white hover:bg-[#101B3A] transition-colors"
-            title="Cockpit Municipal"
-          >
-            <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-            <span className="hidden lg:inline">Cockpit</span>
-          </Link>
-
-          {/* Link Fator K (quando autenticado) */}
+          {/* Rotas operacionais (Cockpit e Fator K): exibidas apenas para usuários autenticados */}
           {isAuthenticated && (
-            <Link
-              to="/cockpit/calibracao-fator-k"
-              className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-md text-[#38BDF8] hover:text-white transition-colors"
-              title="Calibração do Fator K"
-            >
-              <SlidersHorizontal className="w-3 h-3" />
-              <span className="hidden xl:inline">Fator K</span>
-            </Link>
+            <>
+              <Link
+                to="/cockpit"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-[#CBD5E1] hover:text-white hover:bg-[#101B3A] transition-colors"
+                title="Cockpit Municipal"
+              >
+                <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                <span className="hidden lg:inline">Cockpit</span>
+              </Link>
+              <Link
+                to="/cockpit/calibracao-fator-k"
+                className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-md text-[#38BDF8] hover:text-white transition-colors"
+                title="Calibração do Fator K"
+              >
+                <SlidersHorizontal className="w-3 h-3" />
+                <span className="hidden xl:inline">Fator K</span>
+              </Link>
+            </>
           )}
         </nav>
 
@@ -383,10 +391,10 @@ export function Navbar() {
           ) : (
             <Link
               to="/login"
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all"
               title="Acesso Institucional com credenciais"
             >
-              <Lock className="w-3 h-3 text-[#3B82F6]" />
+              <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
               <span>Acesso</span>
             </Link>
           )}
@@ -423,7 +431,7 @@ export function Navbar() {
             {/* Header Mobile */}
             <div className="pb-3 border-b border-[#1A2A5A] flex items-center justify-between">
               <OrbisLogo height={28} colorMode="dark" variant="full" />
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
+              <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
                 Navegação B2G
               </span>
             </div>
@@ -438,7 +446,7 @@ export function Navbar() {
                 <Compass className="w-4 h-4 text-[#38BDF8]" />
                 <div className="text-left">
                   <div className="font-bold text-white">Ver Demonstração Orientada</div>
-                  <div className="text-[10px] text-[#93C5FD] font-normal">
+                  <div className="text-xs text-[#93C5FD] font-normal">
                     Tour B2G em 6 etapas interativas
                   </div>
                 </div>
@@ -448,10 +456,10 @@ export function Navbar() {
 
             {/* Seção 1: Itens Principais */}
             <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] px-2 block">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
                 Itens Principais
               </span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className={`grid ${isAuthenticated ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
                 <a
                   href="/#simulador"
                   onClick={(e) => handleLinkClick(e, '/#simulador')}
@@ -461,20 +469,12 @@ export function Navbar() {
                   <span>Simulador</span>
                 </a>
                 <Link
-                  to="/cockpit"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
-                >
-                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-                  <span>Cockpit</span>
-                </Link>
-                <Link
                   to="/cidadao"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#10B981] hover:border-[#10B981] transition-colors"
                 >
                   <Users className="w-3.5 h-3.5" />
-                  <span>Portal Cidadão</span>
+                  <span>Cidadão</span>
                 </Link>
                 <Link
                   to="/enquadramento"
@@ -484,12 +484,32 @@ export function Navbar() {
                   <FileText className="w-3.5 h-3.5" />
                   <span>Enquadramento</span>
                 </Link>
+                {isAuthenticated && (
+                  <>
+                    <Link
+                      to="/cockpit"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                    >
+                      <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                      <span>Cockpit</span>
+                    </Link>
+                    <Link
+                      to="/cockpit/calibracao-fator-k"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#38BDF8] hover:border-[#38BDF8] transition-colors col-span-2"
+                    >
+                      <SlidersHorizontal className="w-3.5 h-3.5" />
+                      <span>Calibração do Fator K</span>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Seção 2: Links Institucionais e Técnicos (agrupados em Soluções) */}
             <div className="space-y-1 pt-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] px-2 block">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
                 Documentação & Instrumentos B2G
               </span>
               <nav className="flex flex-col gap-1" aria-label="Navegação secundária mobile">
@@ -506,7 +526,7 @@ export function Navbar() {
                         <Icon className="w-3.5 h-3.5 text-[#60A5FA]" />
                         <span>{item.label}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.2 rounded border border-[#10B981]/25">
+                      <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded border border-[#10B981]/25 font-medium">
                         {item.badge}
                       </span>
                     </Link>
@@ -517,7 +537,7 @@ export function Navbar() {
 
             {/* Seção 3: Seções da Landing Page */}
             <div className="space-y-1 pt-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] px-2 block">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
                 Página Inicial & Transparência
               </span>
               <div className="flex flex-wrap gap-1.5 px-2">
@@ -526,7 +546,7 @@ export function Navbar() {
                     key={anc.href}
                     href={anc.href}
                     onClick={(e) => handleLinkClick(e, anc.href)}
-                    className="text-[11px] text-[#94A3B8] hover:text-white py-1 px-2 rounded bg-[#101B3A]/60 border border-[#1A2A5A] transition-colors"
+                    className="text-xs text-[#94A3B8] hover:text-white py-1 px-2.5 rounded bg-[#101B3A]/60 border border-[#1A2A5A] transition-colors"
                   >
                     {anc.label}
                   </a>

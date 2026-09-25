@@ -69,7 +69,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
 
           {/* Abas de Porte ou Alerta de Foco */}
           <div className="pt-2 flex items-center justify-center gap-2">
-            <span className="text-[11px] font-mono text-[#94A3B8]">Porte selecionado:</span>
+            <span className="text-xs text-[#94A3B8] font-medium">Porte selecionado:</span>
             <button
               type="button"
               onClick={() => onSelectTier('pequena')}
@@ -129,13 +129,13 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#F8FAFC]">1. Green Light Bridge</span>
-                <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-[#10B981]/20 text-[#10B981] font-bold">
-                  Destaque Média
+                <span className="text-xs px-2 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] font-semibold">
+                  {tierLabel}
                 </span>
               </div>
-              <p className="text-[11px] text-[#94A3B8] mt-1 leading-snug">
-                Sincronismo de sinais (onda verde) por telemetria inercial passiva da frota.
-              </p>
+              <p className="text-xs text-[#94A3B8] mt-1 leading-snug">
+                Insumos para engenharia semafórica • Até 22% de redução de atraso
+              </p>{' '}
             </div>
           </button>
 
@@ -160,13 +160,13 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#F8FAFC]">2. Meio-fio & Vagas</span>
-                <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-[#3B82F6]/20 text-[#60A5FA] font-bold">
-                  Zero CAPEX
+                <span className="text-xs px-2 py-0.5 rounded bg-[#3B82F6]/20 text-[#60A5FA] font-semibold">
+                  {tierLabel}
                 </span>
               </div>
-              <p className="text-[11px] text-[#94A3B8] mt-1 leading-snug">
-                Auditoria de vagas irregulares, faixa amarela, calçadas e vagas de idoso/PCD.
-              </p>
+              <p className="text-xs text-[#94A3B8] mt-1 leading-snug">
+                Varredura passiva de meio-fio • 100% frota pública • Zero hardware extra
+              </p>{' '}
             </div>
           </button>
         </div>
@@ -177,7 +177,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2.5 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
+                  <span className="text-xs uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2.5 py-0.5 rounded border border-[#3B82F6]/40 font-semibold">
                     Onda 2 • Mobilidade & Semáforos
                   </span>
                   <span className="text-xs text-[#94A3B8]">
@@ -202,7 +202,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <span className="text-2xl sm:text-3xl font-black font-mono text-[#10B981]">
                   {formatBRL(glb.custoEvitadoFrotaPublicaAnual)}/ano
                 </span>
-                <span className="text-[11px] text-[#94A3B8] block">
+                <span className="text-xs text-[#94A3B8] block">
                   em combustível e desgaste mecânico
                 </span>
               </div>
@@ -218,7 +218,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#F8FAFC]">
                   {glb.corredoresMonitorados} eixos
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">
+                <span className="text-xs text-[#94A3B8]">
                   {glb.semaforosAuditados} semáforos integrados
                 </span>
               </div>
@@ -231,7 +231,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#F59E0B]">
                   {glb.paradasPorKm} / km
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">Média arterial em pico</span>
+                <span className="text-xs text-[#94A3B8]">Média arterial em pico</span>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
@@ -242,7 +242,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#EF4444]">
                   {glb.tempoCicloPerdidoSegundos}s / ciclo
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">Retenção residual evitável</span>
+                <span className="text-xs text-[#94A3B8]">Retenção residual evitável</span>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0A1128] border border-[#10B981]/40">
@@ -253,7 +253,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#10B981]">
                   -{glb.potencialReducaoViagemPct}%
                 </div>
-                <span className="text-[10px] text-[#10B981]/90">No tempo de viagem arterial</span>
+                <span className="text-xs text-[#10B981]/90">No tempo de viagem arterial</span>
               </div>
             </div>
 
@@ -277,7 +277,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                         {c.nome}
                       </span>
                       <span
-                        className={`text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold ${
+                        className={`text-xs px-2 py-0.5 rounded uppercase font-semibold ${
                           c.statusOndaVerde === 'otimizada'
                             ? 'bg-[#10B981]/20 text-[#10B981]'
                             : c.statusOndaVerde === 'calibrando'
@@ -289,20 +289,22 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-[#94A3B8]">
+                    <div className="grid grid-cols-2 gap-2 text-xs text-[#94A3B8]">
                       <div>
-                        <span>Extensão:</span> <b className="text-[#F8FAFC]">{c.extensaoKm} km</b>
+                        <span>Extensão:</span>{' '}
+                        <b className="text-[#F8FAFC] font-mono">{c.extensaoKm} km</b>
                       </div>
                       <div>
-                        <span>Semáforos:</span> <b className="text-[#F8FAFC]">{c.semaforos}</b>
+                        <span>Semáforos:</span>{' '}
+                        <b className="text-[#F8FAFC] font-mono">{c.semaforos}</b>
                       </div>
                       <div>
                         <span>Atraso:</span>{' '}
-                        <b className="text-[#F59E0B]">{c.atrasoMedioMin} min</b>
+                        <b className="text-[#F59E0B] font-mono">{c.atrasoMedioMin} min</b>
                       </div>
                       <div>
                         <span>Ganho:</span>{' '}
-                        <b className="text-[#10B981]">-{c.reducaoPotencialPct}%</b>
+                        <b className="text-[#10B981] font-mono">-{c.reducaoPotencialPct}%</b>
                       </div>
                     </div>
                   </div>
@@ -320,7 +322,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <b>Economia e Descarbonização:</b> {glb.enquadreInstitucional.beneficioCustoEvitado}{' '}
                 <b>Zero CAPEX:</b> {glb.enquadreInstitucional.zeroCapexJustificativa}
               </p>
-              <div className="text-[11px] text-[#60A5FA] font-mono">
+              <div className="text-xs text-[#60A5FA] font-medium">
                 Base legal: {glb.enquadreInstitucional.baseLegal}
               </div>
             </div>
@@ -333,7 +335,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#1A2A5A]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-bold">
+                  <span className="text-xs uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-semibold">
                     Onda 2 • Auditoria de Meio-fio
                   </span>
                   <span className="text-xs text-[#94A3B8]">
@@ -351,15 +353,13 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-xs font-mono uppercase text-[#94A3B8] block">
+                <span className="text-xs uppercase text-[#94A3B8] block font-semibold">
                   Potencial de Regularização
                 </span>
                 <span className="text-2xl sm:text-3xl font-black font-mono text-[#3B82F6]">
                   {formatBRL(mfv.potencialArrecadacaoRegularizacaoAnual)}/ano
                 </span>
-                <span className="text-[11px] text-[#94A3B8] block">
-                  em ordenamento e rotatividade
-                </span>
+                <span className="text-xs text-[#94A3B8] block">em ordenamento e rotatividade</span>
               </div>
             </div>
 
@@ -373,7 +373,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#F8FAFC]">
                   {mfv.kmMeioFioAuditado} km
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">Varredura passiva contínua</span>
+                <span className="text-xs text-[#94A3B8]">Varredura passiva contínua</span>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
@@ -384,7 +384,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#EF4444]">
                   {mfv.eventosEstacionamentoIrregularMes}/mês
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">Paradas fora de demarcação</span>
+                <span className="text-xs text-[#94A3B8]">Paradas fora de demarcação</span>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
@@ -395,7 +395,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#F59E0B]">
                   {mfv.bloqueiosFaixaAmarelaMes}/mês
                 </div>
-                <span className="text-[10px] text-[#94A3B8]">Estrangulamento viário arterial</span>
+                <span className="text-xs text-[#94A3B8]">Estrangulamento viário arterial</span>
               </div>
 
               <div className="p-4 rounded-xl bg-[#0A1128] border border-[#3B82F6]/40">
@@ -406,7 +406,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <div className="text-2xl font-black font-mono text-[#3B82F6]">
                   {mfv.conflitosVagasIdosoPcdMes}/mês
                 </div>
-                <span className="text-[10px] text-[#CBD5E1]">Alertas de invasão indevida</span>
+                <span className="text-xs text-[#CBD5E1]">Alertas de invasão indevida</span>
               </div>
             </div>
 
@@ -430,7 +430,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                         {z.nome}
                       </span>
                       <span
-                        className={`text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold ${
+                        className={`text-xs px-2 py-0.5 rounded uppercase font-semibold ${
                           z.riscoVisaoZero === 'critico'
                             ? 'bg-[#EF4444]/20 text-[#EF4444]'
                             : z.riscoVisaoZero === 'alto'
@@ -442,14 +442,14 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-[#94A3B8]">
+                    <div className="grid grid-cols-2 gap-2 text-xs text-[#94A3B8]">
                       <div>
                         <span>Vagas Auditadas:</span>{' '}
-                        <b className="text-[#F8FAFC]">{z.vagasAuditadas}</b>
+                        <b className="text-[#F8FAFC] font-mono">{z.vagasAuditadas}</b>
                       </div>
                       <div>
                         <span>Ocupação Irreg.:</span>{' '}
-                        <b className="text-[#EF4444]">{z.taxaOcupacaoIrregularPct}%</b>
+                        <b className="text-[#EF4444] font-mono">{z.taxaOcupacaoIrregularPct}%</b>
                       </div>
                     </div>
                   </div>
@@ -467,7 +467,7 @@ export function Onda2Modules({ selectedTier, onSelectTier }: Onda2ModulesProps) 
                 <b>Benefício à Gestão:</b> {mfv.enquadreInstitucional.beneficioZeladoria}{' '}
                 <b>Zero CAPEX:</b> {mfv.enquadreInstitucional.zeroCapexJustificativa}
               </p>
-              <div className="text-[11px] text-[#10B981] font-mono">
+              <div className="text-xs text-[#10B981] font-medium">
                 Base legal: {mfv.enquadreInstitucional.baseLegal}
               </div>
             </div>

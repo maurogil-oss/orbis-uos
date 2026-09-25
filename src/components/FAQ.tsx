@@ -82,9 +82,9 @@ export function FAQ() {
             >
               <AccordionTrigger className="text-left hover:no-underline py-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pr-4">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#3B82F6] bg-[#0A1128] px-2.5 py-1 rounded-md border border-[#1A2A5A] shrink-0 w-fit">
-                    {faq.badge}
-                  </span>
+                  <span className="text-xs uppercase tracking-wider text-[#3B82F6] bg-[#0A1128] px-2.5 py-1 rounded-md border border-[#1A2A5A] shrink-0 w-fit font-semibold">
+                    {faq.category}
+                  </span>{' '}
                   <span className="text-base sm:text-lg font-bold text-[#F8FAFC] tracking-tight">
                     {faq.question}
                   </span>

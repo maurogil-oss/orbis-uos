@@ -66,7 +66,7 @@ export function Comparison() {
             <div>
               <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#1A2A5A]">
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#EF4444] font-semibold">
+                  <span className="text-xs uppercase tracking-wider text-[#EF4444] font-semibold">
                     Modelo Convencional Reativo
                   </span>
                   <h3 className="text-xl font-bold text-[#F8FAFC] mt-0.5">
@@ -107,12 +107,12 @@ export function Comparison() {
               <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#1A2A5A]">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#3B82F6] font-semibold">
-                      Orbis Smart Cities • GovTech
+                    <span className="text-xs uppercase tracking-wider text-[#3B82F6] font-semibold">
+                      ORBIS.UOS Governança Preditiva
                     </span>
-                    <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/40 font-bold">
-                      Zero CAPEX
-                    </span>
+                    <span className="text-xs uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/40 font-bold">
+                      LC 182/2021
+                    </span>{' '}
                   </div>
                   <h3 className="text-xl font-bold text-[#F8FAFC] mt-0.5">
                     Auditoria Contínua & Preditiva
@@ -130,7 +130,7 @@ export function Comparison() {
                       <span className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
                         {row.criterion}
                       </span>
-                      <span className="text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded">
+                      <span className="text-xs font-semibold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded">
                         {row.goodBadge}
                       </span>
                     </div>

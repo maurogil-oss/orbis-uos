@@ -217,27 +217,27 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-14 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]/80">
           <p>© {new Date().getFullYear()} Orbis UOS GovTech. Todos os direitos reservados.</p>
-          <div className="text-[11px] text-[#94A3B8]">
+          <div className="text-xs text-[#94A3B8]">
             Domínio Oficial:{' '}
             <a
               href="https://www.orbis-uos.com.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#38BDF8] hover:underline font-mono"
+              className="text-[#38BDF8] hover:underline font-medium"
             >
               https://www.orbis-uos.com.br
             </a>{' '}
             • Canal:{' '}
             <a
               href="mailto:contato@orbis-uos.com.br"
-              className="text-[#38BDF8] hover:underline font-mono"
+              className="text-[#38BDF8] hover:underline font-medium"
             >
               contato@orbis-uos.com.br
             </a>{' '}
             • DPO:{' '}
             <a
               href="mailto:privacidade@orbis-uos.com.br"
-              className="text-[#38BDF8] hover:underline font-mono"
+              className="text-[#38BDF8] hover:underline font-medium"
             >
               privacidade@orbis-uos.com.br
             </a>
@@ -298,7 +298,7 @@ export function Footer() {
         </div>
 
         {/* Versão do Sistema */}
-        <div className="mt-4 text-center text-[11px] font-mono text-[#64748B]">
+        <div className="mt-4 text-center text-xs text-[#64748B]">
           ORBIS UOS GovTech • v0.0.34 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
           Art. 12 LGPD
         </div>

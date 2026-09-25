@@ -153,7 +153,7 @@ export function Accountability() {
                       <Icon className="w-6 h-6" />
                     </div>
                     <span
-                      className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded border font-bold"
+                      className="text-xs uppercase tracking-wider px-2.5 py-1 rounded border font-semibold"
                       style={{
                         backgroundColor: '#0A1128',
                         borderColor: '#1A2A5A',

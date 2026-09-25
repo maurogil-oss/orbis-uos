@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Sparkles,
   Clock,
   Leaf,
   ShieldCheck,
   CheckCircle2,
-  FileSpreadsheet,
-  Building,
   ArrowRight,
   Info,
-  Layers,
+  FileText,
 } from 'lucide-react'
 import { CityTier } from './Hero'
 
@@ -185,7 +184,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
             {/* Caixa de Argumento Estratégico por Porte */}
             <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/40 font-bold">
+                <span className="text-xs uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-semibold">
                   {currentArg.badge}
                 </span>
               </div>
@@ -242,7 +241,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     }`}
                   >
                     <span className="text-xs font-bold block">Pequena</span>
-                    <span className="text-[10px] text-[#94A3B8] block mt-0.5">Até 50k hab.</span>
+                    <span className="text-xs text-[#94A3B8] block mt-0.5">Até 50k hab.</span>
                   </button>
 
                   <button
@@ -258,7 +257,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     }`}
                   >
                     <span className="text-xs font-bold block">Média</span>
-                    <span className="text-[10px] text-[#94A3B8] block mt-0.5">50k–300k hab.</span>
+                    <span className="text-xs text-[#94A3B8] block mt-0.5">50k–300k hab.</span>
                   </button>
 
                   <button
@@ -274,7 +273,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     }`}
                   >
                     <span className="text-xs font-bold block">Grande</span>
-                    <span className="text-[10px] text-[#94A3B8] block mt-0.5">300k+ hab.</span>
+                    <span className="text-xs text-[#94A3B8] block mt-0.5">300k+ hab.</span>
                   </button>
                 </div>
               </div>
@@ -327,10 +326,10 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     <Sparkles className="w-4 h-4" />
                     Impacto no Orçamento Público Municipal
                   </h4>
-                  <span className="text-[11px] text-[#94A3B8] font-mono">Recursos Recuperados</span>
+                  <span className="text-xs text-[#94A3B8] font-medium">Recursos Recuperados</span>
                 </div>
 
-                {/* Big Metric */}
+                {/* Big Metric com Link Direto para Metodologia */}
                 <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#10B981]/40 text-center">
                   <span className="text-xs uppercase tracking-wider text-[#94A3B8] block mb-1">
                     Recursos Públicos Recuperados com Manutenção Preventiva
@@ -338,6 +337,19 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                   <div className="text-3xl sm:text-4xl font-black text-[#10B981] font-mono">
                     {formatBRL(animatedSavings)}/ ano
                   </div>
+
+                  {/* FRENTE 2: Link imediatamente sob o valor calculado para resolver "de onde vem isso" */}
+                  <div className="mt-2.5 mb-2">
+                    <Link
+                      to="/metodologia"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#38BDF8] hover:text-[#60A5FA] underline-offset-4 hover:underline transition-colors px-3 py-1 rounded-full bg-[#38BDF8]/10 hover:bg-[#38BDF8]/20 border border-[#38BDF8]/30"
+                      title="Ver fundamentação científica, equações de IRI e matriz de coeficientes por porte"
+                    >
+                      <span>Ver a metodologia de cálculo</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
                   <p className="text-xs text-[#94A3B8] mt-2 max-w-md mx-auto">
                     {selectedTier === 'pequena'
                       ? 'Substituição gradual de compras emergenciais de massa asfáltica por intervenções programadas com microrrevestimento e nexo causal.'
@@ -355,7 +367,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     <div className="text-2xl font-bold text-[#F8FAFC] font-mono">
                       {formatNumberBR(animatedHours)} h
                     </div>
-                    <p className="text-[11px] text-[#94A3B8] mt-1">
+                    <p className="text-xs text-[#94A3B8] mt-1">
                       horas anuais devolvidas aos cidadãos no trânsito
                     </p>
                   </div>
@@ -368,9 +380,7 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                     <div className="text-2xl font-bold text-[#10B981] font-mono">
                       -{formatNumberBR(animatedCO2)} ton
                     </div>
-                    <p className="text-[11px] text-[#94A3B8] mt-1">
-                      emissões de CO₂ evitadas por ano
-                    </p>
+                    <p className="text-xs text-[#94A3B8] mt-1">emissões de CO₂ evitadas por ano</p>
                   </div>
                 </div>
 

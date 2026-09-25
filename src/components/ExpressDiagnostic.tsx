@@ -190,9 +190,9 @@ export function ExpressDiagnostic() {
             <div className="space-y-8 animate-fade-in">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#1A2A5A]">
                 <div>
-                  <span className="text-[11px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-bold">
-                    Resultado Preliminar Gerado com Sucesso
-                  </span>
+                  <span className="text-xs uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-semibold">
+                    Laudo Gerado com Sucesso
+                  </span>{' '}
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-[#F8FAFC] mt-2">
                     {formData.municipio} / {formData.uf}
                   </h3>
@@ -237,7 +237,7 @@ export function ExpressDiagnostic() {
                   <span className="inline-block text-xs font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
                     Faixa: {result.faixaProvisoria}
                   </span>
-                  <p className="text-[11px] text-[#94A3B8] leading-relaxed pt-1">
+                  <p className="text-xs text-[#94A3B8] leading-relaxed pt-1">
                     Pré-diagnóstico preliminar da gestão. O IMM (Índice de Mobilidade do Município)
                     e o IMV (Índice de Manutenção Viária) são apurados exclusivamente após o
                     Enquadramento Completo e a auditoria inercial de campo (Dia 30).
@@ -247,10 +247,10 @@ export function ExpressDiagnostic() {
                 {/* 2. Projeção de Cobertura Real & Dimensionamento CPSI */}
                 <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#10B981]/50 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono uppercase font-bold text-[#94A3B8]">
+                    <span className="text-xs uppercase font-bold text-[#94A3B8]">
                       Projeção Real em 30 Dias
                     </span>
-                    <span className="text-[10px] font-mono text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded">
                       Fator F ≥ 3
                     </span>
                   </div>
@@ -271,11 +271,11 @@ export function ExpressDiagnostic() {
                   </div>
 
                   {projecaoCobertura.alertaVies ? (
-                    <div className="p-2 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-[10px] leading-relaxed">
+                    <div className="p-2 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-xs leading-relaxed">
                       <b>Expectativa Gerenciada:</b> {projecaoCobertura.alertaVies}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-[#94A3B8] leading-relaxed pt-1">
+                    <p className="text-xs text-[#94A3B8] leading-relaxed pt-1">
                       Com a frota alocada ({result.veiculosSensorSugeridos} veículos-sensor
                       sugeridos), a cidade atinge cobertura ampla com Zero CAPEX.
                     </p>
@@ -314,7 +314,7 @@ export function ExpressDiagnostic() {
                     Protocolo registrado no banco de dados com validade institucional garantida.
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-[#94A3B8]">ID: {result.record.id}</span>
+                <span className="text-xs text-[#94A3B8] font-mono">ID: {result.record.id}</span>
               </div>
             </div>
           ) : (
@@ -352,7 +352,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6]"
                   />
                   {errors.municipio && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.municipio}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.municipio}</p>
                   )}
                 </div>
 
@@ -388,7 +388,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
                   {errors.codigo_ibge && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.codigo_ibge}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.codigo_ibge}</p>
                   )}
                 </div>
 
@@ -405,7 +405,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
                   {errors.populacao_ibge && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.populacao_ibge}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.populacao_ibge}</p>
                   )}
                 </div>
               </div>
@@ -425,7 +425,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6]"
                   />
                   {errors.responsavel_nome && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.responsavel_nome}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.responsavel_nome}</p>
                   )}
                 </div>
 
@@ -442,7 +442,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6]"
                   />
                   {errors.responsavel_cargo && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.responsavel_cargo}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.responsavel_cargo}</p>
                   )}
                 </div>
 
@@ -459,7 +459,7 @@ export function ExpressDiagnostic() {
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6]"
                   />
                   {errors.email_oficial && (
-                    <p className="text-[11px] text-[#EF4444] mt-1">{errors.email_oficial}</p>
+                    <p className="text-xs text-[#EF4444] mt-1">{errors.email_oficial}</p>
                   )}
                 </div>
               </div>
@@ -543,50 +543,47 @@ export function ExpressDiagnostic() {
                     onChange={handleChange}
                     className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] font-mono"
                   />
-                  <span className="text-[10px] text-[#94A3B8]">Linhas urbanas</span>
+                  <span className="text-xs text-[#94A3B8]">Linhas urbanas</span>
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5">
-                    9b. Caminhões Coleta
+                  <label className="text-xs font-semibold text-[#CBD5E1] block mb-1">
+                    Caminhões de Lixo
                   </label>
                   <input
                     type="number"
-                    name="frota_caminhoes_coleta"
-                    value={formData.frota_caminhoes_coleta || ''}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] font-mono"
+                    min="0"
+                    value={formData.frota_coleta_lixo}
+                    onChange={(e) => handleChange('frota_coleta_lixo', Number(e.target.value) || 0)}
+                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
-                  <span className="text-[10px] text-[#94A3B8]">Rotas diárias</span>
+                  <span className="text-xs text-[#94A3B8]">Rotas diárias</span>
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5">
-                    9c. Viaturas Oficiais
+                  <label className="text-xs font-semibold text-[#CBD5E1] block mb-1">
+                    Viaturas Municipais
                   </label>
                   <input
                     type="number"
-                    name="frota_viaturas"
-                    value={formData.frota_viaturas || ''}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] font-mono"
+                    min="0"
+                    value={formData.frota_viaturas}
+                    onChange={(e) => handleChange('frota_viaturas', Number(e.target.value) || 0)}
+                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
-                  <span className="text-[10px] text-[#94A3B8]">Guarda / Trânsito</span>
+                  <span className="text-xs text-[#94A3B8]">Guarda / Trânsito</span>
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#F8FAFC] mb-1.5">
-                    10. Orçamento Asfalto (R$/ano)
+                  <label className="text-xs font-semibold text-[#CBD5E1] block mb-1">
+                    Veículos Operacionais
                   </label>
                   <input
                     type="number"
-                    name="orcamento_anual_pavimentacao"
-                    value={formData.orcamento_anual_pavimentacao || ''}
-                    onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] font-mono"
+                    min="0"
+                    value={formData.frota_outros}
+                    onChange={(e) => handleChange('frota_outros', Number(e.target.value) || 0)}
+                    className="w-full h-10 px-3 rounded-lg bg-[#0A1128] text-sm text-[#F8FAFC] border border-[#1A2A5A] focus:border-[#3B82F6] font-mono"
                   />
-                  <span className="text-[10px] text-[#94A3B8]">Tapa-buraco / recapeamento</span>
-                </div>
+                  <span className="text-xs text-[#94A3B8]">Tapa-buraco / recapeamento</span>
+                </div>{' '}
               </div>
 
               {/* Opção de Gestão de Expectativa: Terceirização sem previsão de telemetria */}
@@ -608,16 +605,16 @@ export function ExpressDiagnostic() {
 
                 {/* Card de Projeção em Tempo Real: expectativa gerenciada ANTES do piloto */}
                 <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#3B82F6]/30 text-xs space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
                     <span className="text-[#94A3B8]">
                       Malha Estimada para {projecaoCobertura.porteNome}:{' '}
-                      <b className="text-[#F8FAFC]">
+                      <b className="text-[#F8FAFC] font-mono">
                         {projecaoCobertura.extensaoMalhaEstimadaKm} km
                       </b>
                     </span>
                     <span className="text-[#94A3B8]">
                       Necessário para 100% da malha em 30 dias:{' '}
-                      <b className="text-[#10B981]">
+                      <b className="text-[#10B981] font-mono">
                         {projecaoCobertura.veiculosNecessariosPara100Pct} veículos-sensor
                       </b>
                     </span>
@@ -631,7 +628,7 @@ export function ExpressDiagnostic() {
                     </div>
                     <div className="text-xs text-[#CBD5E1]">
                       da malha auditada com Fator de Confiança F ≥ 3 em <b>30 dias</b>
-                      <span className="text-[11px] text-[#94A3B8] block">
+                      <span className="text-xs text-[#94A3B8] block">
                         (
                         {frotaTerceirizadaSemPrevisao
                           ? projecaoCobertura.kmAuditados30DiasComFrotaPropria
@@ -642,7 +639,7 @@ export function ExpressDiagnostic() {
                   </div>
 
                   {projecaoCobertura.alertaVies && (
-                    <div className="p-2.5 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-[11px] leading-relaxed flex items-start gap-2">
+                    <div className="p-2.5 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] text-xs leading-relaxed flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{projecaoCobertura.alertaVies}</span>
                     </div>

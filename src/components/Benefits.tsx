@@ -104,10 +104,10 @@ export function Benefits() {
                       <Icon className="w-6 h-6 text-[#3B82F6] group-hover:scale-110 transition-transform" />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#10B981] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A]">
+                      <span className="text-xs uppercase tracking-wider text-[#10B981] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A] font-semibold">
                         {p.badge}
                       </span>
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#94A3B8] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A]">
+                      <span className="text-xs uppercase tracking-wider text-[#94A3B8] px-2.5 py-1 rounded bg-[#0A1128] border border-[#1A2A5A] font-medium">
                         {p.tag}
                       </span>
                     </div>
@@ -124,7 +124,7 @@ export function Benefits() {
                   <div>
                     <div className="text-2xl font-black text-[#F8FAFC] font-mono">{p.metric}</div>
                     <div className="text-xs text-[#94A3B8]">{p.metricLabel}</div>
-                    <div className="text-[11px] text-[#3B82F6] mt-0.5">{p.submetric}</div>
+                    <div className="text-xs text-[#3B82F6] mt-0.5">{p.submetric}</div>
                   </div>
                   <button
                     type="button"

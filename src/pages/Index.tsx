@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Hero, CityTier } from '@/components/Hero'
 import { TrustStrip } from '@/components/TrustStrip'
 import { Accountability } from '@/components/Accountability'
+import { TechnicalAssuranceSection } from '@/components/TechnicalAssuranceSection'
 import { Simulator } from '@/components/Simulator'
 import { Benefits } from '@/components/Benefits'
 import { IntegrationArchitecture } from '@/components/IntegrationArchitecture'
@@ -35,6 +36,9 @@ export default function Index() {
 
       {/* 3. Nova Seção de Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}
       <Accountability />
+
+      {/* 3.1. Garantia Técnica & Transição POC/Produção (Banners preservados do Hero) */}
+      <TechnicalAssuranceSection />
 
       {/* 4. Simulator com Nova Moldura Institucional (Recursos Recuperados & Orçamento) */}
       <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />

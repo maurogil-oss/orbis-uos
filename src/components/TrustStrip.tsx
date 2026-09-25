@@ -30,7 +30,7 @@ export function TrustStrip() {
       <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#080E22] to-transparent z-10 pointer-events-none" />
 
       <div className="max-w-[1200px] mx-auto px-4 mb-2 flex items-center justify-center">
-        <span className="text-[11px] uppercase tracking-wider font-semibold text-[#94A3B8]/70 flex items-center gap-2">
+        <span className="text-xs uppercase tracking-wider font-semibold text-[#94A3B8]/80 flex items-center gap-2">
           <Building2 className="w-3.5 h-3.5 text-[#3B82F6]" />
           Conformidade legal, padrões abertos e integridade técnica institucional
         </span>

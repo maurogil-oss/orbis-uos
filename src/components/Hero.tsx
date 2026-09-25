@@ -82,9 +82,9 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
 
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
-          {/* SELETOR INTERATIVO DE PORTE DE CIDADE */}
+          {/* BLOCO 1 ANTES DA DOBRA: SELETOR DE PORTE DA CIDADE */}
           <div className="mb-6 p-1.5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] shadow-xl flex flex-wrap items-center justify-center gap-1.5 max-w-xl">
-            <span className="text-[11px] font-mono uppercase text-[#94A3B8] px-2.5 py-1 font-bold">
+            <span className="text-xs uppercase text-[#94A3B8] px-2.5 py-1 font-semibold">
               Porte da sua cidade:
             </span>
             <button
@@ -97,7 +97,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               }`}
             >
               <span>Até 50k hab.</span>
-              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-black/25">Pequena</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-black/30 font-medium">Pequena</span>
             </button>
             <button
               type="button"
@@ -109,7 +109,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               }`}
             >
               <span>50k–300k hab.</span>
-              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-black/25">Média</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-black/30 font-medium">Média</span>
             </button>
             <button
               type="button"
@@ -121,105 +121,26 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               }`}
             >
               <span>300k+ hab.</span>
-              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-black/25">Grande</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-black/30 font-medium">Grande</span>
             </button>
           </div>
 
-          {/* Eyebrow Badge contextualizado */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#F8FAFC] shadow-sm mb-6 hover:border-[#3B82F6]/50 transition-colors">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10B981]" />
-            </span>
-            <span className="tracking-wide font-mono text-[11px] text-[#10B981]">
-              {current.badge}
-            </span>
-            <span className="text-[#3B82F6] font-bold">|</span>
-            <span className="text-[#94A3B8] font-normal flex items-center gap-1">
-              <Cpu className="w-3.5 h-3.5 text-[#3B82F6]" />
-              SDK Edge • FFT Embarcada
-            </span>
+          {/* BLOCO 2 ANTES DA DOBRA: TÍTULO COM GRADIENTE & SUBTÍTULO */}
+          <div className="mb-8 space-y-4">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.12] text-balance">
+              {current.headlinePrefix}
+              <span className="bg-gradient-to-r from-[#3B82F6] via-[#60A5FA] to-[#10B981] bg-clip-text text-transparent">
+                {current.headlineHighlight}
+              </span>
+              .
+            </h1>
+            <p className="text-base sm:text-xl text-[#94A3B8] leading-relaxed max-w-3xl mx-auto font-normal text-balance">
+              {current.description}
+            </p>
           </div>
 
-          {/* Headline Adaptada por Porte */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#F8FAFC] tracking-tight leading-[1.12] mb-6 text-balance">
-            {current.headlinePrefix}
-            <span className="bg-gradient-to-r from-[#3B82F6] via-[#60A5FA] to-[#10B981] bg-clip-text text-transparent">
-              {current.headlineHighlight}
-            </span>
-            .
-          </h1>
-
-          {/* Subheadline com a narrativa do SDK Edge */}
-          <p className="text-base sm:text-xl text-[#94A3B8] leading-relaxed max-w-3xl mb-6 font-normal text-balance">
-            {current.description}
-          </p>
-
-          {/* BANNER TÉCNICO DE CONFIANÇA E AUDITORIA INSTITUCIONAL */}
-          <div className="p-3.5 rounded-2xl bg-[#101B3A]/80 border border-[#1A2A5A] max-w-2xl w-full mb-8 flex flex-wrap items-center justify-around gap-4 text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-              <span className="text-[#94A3B8]">Auditoria Inercial:</span>
-              <b className="text-[#10B981] font-bold">100% LGPD (Sem imagens de pessoas)</b>
-            </div>
-            <div className="flex items-center gap-2">
-              <BatteryCharging className="w-4 h-4 text-[#3B82F6]" />
-              <span className="text-[#94A3B8]">Consumo Aferido:</span>
-              <b className="text-[#F8FAFC]">1,2–1,8% / hora</b>
-              <span className="text-[10px] text-[#94A3B8]">(Turno 8h = 10–15%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[#60A5FA]" />
-              <span className="text-[#94A3B8]">Processamento Local:</span>
-              <b className="text-[#60A5FA]">FFT Banda 1–20 Hz na Borda</b>
-            </div>
-          </div>
-
-          {/* DADOS VIVOS PUXADOS DO BANCO EM TEMPO REAL */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-2xl mb-8 text-left">
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#10B981] font-mono">
-                {selectedTier === 'pequena'
-                  ? '100%'
-                  : `${liveMetrics ? liveMetrics.totalKmMonitored : 1482} km`}
-              </div>
-              <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                {selectedTier === 'pequena'
-                  ? 'Frota municipal ativa'
-                  : 'Malha auditada continuamente'}
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#3B82F6] font-mono">
-                {liveMetrics ? `${liveMetrics.totalEventsDetected}` : '14'}
-              </div>
-              <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Ocorrências catalogadas
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#F8FAFC] font-mono">
-                {liveMetrics ? `${liveMetrics.activeSensors}` : '6'}
-              </div>
-              <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Veículos transmitindo telemetria
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#60A5FA] font-mono">
-                Art. 320
-              </div>
-              <div className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">
-                Custeio legal via engenharia viária
-              </div>
-            </div>
-          </div>
-
-          {/* CTAs COM ENQUADRAMENTO DE GESTÃO PÚBLICA */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center mb-8">
+          {/* BLOCO 3 ANTES DA DOBRA: UM CTA DOMINANTE (+ LINK SECUNDÁRIO DISCRETO) */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center mb-10">
             <button
               type="button"
               onClick={() => scrollTo('simulador')}
@@ -231,42 +152,54 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
             <button
               type="button"
               onClick={() => scrollTo('prestacao-contas')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#F8FAFC] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6]/50 active:scale-[0.98] transition-all min-h-[48px]"
+              className="inline-flex items-center gap-1.5 text-xs text-[#94A3B8] hover:text-white transition-colors py-2 px-3 underline-offset-4 hover:underline"
             >
               Conhecer a plataforma
+              <ArrowRight className="w-3.5 h-3.5 text-[#94A3B8]" />
             </button>
-            <Link
-              to="/cockpit"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#10B981] bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/30 hover:border-[#10B981]/60 active:scale-[0.98] transition-all min-h-[48px]"
-            >
-              <Smartphone className="w-4 h-4" />
-              Modo Gabinete & Cockpit
-            </Link>
           </div>
 
-          {/* BANNER DE TRANSIÇÃO POC / PRODUÇÃO */}
-          <div className="w-full max-w-3xl p-4 rounded-2xl bg-[#101B3A]/60 border border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6]">
-                <Cpu className="w-4 h-4" />
+          {/* BLOCO 4 ANTES DA DOBRA: MÉTRICAS VIVAS */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-2xl text-left">
+            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
+              <div className="text-xl sm:text-2xl font-black text-[#10B981] font-mono">
+                {selectedTier === 'pequena'
+                  ? '100%'
+                  : `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km`}
               </div>
-              <div className="text-left">
-                <span className="font-bold text-[#F8FAFC] block">
-                  Demonstração no navegador • Produção via SDK Embarcado
-                </span>
-                <span>
-                  Teste os sensores do seu celular agora no cockpit via DeviceMotion; em produção na
-                  prefeitura, opera silencioso em segundo plano.
-                </span>
+              <div className="text-xs text-[#94A3B8] leading-tight mt-1">
+                {selectedTier === 'pequena'
+                  ? 'Frota municipal ativa'
+                  : 'Malha auditada continuamente'}
               </div>
             </div>
-            <Link
-              to="/cockpit"
-              className="underline text-[#3B82F6] hover:text-[#60A5FA] font-medium flex items-center gap-1 shrink-0"
-            >
-              Abrir Cockpit
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+
+            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
+              <div className="text-xl sm:text-2xl font-black text-[#3B82F6] font-mono">
+                {liveMetrics ? `${liveMetrics.totalEventsDetected}` : '14'}
+              </div>
+              <div className="text-xs text-[#94A3B8] leading-tight mt-1">
+                Ocorrências catalogadas
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
+              <div className="text-xl sm:text-2xl font-black text-[#F8FAFC] font-mono">
+                {liveMetrics ? `${liveMetrics.activeSensors}` : '6'}
+              </div>
+              <div className="text-xs text-[#94A3B8] leading-tight mt-1">
+                Veículos transmitindo telemetria
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
+              <div className="text-xl sm:text-2xl font-black text-[#60A5FA] font-mono">
+                Art. 320
+              </div>
+              <div className="text-xs text-[#94A3B8] leading-tight mt-1">
+                Custeio legal via engenharia viária
+              </div>
+            </div>
           </div>
         </div>
       </div>

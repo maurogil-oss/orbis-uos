@@ -110,7 +110,7 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-[#1A2A5A]/80 text-[11px] text-[#94A3B8] flex items-center gap-1.5">
+            <div className="pt-2 border-t border-[#1A2A5A]/80 text-xs text-[#94A3B8] flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
               <span>Canal homologado e integrado à Política de Privacidade (LGPD).</span>
             </div>
@@ -149,7 +149,7 @@ export function ContactSection() {
               </ul>
             </div>
 
-            <div className="pt-2 border-t border-[#1A2A5A]/80 text-[11px] text-[#F59E0B] flex items-center gap-1.5">
+            <div className="pt-2 border-t border-[#1A2A5A]/80 text-xs text-[#F59E0B] flex items-center gap-1.5">
               <span>• Não processa propostas comerciais fora do rito CPSI.</span>
             </div>
           </div>
@@ -164,32 +164,30 @@ export function ContactSection() {
 
               <div className="space-y-2 text-xs">
                 <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] block">
+                  <span className="text-xs uppercase tracking-wider text-[#94A3B8] font-semibold block">
                     Tempo de Resposta Padrão
                   </span>
                   <span className="text-sm font-mono font-bold text-[#10B981]">
                     Até 2 dias úteis
                   </span>
-                  <span className="text-[11px] text-[#94A3B8] block">
+                  <span className="text-xs text-[#94A3B8] block">
                     Conforme SLA P3 publicado no Pacote Operacional.
                   </span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8] block">
+                  <span className="text-xs uppercase tracking-wider text-[#94A3B8] font-semibold block">
                     Horário Oficial (BRT)
                   </span>
                   <span className="text-xs font-semibold text-white block">
                     Segunda a Sexta-feira, 08h00 às 18h00
                   </span>
-                  <span className="text-[11px] text-[#64748B] block">
-                    Exceto feriados nacionais.
-                  </span>
+                  <span className="text-xs text-[#64748B] block">Exceto feriados nacionais.</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-[#1A2A5A]/80 flex items-center justify-between text-[11px]">
+            <div className="pt-2 border-t border-[#1A2A5A]/80 flex items-center justify-between text-xs">
               <Link
                 to="/operacao"
                 className="text-[#60A5FA] hover:underline inline-flex items-center gap-1 font-semibold"
@@ -211,9 +209,7 @@ export function ContactSection() {
               Quadra 4, Bloco A, Edifício Capital, 7º Andar — Brasília, DF — CEP 70304-900
             </span>
           </div>
-          <span className="text-[11px] font-mono text-[#64748B] shrink-0">
-            Governança B2G • LC 182/2021
-          </span>
+          <span className="text-xs text-[#64748B] shrink-0">Governança B2G • LC 182/2021</span>
         </div>
       </div>
     </section>
