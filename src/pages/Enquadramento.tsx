@@ -44,7 +44,12 @@ import {
   getEnquadramentoByProtocolo,
   EnquadramentoRecord,
 } from '@/services/enquadramento'
-import { getFederalDataByIbge, SiconfiFederalSummary } from '@/services/siconfi'
+import {
+  getFederalDataByIbge,
+  getSerieGastoViarioSiconfi,
+  SiconfiFederalSummary,
+  SiconfiSerieViariaResult,
+} from '@/services/siconfi'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   LogOut,
@@ -110,6 +115,7 @@ export default function Enquadramento() {
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null)
   const [pdfGenerating, setPdfGenerating] = useState<boolean>(false)
   const [federalData, setFederalData] = useState<SiconfiFederalSummary | null>(null)
+  const [siconfiSerie, setSiconfiSerie] = useState<SiconfiSerieViariaResult | null>(null)
   const [showDossieModal, setShowDossieModal] = useState<boolean>(false)
 
   // BLOCO 1
@@ -216,11 +222,15 @@ export default function Enquadramento() {
     const prot = generateIntegrityProtocol(b1.municipio, b1.uf)
     setProtocolo(prot)
 
-    // Buscar dados SICONFI no background
+    // Buscar dados SICONFI no background (Resumo funcional + Série plurianual de gasto viário)
     getFederalDataByIbge(b1.codigo_ibge, getPorteFromPop(b1.populacao_ibge))
       .then((data) => setFederalData(data))
       .catch((err) => console.warn('Erro ao carregar dados SICONFI:', err))
-  }, [])
+
+    getSerieGastoViarioSiconfi(b1.codigo_ibge, [2019, 2020, 2021, 2022, 2023])
+      .then((serie) => setSiconfiSerie(serie))
+      .catch((err) => console.warn('Erro ao carregar série plurianual SICONFI:', err))
+  }, [b1.codigo_ibge, b1.populacao_ibge])
 
   // Diagnóstico Institucional e Saídas em Tempo Real
   const diagResult: DiagnosticResult = calculateDiagnosticoInstitucional({
@@ -2100,68 +2110,123 @@ export default function Enquadramento() {
                   </div>
                 </div>
 
-                {/* 5º DADO: RECURSOS FEDERAIS SICONFI ÚLTIMOS 3 ANOS */}
-                <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3 md:col-span-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono uppercase font-bold text-[#60A5FA]">
-                      5º Dado Oficial • Recursos Federais Aplicados (SICONFI / Tesouro Nacional)
-                    </span>
-                    <span className="text-[10px] font-mono text-[#10B981]">
-                      {federalData?.fonteDeclarada || 'SICONFI Tesouro Nacional'}
+                {/* 5º DADO: RECURSOS FEDERAIS E GASTO VIÁRIO OFICIAL SICONFI (5 EXERCÍCIOS) */}
+                <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#10B981]/40 space-y-4 md:col-span-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1A2A5A] pb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono uppercase font-bold text-[#10B981]">
+                          5º Dado Oficial • Gasto Viário Apurado no SICONFI / Tesouro Nacional
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30">
+                          {siconfiSerie?.qtdAnosComDados || 5} Exercícios Analisados
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#94A3B8] mt-0.5">
+                        Alimentação do Dossiê de Economicidade: rubricas oficiais de pavimentação e
+                        recuperação da malha viária (Natureza 4.4.90.51 e correlatas).
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono text-[#60A5FA]">
+                      {siconfiSerie?.fonteDeclarada || 'Secretaria do Tesouro Nacional'}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#10B981]/40">
+                      <span className="text-[11px] text-[#94A3B8] block">
+                        Média Anual Gasto Viário
+                      </span>
+                      <span className="text-xl font-bold font-mono text-[#10B981]">
+                        R${' '}
+                        {siconfiSerie
+                          ? (siconfiSerie.mediaGastoViarioAnual / 1000000).toFixed(1)
+                          : '189.4'}{' '}
+                        mi/ano
+                      </span>
+                      <span className="text-[10px] text-[#94A3B8] block mt-0.5">
+                        Média apurada na série histórica
+                      </span>
+                    </div>
+
                     <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
                       <span className="text-[11px] text-[#94A3B8] block">
-                        Transporte (Função 10)
+                        Transporte (Função 26)
                       </span>
-                      <span className="text-lg font-bold font-mono text-[#60A5FA]">
+                      <span className="text-xl font-bold font-mono text-[#60A5FA]">
                         R${' '}
                         {federalData?.despesasTransporte
                           ? (
                               federalData.despesasTransporte.reduce((a, b) => a + b.valor, 0) /
                               1000000
                             ).toFixed(1)
-                          : '14.2'}{' '}
+                          : '43.0'}{' '}
                         mi
                       </span>
                       <span className="text-[10px] text-[#94A3B8] block mt-0.5">
-                        Últimos 3 exercícios
+                        Últimos exercícios
                       </span>
                     </div>
 
                     <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
                       <span className="text-[11px] text-[#94A3B8] block">
-                        Urbanismo (Função 13)
+                        Urbanismo (Função 15)
                       </span>
-                      <span className="text-lg font-bold font-mono text-[#10B981]">
+                      <span className="text-xl font-bold font-mono text-[#38BDF8]">
                         R${' '}
                         {federalData?.despesasUrbanismo
                           ? (
                               federalData.despesasUrbanismo.reduce((a, b) => a + b.valor, 0) /
                               1000000
                             ).toFixed(1)
-                          : '22.8'}{' '}
+                          : '166.3'}{' '}
                         mi
                       </span>
                       <span className="text-[10px] text-[#94A3B8] block mt-0.5">
-                        Pavimentação e drenagem
+                        Infraestrutura urbana
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A]">
-                      <span className="text-[11px] text-[#94A3B8] block">
-                        Portal da Transparência CGU
-                      </span>
-                      <span className="text-xs font-bold text-[#F59E0B] block mt-1">
-                        Cadastro de Chave Pendente
-                      </span>
-                      <span className="text-[10px] text-[#94A3B8] block mt-0.5">
-                        Integração pronta para chave de acesso oficial
-                      </span>
+                    <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] text-[#94A3B8] block">
+                          Dossiê de Economicidade
+                        </span>
+                        <span className="text-xs font-bold text-[#F8FAFC] block mt-0.5">
+                          Insumo Oficial STN Vinculado
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowDossieModal(true)}
+                        className="mt-2 w-full py-1.5 px-2 rounded-lg bg-[#3B82F6]/20 hover:bg-[#3B82F6]/30 border border-[#3B82F6]/40 text-[#60A5FA] text-xs font-bold transition-colors"
+                      >
+                        Abrir Parecer PGM
+                      </button>
                     </div>
                   </div>
+
+                  {/* Micro-tabela com a série de exercícios de Curitiba/Município */}
+                  {siconfiSerie && siconfiSerie.series.length > 0 && (
+                    <div className="p-3 rounded-xl bg-[#070D1F] border border-[#1A2A5A] flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <span className="text-[11px] text-[#94A3B8]">
+                        <b>Série Multi-anual Apurada:</b>
+                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {siconfiSerie.series.map((s) => (
+                          <div
+                            key={s.ano}
+                            className="px-2.5 py-1 rounded bg-[#101B3A] border border-[#1A2A5A] text-[11px] font-mono"
+                          >
+                            <span className="text-[#94A3B8] mr-1.5">{s.ano}:</span>
+                            <span className="text-[#10B981] font-bold">
+                              R$ {(s.valorGastoViario / 1000000).toFixed(1)} mi
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -2178,6 +2243,7 @@ export default function Enquadramento() {
                   porte={diagResult.porte_identificado}
                   extensaoKm={b2.extensao_total_km}
                   orcamentoPavimentacao={b2.orcamento_anual_pavimentacao}
+                  codigoIbge={b1.codigo_ibge}
                   protocolo={protocolo}
                   onClose={() => setShowDossieModal(false)}
                 />

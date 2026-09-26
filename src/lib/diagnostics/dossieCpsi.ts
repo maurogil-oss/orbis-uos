@@ -19,6 +19,11 @@ export interface EnsaioEconomicidade {
   economiaPercentual: number
   reducaoRetrabalhoAsfaltoEstimada: number
   roiEstimadoMeses: number
+  // Dados oficiais apurados via SICONFI/Tesouro Nacional
+  gastoViarioSiconfiMedia?: number
+  gastoViarioSiconfiAnos?: number[]
+  gastoViarioSiconfiTotal?: number
+  gastoViarioSiconfiFonte?: string
 }
 
 export interface ItemMatrizRisco {
@@ -60,6 +65,10 @@ export function gerarDossieJuridicoCpsi(params: {
   extensaoKm?: number
   orcamentoPavimentacao?: number
   protocolo?: string
+  gastoViarioSiconfiMedia?: number
+  gastoViarioSiconfiAnos?: number[]
+  gastoViarioSiconfiTotal?: number
+  gastoViarioSiconfiFonte?: string
 }): DossieJuridicoCpsi {
   const muni = params.municipio || 'Município'
   const uf = params.uf || 'PR'
@@ -95,6 +104,10 @@ export function gerarDossieJuridicoCpsi(params: {
     economiaPercentual: economiaPct,
     reducaoRetrabalhoAsfaltoEstimada: reducaoRetrabalho,
     roiEstimadoMeses: roiMeses,
+    gastoViarioSiconfiMedia: params.gastoViarioSiconfiMedia,
+    gastoViarioSiconfiAnos: params.gastoViarioSiconfiAnos,
+    gastoViarioSiconfiTotal: params.gastoViarioSiconfiTotal,
+    gastoViarioSiconfiFonte: params.gastoViarioSiconfiFonte,
   }
 
   // 2. Matriz e Relatório de Risco da Inovação

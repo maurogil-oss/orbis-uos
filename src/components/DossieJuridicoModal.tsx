@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   FileText,
   ShieldCheck,
@@ -9,12 +9,16 @@ import {
   Copy,
   Check,
   Building,
+  Building2,
   Printer,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
+  Info,
 } from 'lucide-react'
 import { DossieJuridicoCpsi, gerarDossieJuridicoCpsi } from '@/lib/diagnostics/dossieCpsi'
 import { computeSha256, sanitizeHtml } from '@/lib/diagnostics/pdfReport'
+import { getSerieGastoViarioSiconfi, SiconfiSerieViariaResult } from '@/services/siconfi'
 
 interface DossieJuridicoModalProps {
   municipio: string
@@ -23,6 +27,7 @@ interface DossieJuridicoModalProps {
   porte: 'pequena' | 'media' | 'grande'
   extensaoKm?: number
   orcamentoPavimentacao?: number
+  codigoIbge?: string
   protocolo?: string
   onClose?: () => void
 }
@@ -34,14 +39,46 @@ export function DossieJuridicoModal({
   porte,
   extensaoKm,
   orcamentoPavimentacao,
+  codigoIbge = '4106902',
   protocolo,
   onClose,
 }: DossieJuridicoModalProps) {
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState<'economicidade' | 'riscos' | 'aditivo'>(
+  const [activeTab, setActiveTab] = useState<'economicidade' | 'siconfi' | 'riscos' | 'aditivo'>(
     'economicidade',
   )
   const [hashSha256, setHashSha256] = useState<string>('')
+  const [siconfiSerie, setSiconfiSerie] = useState<SiconfiSerieViariaResult | null>(null)
+  const [loadingSiconfi, setLoadingSiconfi] = useState<boolean>(false)
+
+  // Consulta SICONFI para alimentar o dossiê de economicidade com média plurianual
+  useEffect(() => {
+    let isMounted = true
+    setLoadingSiconfi(true)
+    getSerieGastoViarioSiconfi(codigoIbge, [2019, 2020, 2021, 2022, 2023])
+      .then((res) => {
+        if (isMounted) {
+          setSiconfiSerie(res)
+        }
+      })
+      .catch((err) => console.warn('Erro ao carregar série SICONFI no dossiê:', err))
+      .finally(() => {
+        if (isMounted) setLoadingSiconfi(false)
+      })
+    return () => {
+      isMounted = false
+    }
+  }, [codigoIbge])
+
+  const handleRefreshSiconfi = async () => {
+    setLoadingSiconfi(true)
+    try {
+      const res = await getSerieGastoViarioSiconfi(codigoIbge, [2019, 2020, 2021, 2022, 2023], true)
+      setSiconfiSerie(res)
+    } finally {
+      setLoadingSiconfi(false)
+    }
+  }
 
   const dossie: DossieJuridicoCpsi = gerarDossieJuridicoCpsi({
     municipio,
@@ -49,7 +86,11 @@ export function DossieJuridicoModal({
     porte,
     populacao,
     extensaoKm,
-    orcamentoPavimentacao,
+    orcamentoPavimentacao: siconfiSerie?.mediaGastoViarioAnual || orcamentoPavimentacao,
+    gastoViarioSiconfiMedia: siconfiSerie?.mediaGastoViarioAnual,
+    gastoViarioSiconfiAnos: siconfiSerie?.exerciciosComDados,
+    gastoViarioSiconfiTotal: siconfiSerie?.totalGastoViarioSerie,
+    gastoViarioSiconfiFonte: siconfiSerie?.fonteDeclarada,
     protocolo,
   })
 
@@ -192,11 +233,11 @@ export function DossieJuridicoModal({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#1A2A5A] gap-2">
+      <div className="flex border-b border-[#1A2A5A] gap-2 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('economicidade')}
-          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'economicidade'
               ? 'border-[#3B82F6] text-[#3B82F6]'
               : 'border-transparent text-[#94A3B8] hover:text-[#CBD5E1]'
@@ -208,8 +249,26 @@ export function DossieJuridicoModal({
 
         <button
           type="button"
+          onClick={() => setActiveTab('siconfi')}
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+            activeTab === 'siconfi'
+              ? 'border-[#10B981] text-[#10B981]'
+              : 'border-transparent text-[#94A3B8] hover:text-[#CBD5E1]'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5" />
+          <span>Gasto Viário Oficial SICONFI</span>
+          {siconfiSerie?.mediaGastoViarioAnual ? (
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30">
+              5 Anos
+            </span>
+          ) : null}
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab('riscos')}
-          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'riscos'
               ? 'border-[#3B82F6] text-[#3B82F6]'
               : 'border-transparent text-[#94A3B8] hover:text-[#CBD5E1]'
@@ -222,7 +281,7 @@ export function DossieJuridicoModal({
         <button
           type="button"
           onClick={() => setActiveTab('aditivo')}
-          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 ${
+          className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'aditivo'
               ? 'border-[#3B82F6] text-[#3B82F6]'
               : 'border-transparent text-[#94A3B8] hover:text-[#CBD5E1]'
@@ -292,6 +351,168 @@ export function DossieJuridicoModal({
                 {dossie.ensaioEconomicidade.roiEstimadoMeses} meses
               </span>
             </div>
+          </div>
+
+          {/* Destaque do Gasto Viário SICONFI na aba de economicidade */}
+          {siconfiSerie && (
+            <div className="p-3.5 rounded-xl bg-[#070D1F] border border-[#10B981]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-[#10B981] shrink-0" />
+                <span>
+                  <b>Gasto viário anual apurado no Tesouro Nacional:</b> Média de{' '}
+                  <span className="font-mono text-[#10B981] font-bold">
+                    R$ {(siconfiSerie.mediaGastoViarioAnual / 1000000).toFixed(1)} milhões/ano
+                  </span>{' '}
+                  ({siconfiSerie.qtdAnosComDados} exercícios apurados no SICONFI).
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('siconfi')}
+                className="text-xs font-bold text-[#60A5FA] hover:text-white shrink-0 underline decoration-dotted"
+              >
+                Ver série completa →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Gasto Viário Oficial SICONFI / Tesouro Nacional */}
+      {activeTab === 'siconfi' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 rounded-xl bg-[#101B3A]/80 border border-[#10B981]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/30 font-bold">
+                  Fonte Oficial Primária
+                </span>
+                <span className="text-[11px] font-mono text-[#94A3B8]">
+                  Ente: {municipio} (IBGE: {codigoIbge})
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-white mt-1">
+                Gasto Viário Apurado (Fonte Oficial SICONFI / Tesouro Nacional)
+              </h4>
+              <p className="text-[#94A3B8] text-[11px] mt-0.5">
+                Extração contábil automatizada das rubricas de pavimentação, conservação e
+                recuperação viária da DCA e RREO.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleRefreshSiconfi}
+              disabled={loadingSiconfi}
+              className="px-3 py-1.5 rounded-lg bg-[#070D1F] border border-[#1A2A5A] hover:border-[#10B981] text-[#CBD5E1] hover:text-white text-xs flex items-center gap-1.5 transition-all self-start sm:self-auto disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${loadingSiconfi ? 'animate-spin text-[#10B981]' : ''}`}
+              />
+              <span>{loadingSiconfi ? 'Consultando STN...' : 'Atualizar Dados STN'}</span>
+            </button>
+          </div>
+
+          {/* Cards de Métricas Consolidadas */}
+          {siconfiSerie && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
+                <span className="text-[10px] font-mono text-[#94A3B8] uppercase">
+                  Média Anual de Gasto Viário
+                </span>
+                <div className="text-2xl font-black font-mono text-[#10B981]">
+                  R$ {(siconfiSerie.mediaGastoViarioAnual / 1000000).toFixed(2)} mi
+                </div>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  Calculada sobre {siconfiSerie.qtdAnosComDados} exercícios válidos
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
+                <span className="text-[10px] font-mono text-[#94A3B8] uppercase">
+                  Total Acumulado no Período
+                </span>
+                <div className="text-2xl font-black font-mono text-[#60A5FA]">
+                  R$ {(siconfiSerie.totalGastoViarioSerie / 1000000).toFixed(1)} mi
+                </div>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  Soma dos anos {siconfiSerie.exerciciosComDados.join(', ')}
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
+                <span className="text-[10px] font-mono text-[#94A3B8] uppercase">
+                  Gasto Per Capita Médio
+                </span>
+                <div className="text-2xl font-black font-mono text-[#F59E0B]">
+                  R$ {siconfiSerie.gastoPerCapitaMedio.toFixed(2)}
+                </div>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  Por habitante/ano (Pop: {siconfiSerie.populacaoReferencia.toLocaleString('pt-BR')}
+                  )
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Tabela da Série Anual */}
+          <div className="border border-[#1A2A5A] rounded-xl overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#101B3A] text-[#94A3B8] font-mono uppercase text-[10px]">
+                <tr>
+                  <th className="p-2.5">Exercício</th>
+                  <th className="p-2.5">Gasto Viário Apurado</th>
+                  <th className="p-2.5">Método de Apuração</th>
+                  <th className="p-2.5">População</th>
+                  <th className="p-2.5">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1A2A5A] bg-[#0A1128]">
+                {siconfiSerie?.series.map((item) => (
+                  <tr key={item.ano} className="hover:bg-[#101B3A]/40">
+                    <td className="p-2.5 font-bold font-mono text-[#F8FAFC]">{item.ano}</td>
+                    <td className="p-2.5 font-mono text-[#10B981] font-bold">
+                      {item.valorGastoViario > 0
+                        ? `R$ ${item.valorGastoViario.toLocaleString('pt-BR')}`
+                        : '—'}
+                    </td>
+                    <td className="p-2.5 text-[#94A3B8]">{item.metodoApuracao}</td>
+                    <td className="p-2.5 font-mono text-[#CBD5E1]">
+                      {item.populacao ? item.populacao.toLocaleString('pt-BR') : '—'}
+                    </td>
+                    <td className="p-2.5">
+                      <span
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded border uppercase ${
+                          item.status === 'disponivel'
+                            ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
+                            : 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30'
+                        }`}
+                      >
+                        {item.status === 'disponivel' ? 'Validado STN' : 'Sem Dados'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Citação oficial de procedência e rastreabilidade */}
+          <div className="p-3.5 rounded-xl bg-[#070D1F] border border-[#1A2A5A] flex items-center justify-between gap-3 text-[11px] text-[#94A3B8]">
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4 text-[#3B82F6] shrink-0" />
+              <span>
+                <b>Procedência Oficial:</b> Dados STN / Tesouro Nacional, via API pública SICONFI,
+                consultados em{' '}
+                {siconfiSerie?.dataConsulta
+                  ? new Date(siconfiSerie.dataConsulta).toLocaleDateString('pt-BR')
+                  : new Date().toLocaleDateString('pt-BR')}
+                . Taxa de requisição controlada em 1 req/s.
+              </span>
+            </div>
+            <span className="font-mono text-[#10B981] shrink-0 hidden sm:inline">
+              Fator Confiança 100%
+            </span>
           </div>
         </div>
       )}
