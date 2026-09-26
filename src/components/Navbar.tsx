@@ -73,8 +73,8 @@ export function Navbar() {
   // Links secundários reunidos no menu institucional "Soluções"
   const baseInstitutionalLinks = [
     {
-      label: 'Governança Verificável',
-      desc: 'Conformidade normativa, auditoria e cadeia de custódia',
+      label: 'Governança & Evidências',
+      desc: 'Infraestrutura, contingência, segurança e auditoria',
       href: '/governanca',
       icon: Shield,
       badge: '6 Peças',

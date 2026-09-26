@@ -27,196 +27,142 @@ import {
   Info,
   Scale,
   Sparkles,
+  Download,
+  Printer,
+  Loader2,
+  Share2,
 } from 'lucide-react'
 import { getInstitucionalSettings } from '@/services/institucionalSettings'
+import { generatePacoteEvidenciasPdf } from '@/lib/diagnostics/pacoteEvidenciasPdf'
+import { useAuth } from '@/contexts/AuthContext'
 
-interface NormativeRow {
-  norma: string
-  apelido: string
-  autoridade: string
-  artigos: string
-  requisito: string
-  atendimento: string
-  evidenciaLink: string
-  evidenciaLabel: string
-  status: 'Conforme' | 'Auditado' | 'Implementado'
+interface SuboperadorRow {
+  nome: string
+  funcao: string
+  privacidadeRef: string
+  privacidadeLink?: string
+  status: string
 }
 
-const NORMATIVE_DATA: NormativeRow[] = [
+const SUBOPERADORES_DATA: SuboperadorRow[] = [
   {
-    norma: 'Lei Federal nº 13.709/2018',
-    apelido: 'LGPD',
-    autoridade: 'ANPD / Federal',
-    artigos: 'Art. 7º, 11, 12 e 16',
-    requisito:
-      'Dados anonimizados não são pessoais; k-anonimato territorial em células H3; minimização e descarte após o prazo estrito.',
-    atendimento:
-      'FFT executada na borda (Edge DSP). Eventos transmitidos sem identificação veicular ou trajeto individual. Agregação espacial k ≥ 3 sessões por hexágono H3 e purga automática aos 180 dias.',
-    evidenciaLink: '/privacidade',
-    evidenciaLabel: 'Política de Privacidade (/privacidade)',
-    status: 'Conforme',
+    nome: 'Plataforma de Nuvem Gerenciada (Skip Cloud)',
+    funcao:
+      'Hospedagem da aplicação web (SPA), execução do banco de dados relacional PocketBase v0.36 / SQLite WAL, execução de cron jobs, geração de snapshots diários de backup e sondas de monitoramento de disponibilidade.',
+    privacidadeRef: 'Termos de Serviço da Plataforma de Nuvem & Termos B2G (/termos)',
+    privacidadeLink: '/termos',
+    status: 'Homologado',
   },
   {
-    norma: 'Lei Complementar nº 182/2021',
-    apelido: 'Marco Legal CPSI',
-    autoridade: 'Congresso Nacional',
-    artigos: 'Art. 27 a 31',
-    requisito:
-      'Contratação pública de inovação com matriz de risco equilibrada, metas objetivas de economicidade e prestação de contas com trilha de auditoria nominal.',
-    atendimento:
-      'Enquadramento paramétrico em 6 blocos com matriz de risco e economicidade geradas automaticamente, laudo Dry-Run pré-go-live e registros com autoria nominal.',
-    evidenciaLink: '/enquadramento',
-    evidenciaLabel: 'Dossiê CPSI (/enquadramento)',
-    status: 'Conforme',
-  },
-  {
-    norma: 'ISO 37120 / ISO 37122 / ISO 37125',
-    apelido: 'Cidades Inteligentes & Sustentáveis',
-    autoridade: 'ABNT / ISO Internacional',
-    artigos: 'Seções 19 (Transporte) e 21 (Infraestrutura)',
-    requisito:
-      'Padronização de indicadores de qualidade da malha viária, segurança e sustentabilidade urbana com dados abertos e reprodutíveis.',
-    atendimento:
-      'Cálculo do IMV (Índice de Manutenção Viária) e IMM alinhado à escala IRI do Banco Mundial e exportação de feições GeoJSON RFC 7946 para interoperabilidade metropolitana.',
-    evidenciaLink: '/metodologia',
-    evidenciaLabel: 'Metodologia Científica (/metodologia)',
-    status: 'Auditado',
-  },
-  {
-    norma: 'Resoluções CONTRAN & PNATRANS',
-    apelido: 'Plano Nacional de Redução de Mortes no Trânsito',
-    autoridade: 'Ministério dos Transportes / SENATRAN',
-    artigos: 'Metas Decenais (Lei 13.614/2018)',
-    requisito:
-      'Zeladoria preventiva voltada à eliminação de armadilhas viárias em trechos com alta concentração de acidentes e vulnerabilidade.',
-    atendimento:
-      'Matriz de Prioridade Zero que cruza severidade de pavimento (IMV) com zonas escolares (INEP), transporte (GTFS) e sinistralidade real com procedência declarada (PRF, Bombeiros e Boletins Municipais) ancorados em células hexagonais H3.',
-    evidenciaLink: '/metodologia',
-    evidenciaLabel: 'Prioridade Zero (/metodologia)',
-    status: 'Implementado',
-  },
-  {
-    norma: 'Lei Federal nº 9.503/1997 & Lei 4.320/1964',
-    apelido: 'Art. 320 do CTB & Custo Evitado',
-    autoridade: 'Tribunais de Contas Estaduais (TCE)',
-    artigos: 'Art. 320 CTB / Arts. 85-93 Lei 4.320/64',
-    requisito:
-      'Destinação exclusiva da receita de multas à sinalização e engenharia de tráfego, comprovando nexo causal estrito e economicidade preventiva.',
-    atendimento:
-      'Simulador paramétrico de Custo Evitado auditável (com economia comprovada de até R$ 21/hab/ano) e minuta de empenho orçamentário vinculada à rubrica de engenharia de tráfego.',
-    evidenciaLink: '/enquadramento',
-    evidenciaLabel: 'Minuta Art. 320 (/enquadramento)',
-    status: 'Auditado',
-  },
-  {
-    norma: 'RFC 7946 & OGC Standards',
-    apelido: 'GeoJSON & Padrões Abertos B2G',
-    autoridade: 'IETF / Open Geospatial Consortium',
-    artigos: 'RFC 7946 (The GeoJSON Format)',
-    requisito:
-      'Soberania dos dados pelo órgão público sem lock-in proprietário, com formato padrão estruturado e interoperabilidade de sistemas CIC/CICC.',
-    atendimento:
-      'Catálogo completo de endpoints REST com respostas GeoJSON FeatureCollection, camadas por células hexagonais H3 e chaves de API restritas via hash SHA-256.',
-    evidenciaLink: '/interoperabilidade',
-    evidenciaLabel: 'API & Webhooks (/interoperabilidade)',
-    status: 'Conforme',
+    nome: 'HostGator Brasil (Newfold Digital)',
+    funcao:
+      'Serviço de DNS autoritativo para o domínio oficial www.orbis-uos.com.br e caixas postais de e-mail institucional corporativo (contato@orbis-uos.com.br e privacidade@orbis-uos.com.br).',
+    privacidadeRef:
+      'Política de Privacidade HostGator Brasil & Contrato de Registro de Domínio .br (NIC.br)',
+    status: 'Homologado',
   },
 ]
 
-const AUDIT_EVENTS_LIST = [
+interface DependenciaCriticaRow {
+  dependencia: string
+  funcaoCritica: string
+  comportamentoFalha: string
+  planoContingencia: string
+  impacto: 'Total' | 'Parcial' | 'Operacional'
+}
+
+const DEPENDENCIAS_DATA: DependenciaCriticaRow[] = [
   {
-    code: 'DEMO_STARTED',
-    name: 'Início de Demonstração Orientada',
-    desc: 'Registrado automaticamente a cada início de tour autoguiado (/demo), auditando IP/origem e marcos legais.',
-    escopo: 'Público / Visitante',
-    compliance: 'Art. 27 LC 182/2021',
+    dependencia: 'Plataforma de Nuvem (Skip Cloud)',
+    funcaoCritica:
+      'Hospedagem da SPA, execução do banco PocketBase com SQLite WAL, hooks server-side e cron jobs.',
+    comportamentoFalha:
+      'Queda temporária de acesso ao Cockpit administrativo e APIs REST públicas.',
+    planoContingencia:
+      'Restauração completa do banco a partir de snapshot diário em até 24 horas (RTO contratual; aferido em 1,45s no ensaio formal). Coletores PWA de campo operam offline salvaguardando dados inerciais em fila IndexedDB local até o restabelecimento da conectividade.',
+    impacto: 'Total',
   },
   {
-    code: 'API_KEY_CREATED',
-    name: 'Emissão de Chave de Integração CIC',
-    desc: 'Disparado pelo administrador ao emitir credencial de leitura pública/CICC; grava hash SHA-256 e autoria nominal.',
-    escopo: 'Admin Autenticado',
-    compliance: 'Sigilo & Menor Privilégio',
+    dependencia: 'Fonte PRF / Dados Abertos Federais',
+    funcaoCritica:
+      'Ingestão automatizada de sinistros rodoviários federais para composição da Matriz de Prioridade Zero.',
+    comportamentoFalha:
+      'Indisponibilidade do portal dadosabertos.prf.gov.br ou erro de conexão no conector programático.',
+    planoContingencia:
+      'O conector transita para estado degradado sem interromper a plataforma: o sistema mantém o histórico consolidado e permite importação manual assistida de planilhas CSV com saneamento de PII e validação estrutural.',
+    impacto: 'Operacional',
   },
   {
-    code: 'API_KEY_REVOKED',
-    name: 'Revogação de Credencial de API',
-    desc: 'Invalida imediatamente uma chave de integração ativa, com justificativa obrigatória e autoria na trilha.',
-    escopo: 'Admin Autenticado',
-    compliance: 'Governança & Rastreabilidade',
+    dependencia: 'HostGator (DNS & E-mail Corporativo)',
+    funcaoCritica:
+      'Resolução de nomes do domínio www.orbis-uos.com.br e recebimento de mensagens institucionais.',
+    comportamentoFalha:
+      'Lentidão ou falha de resolução do domínio customizado ou indisponibilidade temporária de recebimento de e-mail.',
+    planoContingencia:
+      'Acesso operacional de contingência garantido via subdomínio direto da nuvem gerenciada (orbisurbano.goskip.app) e canal de contato de emergência com o plantão de sustentação técnica.',
+    impacto: 'Parcial',
   },
   {
-    code: 'USER_ACCOUNT_CREATED',
-    name: 'Criação de Conta de Servidor / Operador',
-    desc: 'Criação de credencial individual para gestor (admin) ou fiscal de campo (operador); auto-registro público é bloqueado.',
-    escopo: 'Admin Autenticado',
-    compliance: 'Art. 27 LC 182/2021',
+    dependencia: 'Gateway de Inteligência Artificial Gerenciado',
+    funcaoCritica:
+      'Geração de diagnósticos narrativos automatizados, resumos executivos e assistência semântica ao gestor.',
+    comportamentoFalha:
+      'Indisponibilidade temporária na geração de narrativas sintetizadas ou resumos em linguagem natural.',
+    planoContingencia:
+      'Desativação pontual de resumos textuais. Todos os algoritmos determinísticos centrais (IMV, IMM, Fator K, indexação hexagonal H3 e Matriz de Prioridade Zero) operam 100% de forma matemática local, sem qualquer dependência de IA.',
+    impacto: 'Operacional',
+  },
+]
+
+interface ComponenteInfraRow {
+  componente: string
+  tecnologia: string
+  funcao: string
+  gestor: string
+}
+
+const INFRAESTRUTURA_DATA: ComponenteInfraRow[] = [
+  {
+    componente: 'Aplicação Web (SPA)',
+    tecnologia: 'React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui',
+    funcao:
+      'Interface do usuário do Cockpit Municipal, Modo Gabinete, PWA do Coletor Inercial e rotas institucionais públicas. Deploy versionado com pipeline de QA obrigatório (oxlint, typecheck tsc, build Vite e suíte de testes) por release.',
+    gestor: 'Plataforma de Nuvem Gerenciada (Skip Cloud)',
   },
   {
-    code: 'USER_ACCOUNT_UPDATED',
-    name: 'Mutação de Conta ou Permissão',
-    desc: 'Alteração de cargo, lotação, status (ativo/desativado) ou redefinição de perfil na collection users.',
-    escopo: 'Admin Autenticado',
-    compliance: 'Princípio do Menor Privilégio',
+    componente: 'Backend & Banco Relacional',
+    tecnologia: 'PocketBase v0.36, SQLite WAL (Write-Ahead Logging)',
+    funcao:
+      'Armazenamento relacional estruturado (16 collections), autenticação de usuários, controle de permissões por perfil (RBAC), hooks server-side de validação, 2 cron jobs ativos e APIs REST de interoperabilidade.',
+    gestor: 'Plataforma de Nuvem Gerenciada (Skip Cloud)',
   },
   {
-    code: 'DRY_RUN_HOMOLOGATION_EXECUTED',
-    name: 'Ensaio de Homologação Pré-Go-Live',
-    desc: 'Auditoria de 7 critérios de produção com emissão do laudo oficial (protocolo ORBIS-DRYRUN-2026-001).',
-    escopo: 'Comissão Técnica / Sistema',
-    compliance: 'LC 182/2021 (Art. 27)',
+    componente: 'DNS & E-mail Institucional',
+    tecnologia: 'Servidores de DNS autoritativo & MX/IMAP/SMTP cPanel',
+    funcao:
+      'Apontamento do domínio oficial www.orbis-uos.com.br e manutenção das contas institucionais de comunicação e governança (contato@orbis-uos.com.br e privacidade@orbis-uos.com.br).',
+    gestor: 'HostGator Brasil / Newfold Digital',
   },
   {
-    code: 'RESTORE_TEST_EXECUTED',
-    name: 'Teste de Restauração de Backup',
-    desc: 'Simulação completa de recuperação em ambiente isolado com 5 fases e integridade SQLite auditada (RTO 1,45s).',
-    escopo: 'SISTEMA (Automação)',
-    compliance: 'SLA Operacional RTO 24h',
-  },
-  {
-    code: 'TELEMETRY_PURGE_JOB_INITIALIZED',
-    name: 'Purga Programada de Telemetria Bruta',
-    desc: 'Rotina diária automatizada de expurgo de leituras brutas (> 180 dias), preservando índices agregados por segmento.',
-    escopo: 'Cron Automatizado',
-    compliance: 'Art. 16 LGPD (Retenção 180d)',
-  },
-  {
-    code: 'SINISTRALIDADE_IMPORTADA',
-    name: 'Carga de Sinistralidade com Procedência Declarada',
-    desc: 'Importação assistida de sinistros viários (PRF, Bombeiros ou CSV do órgão) com sanitização de PII e ancoragem H3.',
-    escopo: 'Admin / Operador',
-    compliance: 'Metas PNATRANS & LGPD Art. 12',
-  },
-  {
-    code: 'CAMADA_EXPOSICAO_IMPORTADA',
-    name: 'Carga de Camadas de Exposição (INEP / GTFS)',
-    desc: 'Importação de polos geradores (Escolas Censo INEP e Pontos de Ônibus GTFS) com raio de influência e indexação H3.',
-    escopo: 'Admin / Operador',
-    compliance: 'Art. 27 LC 182/2021',
-  },
-  {
-    code: 'SINISTROS_PRF_SINCRONIZADOS',
-    name: 'Sincronização de Sinistros Federais via API PRF',
-    desc: 'Disparo nominal pelo operador do conector automatizado da Polícia Rodoviária Federal (dadosabertos.prf.gov.br) com filtragem regional, saneamento de PII e indexação H3.',
-    escopo: 'Admin / Operador',
-    compliance: 'Art. 12 LGPD & PNATRANS (Lei 13.614/2018)',
-  },
-  {
-    code: 'CONECTOR_PRF_HABILITADO',
-    name: 'Habilitação Estrutural do Conector PRF',
-    desc: 'Ativação do conector PRF na governança do sistema como exceção documental única ao fluxo padrão de upload, com endpoint homologado e regras de degradação.',
-    escopo: 'SISTEMA (Migração)',
-    compliance: 'Art. 27 LC 182/2021',
+    componente: 'Gateway de Inteligência Artificial',
+    tecnologia: 'Skip AI Gateway (OpenAI-compatible proxy)',
+    funcao:
+      'Intermediação segura de chamadas a modelos de linguagem para geração assistida de diagnósticos e sumarização executiva, com credenciais armazenadas em cofre seguro de nuvem.',
+    gestor: 'Gateway Gerenciado (Skip Cloud)',
   },
 ]
 
 export default function Governanca() {
+  const { user } = useAuth()
   const [publicTrailCount, setPublicTrailCount] = useState<number | null>(null)
   const [latestEventTimestamp, setLatestEventTimestamp] = useState<string | null>(null)
   const [isLoadingAudit, setIsLoadingAudit] = useState(true)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
+  const [lastGeneratedProtocol, setLastGeneratedProtocol] = useState<string | null>(null)
+  const [lastGeneratedHash, setLastGeneratedHash] = useState<string | null>(null)
 
   useEffect(() => {
-    document.title = 'Governança Verificável | ORBIS UOS'
+    document.title = 'Pacote de Evidências Técnicas & Governança | ORBIS.UOS'
 
     async function loadAuditSummary() {
       try {
@@ -246,168 +192,322 @@ export default function Governanca() {
     loadAuditSummary()
   }, [])
 
+  const handleExportPdf = async () => {
+    if (isGeneratingPdf) return
+    setIsGeneratingPdf(true)
+    try {
+      const res = await generatePacoteEvidenciasPdf({
+        responsavelNome: user?.name || 'Acesso Público / Due Diligence HUB & Órgãos de Controle',
+        responsavelCargo: user?.email
+          ? `Servidor Institucional (${user.email})`
+          : 'Comissão de Avaliação Técnica & Governança B2G',
+        orgaoInteressado: 'HUB de Aceleração GovTech & Administração Pública',
+        dataVersao: '26 de Setembro de 2026',
+      })
+      setLastGeneratedHash(res.hash)
+      setLastGeneratedProtocol(res.protocolo)
+    } catch (err) {
+      console.error('Erro ao gerar o Pacote de Evidências em PDF:', err)
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Falha ao abrir a visualização de impressão/PDF. Certifique-se de que os pop-ups estão autorizados para este domínio.',
+      )
+    } finally {
+      setIsGeneratingPdf(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] pt-24 pb-20 selection:bg-[#3B82F6]/30">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Breadcrumb & Badges */}
+        {/* Breadcrumb & Badges Superiores */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#94A3B8]">
           <div className="flex items-center gap-2">
             <Link to="/" className="hover:text-white transition-colors">
               Início
             </Link>
             <span>/</span>
-            <span className="text-[#38BDF8] font-medium">Governança Institucional</span>
+            <span className="text-[#38BDF8] font-medium">Governança & Evidências Técnicas</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] font-mono text-[11px] font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] font-mono text-xs font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              Página Verificável Soberana
+              Evidência Operacional Auditável
             </span>
-            <span className="font-mono text-[11px] text-[#94A3B8] bg-[#101B3A] px-2 py-0.5 rounded border border-[#1A2A5A]">
-              Release v0.0.34
+            <span className="font-mono text-xs text-[#94A3B8] bg-[#101B3A] px-2 py-0.5 rounded border border-[#1A2A5A]">
+              Release v0.0.41 • 30 Migrações
             </span>
           </div>
         </div>
 
-        {/* Hero Section */}
+        {/* Hero Section com Ação de Exportar / Imprimir PDF */}
         <section className="space-y-6 pb-8 border-b border-[#1A2A5A]">
-          <div className="space-y-4 max-w-4xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA]">
-              <Scale className="w-3.5 h-3.5 text-[#38BDF8]" />
-              <span>Transparência Pública & Conformidade B2G</span>
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div className="space-y-4 max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B82F6]/15 border border-[#3B82F6]/30 text-xs font-semibold text-[#60A5FA]">
+                <Scale className="w-3.5 h-3.5 text-[#38BDF8]" />
+                <span>Due Diligence Técnica • HUB de Aceleração & Órgãos de Controle</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+                Pacote de Evidências Técnicas &{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#10B981]">
+                  Governança Operacional
+                </span>
+              </h1>
+
+              <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed">
+                Documento único, público, navegável e imprimível que consolida as evidências reais
+                de engenharia da plataforma <b>ORBIS.UOS</b>. Cada número, job agendado, cofre de
+                segredos e migração citado neste documento corresponde à{' '}
+                <b>realidade ativa no backend</b> — constituindo prova auditável para comissões de
+                licitação, procuradorias municipais e o processo de aceleração do HUB.
+              </p>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-              Governança não é o que dizemos — é uma{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] via-[#60A5FA] to-[#10B981]">
-                página verificável
-              </span>
-              .
-            </h1>
+            {/* Painel de Exportação e Protocolo */}
+            <div className="lg:w-80 p-5 rounded-2xl bg-[#0A1128] border-2 border-[#3B82F6]/40 shadow-xl space-y-3 shrink-0">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-[#94A3B8] uppercase">Formato Homologado</span>
+                <span className="text-[#10B981] font-bold">PDF / Impressão</span>
+              </div>
 
-            <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed">
-              Consolidação centralizada das 6 peças de governança, conformidade regulatória e
-              segurança da plataforma <b>ORBIS UOS</b>. Em vez de promessas de marketing, cada
-              declaração abaixo aponta diretamente para o código, para o dossiê com hash SHA-256 ou
-              para o ensaio de auditoria em produção.
-            </p>
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                disabled={isGeneratingPdf}
+                className="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] border border-[#3B82F6]/60 shadow-lg shadow-[#2563EB]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                title="Abrir o Pacote de Evidências Técnicas para impressão ou salvamento em PDF"
+              >
+                {isGeneratingPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Preparando Documento...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-4 h-4 text-[#38BDF8]" />
+                    <span>Exportar / Imprimir em PDF</span>
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-[#94A3B8] text-center leading-snug">
+                Gera layout A4 pronto para anexação formal a processos de contratação sob a LC
+                182/2021.
+              </p>
+
+              {lastGeneratedHash && (
+                <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#10B981]/40 text-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-[#10B981] font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Digest SHA-256 Emitido:</span>
+                  </div>
+                  <div className="font-mono text-[#38BDF8] break-all text-xs">
+                    {lastGeneratedHash.slice(0, 24)}...
+                  </div>
+                  <div className="font-mono text-[#94A3B8] text-xs">
+                    Protocolo: {lastGeneratedProtocol}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Quick Nav Anchors Bar */}
+          {/* Quick Nav Anchors Bar pelas 6 Seções Obrigatórias */}
           <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
-            <div className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] flex items-center justify-between">
-              <span>Navegação Rápida pelas 6 Peças de Governança:</span>
-              <span className="text-[#38BDF8] hidden sm:inline">6 seções auditáveis</span>
+            <div className="text-xs font-mono uppercase tracking-wider text-[#64748B] flex items-center justify-between">
+              <span>Navegação pelas 6 Seções do Pacote de Evidências Técnicas:</span>
+              <span className="text-[#38BDF8] hidden sm:inline">6 seções auditadas</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
               <a
-                href="#conformidade-normativa"
+                href="#secao-1-infraestrutura"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <FileCheck2 className="w-3.5 h-3.5 text-[#38BDF8]" />
-                <span>1. Mapa Normativo</span>
+                <Server className="w-3.5 h-3.5 text-[#38BDF8]" />
+                <span>1. Mapeamento de Infraestrutura</span>
               </a>
               <a
-                href="#trilha-auditoria"
+                href="#secao-2-dependencias"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <History className="w-3.5 h-3.5 text-[#F59E0B]" />
-                <span>2. Trilha de Auditoria</span>
+                <AlertTriangle className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>2. Dependências & Contingência</span>
               </a>
               <a
-                href="#matriz-responsabilidades"
+                href="#secao-3-seguranca"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <Users className="w-3.5 h-3.5 text-[#10B981]" />
-                <span>3. Matriz de Papéis</span>
+                <Lock className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>3. Segurança & Criptografia</span>
               </a>
               <a
-                href="#fluxo-incidentes"
+                href="#secao-4-suboperadores"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-[#EF4444]" />
-                <span>4. Fluxo de Incidentes & RTO</span>
+                <Users className="w-3.5 h-3.5 text-[#60A5FA]" />
+                <span>4. Lista de Suboperadores</span>
               </a>
               <a
-                href="#cadeia-custodia"
+                href="#secao-5-retencao"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <Layers className="w-3.5 h-3.5 text-[#60A5FA]" />
-                <span>5. Cadeia de Custódia</span>
+                <Clock className="w-3.5 h-3.5 text-[#A78BFA]" />
+                <span>5. Retenção, Backup & Continuidade</span>
               </a>
               <a
-                href="#governanca-produto"
+                href="#secao-6-auditoria"
                 className="px-3 py-1.5 rounded-lg bg-[#101B3A] hover:bg-[#1A2A5A] text-[#CBD5E1] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5"
               >
-                <GitBranch className="w-3.5 h-3.5 text-[#A78BFA]" />
-                <span>6. Governança do Produto</span>
+                <History className="w-3.5 h-3.5 text-[#34D399]" />
+                <span>6. Auditoria & Versionamento</span>
               </a>
             </div>
           </div>
         </section>
 
         {/* ========================================================================= */}
-        {/* SEÇÃO 1: MAPA DE CONFORMIDADE NORMATIVA */}
+        {/* SEÇÃO 1: MAPEAMENTO DE INFRAESTRUTURA */}
         {/* ========================================================================= */}
-        <section id="conformidade-normativa" className="space-y-6 scroll-mt-24">
+        <section id="secao-1-infraestrutura" className="space-y-6 scroll-mt-24">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#38BDF8]/15 text-[#38BDF8] font-mono text-xs font-bold border border-[#38BDF8]/30">
-              <FileCheck2 className="w-3.5 h-3.5" />
-              PEÇA 1 DE 6 • MATRIZ REGULATÓRIA
+              <Server className="w-3.5 h-3.5" />
+              SEÇÃO 1 DE 6 • MAPEAMENTO OPERACIONAL
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              1. Mapa de Conformidade Normativa Cruzada
+              1. Mapeamento de Infraestrutura
             </h2>
             <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              Cruzamento objetivo entre as normas jurídicas, técnicas e de controle externo que
-              regem a contratação GovTech e a evidência concreta implementada no produto. Nenhum
-              requisito é deixado como intenção abstrata.
+              Discriminação formal dos 4 componentes tecnológicos centrais da plataforma, sua função
+              crítica na operação B2G e o respectivo responsável por sua gestão contínua.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-[#1A2A5A] bg-[#0A1128] shadow-xl">
+            <table className="w-full text-left border-collapse min-w-[760px]">
+              <thead>
+                <tr className="border-b border-[#1A2A5A] bg-[#101B3A]/80 text-xs font-mono uppercase tracking-wider text-[#94A3B8]">
+                  <th className="py-3.5 px-4 font-semibold text-white">Componente</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Tecnologia Empregada</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Função Operacional</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Responsável / Gestor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1A2A5A]/60 text-xs">
+                {INFRAESTRUTURA_DATA.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-[#101B3A]/40 transition-colors">
+                    <td className="py-4 px-4 align-top font-bold text-white text-sm">
+                      {row.componente}
+                    </td>
+                    <td className="py-4 px-4 align-top font-mono text-xs text-[#38BDF8]">
+                      {row.tecnologia}
+                    </td>
+                    <td className="py-4 px-4 align-top text-[#CBD5E1] leading-relaxed">
+                      {row.funcao}
+                    </td>
+                    <td className="py-4 px-4 align-top whitespace-nowrap">
+                      <span className="inline-block px-2.5 py-1 rounded bg-[#101B3A] text-[#10B981] font-mono text-xs border border-[#1A2A5A] font-medium">
+                        {row.gestor}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-xs font-mono uppercase text-[#38BDF8] font-bold">
+                Deploy Versionado
+              </span>
+              <p className="text-xs text-[#CBD5E1]">
+                Toda alteração é empacotada em release semântico (atualmente <b>v0.0.41</b>) com
+                histórico imutável de commits e artefatos reprodutíveis.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-xs font-mono uppercase text-[#10B981] font-bold">
+                Pipeline de QA Obrigatório
+              </span>
+              <p className="text-xs text-[#CBD5E1]">
+                Nenhuma alteração é promovida a produção sem validação integral: análise estática
+                (oxlint), verificação de tipos (TypeScript tsc), build de produção Vite e testes
+                automatizados.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-xs font-mono uppercase text-[#F59E0B] font-bold">
+                Domínio & DNS Próprio
+              </span>
+              <p className="text-xs text-[#CBD5E1]">
+                O domínio oficial <b>www.orbis-uos.com.br</b> possui zona de DNS gerenciada na
+                HostGator com certificados SSL/TLS emitidos na borda da aplicação.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* SEÇÃO 2: MATRIZ DE DEPENDÊNCIAS CRÍTICAS E CONTINGÊNCIA */}
+        {/* ========================================================================= */}
+        <section id="secao-2-dependencias" className="space-y-6 scroll-mt-24">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#F59E0B]/15 text-[#F59E0B] font-mono text-xs font-bold border border-[#F59E0B]/30">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              SEÇÃO 2 DE 6 • GESTÃO DE RISCO E RESILIÊNCIA
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              2. Matriz de Dependências Críticas e Contingência
+            </h2>
+            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
+              Mapeamento preventivo das dependências externas da plataforma, o comportamento
+              esperado em caso de interrupção e os planos formais de contingência testados.
             </p>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-[#1A2A5A] bg-[#0A1128] shadow-xl">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="border-b border-[#1A2A5A] bg-[#101B3A]/80 text-[11px] font-mono uppercase tracking-wider text-[#94A3B8]">
-                  <th className="py-3.5 px-4 font-semibold text-white">Norma / Marco</th>
-                  <th className="py-3.5 px-4 font-semibold text-white">Artigos / Dispositivos</th>
-                  <th className="py-3.5 px-4 font-semibold text-white">Requisito Legal</th>
-                  <th className="py-3.5 px-4 font-semibold text-white">Atendimento no Produto</th>
-                  <th className="py-3.5 px-4 font-semibold text-white">Evidência Pública</th>
+                <tr className="border-b border-[#1A2A5A] bg-[#101B3A]/80 text-xs font-mono uppercase tracking-wider text-[#94A3B8]">
+                  <th className="py-3.5 px-4 font-semibold text-white">Dependência</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Função Crítica</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">O que acontece se falhar</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Plano de Contingência</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Impacto</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1A2A5A]/60 text-xs">
-                {NORMATIVE_DATA.map((row, idx) => (
+                {DEPENDENCIAS_DATA.map((row, idx) => (
                   <tr key={idx} className="hover:bg-[#101B3A]/40 transition-colors">
-                    <td className="py-4 px-4 align-top">
-                      <div className="font-bold text-white text-sm">{row.apelido}</div>
-                      <div className="text-[11px] text-[#94A3B8]">{row.norma}</div>
-                      <span className="inline-block mt-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#60A5FA] border border-[#1A2A5A]">
-                        {row.autoridade}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 align-top font-mono text-[11px] text-[#CBD5E1]">
-                      {row.artigos}
+                    <td className="py-4 px-4 align-top font-bold text-white text-sm">
+                      {row.dependencia}
                     </td>
                     <td className="py-4 px-4 align-top text-[#CBD5E1] leading-relaxed">
-                      {row.requisito}
+                      {row.funcaoCritica}
+                    </td>
+                    <td className="py-4 px-4 align-top text-[#EF4444] leading-relaxed">
+                      {row.comportamentoFalha}
                     </td>
                     <td className="py-4 px-4 align-top text-[#94A3B8] leading-relaxed">
-                      {row.atendimento}
+                      {row.planoContingencia}
                     </td>
                     <td className="py-4 px-4 align-top whitespace-nowrap">
-                      <Link
-                        to={row.evidenciaLink}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3B82F6]/15 hover:bg-[#3B82F6]/25 border border-[#3B82F6]/40 text-[#60A5FA] hover:text-white transition-all text-xs font-semibold"
+                      <span
+                        className={`inline-block px-2.5 py-1 rounded font-mono text-xs font-bold border ${
+                          row.impacto === 'Total'
+                            ? 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30'
+                            : row.impacto === 'Parcial'
+                              ? 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]/30'
+                              : 'bg-[#3B82F6]/15 text-[#60A5FA] border-[#3B82F6]/30'
+                        }`}
                       >
-                        <span>Ver evidência</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
-                      <div className="text-[10px] text-[#10B981] font-mono mt-1 flex items-center gap-1">
-                        <Check className="w-3 h-3" />
-                        {row.status}
-                      </div>
+                        {row.impacto}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -417,712 +517,500 @@ export default function Governanca() {
         </section>
 
         {/* ========================================================================= */}
-        {/* SEÇÃO 2: TRILHA DE AUDITORIA EM RESUMO PÚBLICO */}
+        {/* SEÇÃO 3: SEGURANÇA E CRIPTOGRAFIA */}
         {/* ========================================================================= */}
-        <section id="trilha-auditoria" className="space-y-6 scroll-mt-24">
+        <section id="secao-3-seguranca" className="space-y-6 scroll-mt-24">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#F59E0B]/15 text-[#F59E0B] font-mono text-xs font-bold border border-[#F59E0B]/30">
-              <History className="w-3.5 h-3.5" />
-              PEÇA 2 DE 6 • AUDITORIA SOBERANA
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#10B981]/15 text-[#10B981] font-mono text-xs font-bold border border-[#10B981]/30">
+              <Lock className="w-3.5 h-3.5" />
+              SEÇÃO 3 DE 6 • SEGURANÇA COMPUTACIONAL
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              2. Trilha de Auditoria em Resumo Público
+              3. Segurança, Criptografia e Controle de Acesso
             </h2>
             <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              Toda mutação de dados críticos no ORBIS UOS gera um registro nominal imutável no campo{' '}
-              <code className="text-[#38BDF8] bg-[#101B3A] px-1.5 py-0.5 rounded">audit_trail</code>{' '}
-              da collection institucional. O detalhe nominal (nome, e-mail e cargo do agente) é
-              restrito ao Cockpit administrativo do órgão por dever de sigilo, mas a arquitetura e o
-              catálogo de eventos são públicos e verificáveis.
+              Nota técnica declarando as salvaguardas computacionais implementadas para a proteção
+              de dados em trânsito e em repouso, gestão de chaves de API e controle de privilégios.
             </p>
           </div>
 
-          {/* Cards de Resumo & Status */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
-              <span className="text-[11px] font-mono uppercase text-[#94A3B8]">
-                Eventos Registrados na Base Real
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Bloco 1: Criptografia em Trânsito e Repouso */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <Shield className="w-5 h-5 text-[#38BDF8]" />
+                <h3>Criptografia em Trânsito & em Repouso</h3>
+              </div>
+              <ul className="text-xs text-[#CBD5E1] space-y-2 list-disc pl-4 leading-relaxed">
+                <li>
+                  <b>Trânsito (TLS):</b> Toda a troca de pacotes entre o navegador/PWA do operador e
+                  os servidores da plataforma é obrigatoriamente protegida por{' '}
+                  <b>TLS 1.3 / HTTPS</b>, com certificados criptográficos gerenciados e renovados na
+                  borda da rede.
+                </li>
+                <li>
+                  <b>Repouso (AES-256):</b> Os dados persistidos no banco de dados SQLite WAL e os
+                  snapshots de backup gerados são gravados em volumes de disco protegidos por
+                  criptografia em repouso gerenciada pelo provedor de infraestrutura de nuvem.
+                </li>
+              </ul>
+            </div>
+
+            {/* Bloco 2: Cofre de Segredos */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <KeyRound className="w-5 h-5 text-[#10B981]" />
+                <h3>Cofre de Segredos & Credenciais</h3>
+              </div>
+              <ul className="text-xs text-[#CBD5E1] space-y-2 list-disc pl-4 leading-relaxed">
+                <li>
+                  <b>Ausência de Segredos no Código:</b> Nenhuma credencial institucional, token
+                  superuser ou chave privada é versionada nos arquivos fonte da aplicação.
+                </li>
+                <li>
+                  <b>Injeção por Variáveis de Ambiente:</b> Segredos como{' '}
+                  <code>PB_SUPERUSER_TOKEN</code> e <code>SKIP_AI_GATEWAY_API_KEY</code> residem no
+                  cofre seguro da plataforma de nuvem e são acessados exclusivamente em tempo de
+                  execução server-side via <code>$os.getenv</code>.
+                </li>
+              </ul>
+            </div>
+
+            {/* Bloco 3: Chaves de API */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <Terminal className="w-5 h-5 text-[#F59E0B]" />
+                <h3>Chaves de API para Integração CIC / CICC</h3>
+              </div>
+              <ul className="text-xs text-[#CBD5E1] space-y-2 list-disc pl-4 leading-relaxed">
+                <li>
+                  <b>Armazenamento Exclusivo como Hash:</b> Chaves de integração externa nunca são
+                  armazenadas em texto claro no banco — apenas o seu hash <b>SHA-256</b> (coluna{' '}
+                  <code>key_hash</code> na collection <code>api_keys</code>).
+                </li>
+                <li>
+                  <b>Escopo e Rate Limiting:</b> As chaves emitidas possuem escopo restrito a{' '}
+                  <code>somente_leitura</code>, limite de requisições por minuto (rate limit
+                  configurável) e fluxo de revogação imediata com registro nominal de justificativa
+                  e autor na trilha de auditoria.
+                </li>
+              </ul>
+            </div>
+
+            {/* Bloco 4: RBAC e Trilha de Auditoria */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <Users className="w-5 h-5 text-[#A78BFA]" />
+                <h3>Controle de Acesso (RBAC) & Trilha Nominal</h3>
+              </div>
+              <ul className="text-xs text-[#CBD5E1] space-y-2 list-disc pl-4 leading-relaxed">
+                <li>
+                  <b>Perfis Estruturados:</b> O sistema impõe separação rígida de papéis na
+                  collection <code>users</code> — <b>admin</b> (gestores municipais com acesso a
+                  configurações, criação de usuários e revogação) e <b>operador</b> (agentes de
+                  campo restritos à coleta inercial e mapas).
+                </li>
+                <li>
+                  <b>Trilha Auditável por Evento:</b> Mutações críticas são gravadas na propriedade{' '}
+                  <code>audit_trail</code> da entidade institucional contendo identificador, carimbo
+                  de data/hora UTC, payload do evento e objeto de autor obrigatório:{' '}
+                  <code>{`{ id, email, name, role }`}</code>.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* SEÇÃO 4: LISTA FORMAL DE SUBOPERADORES */}
+        {/* ========================================================================= */}
+        <section id="secao-4-suboperadores" className="space-y-6 scroll-mt-24">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#60A5FA]/15 text-[#60A5FA] font-mono text-xs font-bold border border-[#60A5FA]/30">
+              <Users className="w-3.5 h-3.5" />
+              SEÇÃO 4 DE 6 • CADEIA DE FORNECEDORES LGPD
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              4. Lista de Suboperadores
+            </h2>
+            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
+              Declaração formal dos fornecedores de infraestrutura e serviços essenciais que atuam
+              na qualidade de suboperadores de dados conforme o Artigo 39 da LGPD (Lei 13.709/2018).
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-[#1A2A5A] bg-[#0A1128] shadow-xl">
+            <table className="w-full text-left border-collapse min-w-[760px]">
+              <thead>
+                <tr className="border-b border-[#1A2A5A] bg-[#101B3A]/80 text-xs font-mono uppercase tracking-wider text-[#94A3B8]">
+                  <th className="py-3.5 px-4 font-semibold text-white">Suboperador</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Função no Tratamento</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Referência à Política</th>
+                  <th className="py-3.5 px-4 font-semibold text-white">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1A2A5A]/60 text-xs">
+                {SUBOPERADORES_DATA.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-[#101B3A]/40 transition-colors">
+                    <td className="py-4 px-4 align-top font-bold text-white text-sm">{row.nome}</td>
+                    <td className="py-4 px-4 align-top text-[#CBD5E1] leading-relaxed">
+                      {row.funcao}
+                    </td>
+                    <td className="py-4 px-4 align-top text-[#94A3B8] leading-relaxed">
+                      {row.privacidadeLink ? (
+                        <Link
+                          to={row.privacidadeLink}
+                          className="text-[#38BDF8] hover:underline inline-flex items-center gap-1 font-semibold"
+                        >
+                          <span>{row.privacidadeRef}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </Link>
+                      ) : (
+                        <span>{row.privacidadeRef}</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-4 align-top whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#10B981]/15 text-[#10B981] font-mono text-xs font-semibold border border-[#10B981]/30">
+                        <Check className="w-3 h-3" />
+                        {row.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex items-start gap-3">
+            <Info className="w-5 h-5 text-[#38BDF8] shrink-0 mt-0.5" />
+            <div className="space-y-1 text-xs">
+              <strong className="text-white block">
+                Compromisso Público de Atualização Contínua desta Rota:
+              </strong>
+              <p className="text-[#94A3B8] leading-relaxed">
+                A ORBIS.UOS compromete-se a manter esta relação de suboperadores permanentemente
+                atualizada nesta mesma URL pública (<code>/governanca</code>). Toda alteração na
+                cadeia de provedores de computação, nuvem ou telecomunicações será refletida nesta
+                tabela e registrada no histórico semântico da plataforma.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* SEÇÃO 5: RETENÇÃO, BACKUP E CONTINUIDADE */}
+        {/* ========================================================================= */}
+        <section id="secao-5-retencao" className="space-y-6 scroll-mt-24">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#A78BFA]/15 text-[#A78BFA] font-mono text-xs font-bold border border-[#A78BFA]/30">
+              <Clock className="w-3.5 h-3.5" />
+              SEÇÃO 5 DE 6 • POLÍTICA DE DADOS & DISPONIBILIDADE
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              5. Retenção, Backup e Continuidade Operacional
+            </h2>
+            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
+              Mecanismos automáticos de ciclo de vida do dado, salvaguardas periódicas de
+              restauração e monitoramento contínuo de disponibilidade com sondas a cada 5 minutos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Bloco 1: Purga 180 dias */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase text-[#10B981] font-bold">
+                  Job Agendado Ativo
+                </span>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
+                  cron: 30 6 * * * (03h30 BRT)
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-[#10B981]" />
+                Purga Automática de Telemetria (180 Dias)
+              </h3>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Em estrito atendimento ao <b>Artigo 16 da LGPD</b> (eliminação após o cumprimento da
+                finalidade), o backend executa rotina diária (job <code>telemetry_purge_180d</code>)
+                que expurga leituras inerciais brutas antigas de <code>segment_readings</code> e{' '}
+                <code>field_sessions</code>.
+              </p>
+              <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs text-[#94A3B8] space-y-1">
+                <div>
+                  • <b>O que é expurgado:</b> Janelas inerciais cruas de FFT e trechos individuais
+                  com mais de 180 dias.
+                </div>
+                <div>
+                  • <b>O que é preservado:</b> Os índices sintetizados dos segmentos viários (
+                  <code>road_segments</code>: IMV e IMM).
+                </div>
+                <div>
+                  • <b>Registro:</b> Log gravado na trilha de auditoria com contagem de registros
+                  purgados e autoria SISTEMA.
+                </div>
+              </div>
+            </div>
+
+            {/* Bloco 2: Saneamento na Borda */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase text-[#38BDF8] font-bold">
+                  Privacy-by-Design
+                </span>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
+                  Art. 12 da LGPD
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Shield className="w-5 h-5 text-[#38BDF8]" />
+                Saneamento de Identificadores na Borda
+              </h3>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Dados importados de fontes externas (como boletins de sinistros da PRF ou órgãos
+                municipais) passam por filtragem na borda do servidor, removendo identificadores
+                pessoais (PII) antes da gravação no banco relacional.
+              </p>
+              <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-xs text-[#94A3B8] space-y-1">
+                <div>
+                  • <b>Zero PII em Coleta:</b> O acelerômetro da frota nunca acessa microfone,
+                  câmera, contatos ou dados pessoais.
+                </div>
+                <div>
+                  • <b>k-anonimato H3:</b> Células hexagonais no portal aberto só exibem métricas se
+                  possuírem pelo menos 3 passagens (k ≥ 3).
+                </div>
+              </div>
+            </div>
+
+            {/* Bloco 3: Backup & Playbook de Restore */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase text-[#F59E0B] font-bold">
+                  Teste Auditado em Produção
+                </span>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#34D399] border border-[#10B981]/30">
+                  RTO: 1,45s (Auditado)
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Database className="w-5 h-5 text-[#F59E0B]" />
+                Backup Gerenciado & Playbook de Restore
+              </h3>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                A plataforma conta com snapshots diários automatizados e playbook formal de
+                restauração em 5 fases registrado no backend (Migração 0022). O 1º teste oficial de
+                restauração foi executado e aprovado com <code>
+                  PRAGMA integrity_check = ok
+                </code> e
+                RTO real de 1,45 segundo.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  to="/operacao#politica-backup"
+                  className="text-xs text-[#38BDF8] hover:underline inline-flex items-center gap-1 font-semibold"
+                >
+                  <span>Ver playbook de restore completo em /operacao</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Bloco 4: Monitoramento 5min e Rota /status */}
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase text-[#34D399] font-bold">
+                  Sonda Ativa a Cada 5 Minutos
+                </span>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#101B3A] text-[#38BDF8] border border-[#3B82F6]/30">
+                  Uptime 24h &gt; 99,9%
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Activity className="w-5 h-5 text-[#34D399]" />
+                Monitoramento Ativo 24/7 & Rota /status
+              </h3>
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Job agendado em produção (<code>health_check_5min</code>) testa a cada 5 minutos os
+                4 componentes da arquitetura: banco SQLite WAL, aplicação SPA, APIs de
+                interoperabilidade H3 e conectores federais, gravando métricas na collection{' '}
+                <code>health_checks</code>.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  to="/status"
+                  className="text-xs text-[#10B981] hover:underline inline-flex items-center gap-1 font-semibold"
+                >
+                  <span>Acessar Painel Público de Disponibilidade (/status)</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Declaração de RTO / RPO de Referência */}
+          <div className="p-5 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-3">
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono text-[#38BDF8]">
+              Declaração Formal de RTO e RPO de Referência
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
+                <span className="text-[#94A3B8] uppercase text-xs block font-mono">
+                  RTO Contratual
+                </span>
+                <strong className="text-white text-base font-mono">24 Horas</strong>
+                <p className="text-[#94A3B8] text-xs mt-1">
+                  Tempo máximo garantido para restabelecimento de operações críticas após desastre
+                  lógico.
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
+                <span className="text-[#94A3B8] uppercase text-xs block font-mono">
+                  RPO Declarado
+                </span>
+                <strong className="text-[#10B981] text-base font-mono">24 Horas</strong>
+                <p className="text-[#94A3B8] text-xs mt-1">
+                  Tolerância máxima de perda de dados limitada ao snapshot diário anterior; coletas
+                  de campo protegidas offline.
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A]">
+                <span className="text-[#94A3B8] uppercase text-xs block font-mono">
+                  RTO Auditado em Produção
+                </span>
+                <strong className="text-[#38BDF8] text-base font-mono">1,45 Segundo</strong>
+                <p className="text-[#94A3B8] text-xs mt-1">
+                  Tempo aferido no ensaio oficial de restauração (protocolo
+                  ORBIS-RESTORE-TEST-2026-001).
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* SEÇÃO 6: REGISTRO DE AUDITORIA E VERSIONAMENTO */}
+        {/* ========================================================================= */}
+        <section id="secao-6-auditoria" className="space-y-6 scroll-mt-24">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#34D399]/15 text-[#34D399] font-mono text-xs font-bold border border-[#34D399]/30">
+              <History className="w-3.5 h-3.5" />
+              SEÇÃO 6 DE 6 • AUDITORIA CONTÍNUA E RASTREABILIDADE
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              6. Registro de Auditoria, Versionamento Semântico e Fé Pública
+            </h2>
+            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
+              Como as evidências técnicas da ORBIS.UOS são produzidas de forma verificável: trilha
+              de auditoria nominal, 30 migrações aplicadas sequencialmente e pipeline de QA por
+              release.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+              <span className="text-xs font-mono uppercase text-[#94A3B8]">
+                Trilha de Auditoria Soberana
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black font-mono text-[#F59E0B]">
                   {isLoadingAudit ? '...' : publicTrailCount !== null ? publicTrailCount : '12+'}
                 </span>
-                <span className="text-xs text-[#94A3B8]">eventos soberanos auditados</span>
+                <span className="text-xs text-[#94A3B8]">eventos registrados</span>
               </div>
-              <p className="text-[11px] text-[#64748B]">
-                Leitura do endpoint higienizado em tempo real da instância municipal (IBGE 4106902).
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Armazenados na entidade institucional do município piloto (Curitiba / IBGE 4106902)
+                com autoria nominal do agente responsável.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
-              <span className="text-[11px] font-mono uppercase text-[#94A3B8]">
-                Autoria Nominal Obrigatória
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+              <span className="text-xs font-mono uppercase text-[#94A3B8]">
+                Migrações de Banco Aplicadas
               </span>
-              <div className="flex items-center gap-2 text-white font-bold text-base">
-                <Shield className="w-4 h-4 text-[#10B981]" />
-                <span>{`{ id, email, name, role }`}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black font-mono text-[#10B981]">30</span>
+                <span className="text-xs text-[#94A3B8]">scripts imutáveis (0001 a 0030)</span>
               </div>
-              <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                Nenhuma ação administrativa é gravada anonimamente. O sistema rejeita mutações sem
-                autoria identificada.
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Cada mutação estrutural do banco possui migration em JavaScript com dry-run e
+                verificação de schema — zero alteração manual ad-hoc.
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
-              <span className="text-[11px] font-mono uppercase text-[#94A3B8]">
-                Acesso Restrito ao Cockpit
+            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-2">
+              <span className="text-xs font-mono uppercase text-[#94A3B8]">
+                Versionamento de Releases
               </span>
-              <div className="flex items-center gap-2 text-[#60A5FA] font-bold text-base">
-                <Lock className="w-4 h-4 text-[#3B82F6]" />
-                <span>Apenas Admin do Órgão</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black font-mono text-[#38BDF8]">v0.0.41</span>
+                <span className="text-xs text-[#94A3B8]">em produção ativa</span>
               </div>
-              <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                Proteção de dados dos servidores públicos contra scraping externo, conforme Parecer
-                DPO / LGPD.
+              <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                Versionamento semântico estrito com QA automático em 4 etapas (lint, tsc, build,
+                testes) para cada entrega disponibilizada.
               </p>
             </div>
           </div>
 
-          {/* Catálogo de Eventos Reais Implementados */}
-          <div className="p-6 rounded-2xl bg-[#101B3A] border border-[#1A2A5A] space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+          {/* Declaração de Compromisso e Fé Pública */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0A1128] via-[#101B3A] to-[#0A1128] border-2 border-[#10B981]/50 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0" />
+              <h3 className="text-base font-bold text-white">
+                Declaração de Transparência Técnica & Fé Pública Digital
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+              A <b>ORBIS.UOS GovTech</b> declara formalmente perante os órgãos de controle externo,
+              Tribunais de Contas Estaduais (TCEs) e o <b>HUB de Aceleração</b> que este Pacote de
+              Evidências Técnicas consolida com fidelidade a arquitetura operacional e os controles
+              de segurança em execução contínua na plataforma. O documento é mantido sob
+              versionamento público nesta URL e reflete o compromisso permanente com a soberania de
+              dados do ente público.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs border-t border-[#1A2A5A] text-[#94A3B8] font-mono">
               <div>
-                <h3 className="font-bold text-white text-base">
-                  Catálogo Oficial de Tipos de Eventos Auditados no Código
-                </h3>
-                <p className="text-xs text-[#94A3B8]">
-                  Eventos mapeados no backend (PocketBase pb_hooks e migrações oficiais)
-                </p>
+                Protocolo de Validação:{' '}
+                <strong className="text-white">ORBIS-EVIDENCIAS-GOV-2026</strong>
               </div>
-              <Link
-                to="/sandbox"
-                className="text-xs text-[#38BDF8] hover:underline flex items-center gap-1 font-semibold"
-              >
-                <span>Testar API Keys no Sandbox</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              {AUDIT_EVENTS_LIST.map((evt) => (
-                <div
-                  key={evt.code}
-                  className="p-3.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] hover:border-[#F59E0B]/40 transition-colors space-y-1.5"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-[#F59E0B] text-xs bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/20">
-                      {evt.code}
-                    </span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">{evt.escopo}</span>
-                  </div>
-                  <div className="font-semibold text-white">{evt.name}</div>
-                  <p className="text-[11px] text-[#94A3B8] leading-relaxed">{evt.desc}</p>
-                  <div className="pt-1 text-[10px] text-[#10B981] font-mono flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Enquadramento: {evt.compliance}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SEÇÃO 3: MATRIZ DE RESPONSABILIDADES */}
-        {/* ========================================================================= */}
-        <section id="matriz-responsabilidades" className="space-y-6 scroll-mt-24">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#10B981]/15 text-[#10B981] font-mono text-xs font-bold border border-[#10B981]/30">
-              <Users className="w-3.5 h-3.5" />
-              PEÇA 3 DE 6 • PAPÉIS E ATRIBUIÇÕES
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              3. Matriz de Responsabilidades & RBAC Institucional
-            </h2>
-            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              Definição clara das responsabilidades jurídicas da LGPD (Controlador vs. Operador) e
-              dos papéis operacionais implementados no código da collection{' '}
-              <code className="text-[#10B981] bg-[#101B3A] px-1.5 py-0.5 rounded">users</code> da
-              plataforma.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Papel 1: Controlador */}
-            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#38BDF8] font-bold">
-                  Papel Jurídico LGPD
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#38BDF8]/10 text-[#38BDF8] border border-[#38BDF8]/30">
-                  Art. 5º, VI da LGPD
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Scale className="w-5 h-5 text-[#38BDF8]" />
-                Controlador: O Órgão Público Contratante
-              </h3>
-              <p className="text-xs text-[#CBD5E1] leading-relaxed">
-                Prefeitura Municipal, Secretaria de Obras, Autarquia ou Departamento de Trânsito que
-                contrata a plataforma.
-              </p>
-              <ul className="text-xs text-[#94A3B8] space-y-1.5 list-disc pl-4">
-                <li>Detentor exclusivo da propriedade e titularidade de todos os dados gerados.</li>
-                <li>
-                  Competência soberana para decidir prioridades de recapeamento e obras públicas.
-                </li>
-                <li>
-                  Gestão das credenciais de acesso de servidores através do administrador do órgão.
-                </li>
-                <li>
-                  Autorização de publicação de dados abertos e emissão de chaves de integração CIC.
-                </li>
-              </ul>
-            </div>
-
-            {/* Papel 2: Operador Tecnológico */}
-            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#10B981] font-bold">
-                  Papel Operacional Tecnológico
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30">
-                  Art. 5º, VII da LGPD
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Server className="w-5 h-5 text-[#10B981]" />
-                Operador: ORBIS UOS GovTech
-              </h3>
-              <p className="text-xs text-[#CBD5E1] leading-relaxed">
-                Entidade desenvolvedora e mantenedora da infraestrutura de software e algoritmos.
-              </p>
-              <ul className="text-xs text-[#94A3B8] space-y-1.5 list-disc pl-4">
-                <li>Garantir a execução da anonimização na borda e do k-anonimato H3 (k ≥ 3).</li>
-                <li>
-                  Manutenção do SLA de 99,9% e garantia do RTO de 24h com backups diários testados.
-                </li>
-                <li>
-                  Impossibilidade técnica de vender, monetizar ou transferir dados brutos a
-                  terceiros.
-                </li>
-                <li>
-                  Execução diária da rotina de purga aos 180 dias e suporte com resposta em 2h (P1).
-                </li>
-              </ul>
-            </div>
-
-            {/* Papel 3: DPO / Encarregado */}
-            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#A78BFA] font-bold">
-                  Encarregado de Dados
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/30">
-                  Art. 41 da LGPD
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#A78BFA]" />
-                Encarregado de Proteção de Dados (DPO)
-              </h3>
-              <p className="text-xs text-[#CBD5E1] leading-relaxed">
-                Ponto de contato institucional entre o controlador, titulares cidadãos e a ANPD.
-              </p>
-              <ul className="text-xs text-[#94A3B8] space-y-1.5 list-disc pl-4">
-                <li>
-                  Canal oficial de atendimento: dpo@orbis-uos.com.br e privacidade@orbis-uos.com.br.
-                </li>
-                <li>Prazo legal de resposta a requisições do titular em até 15 dias corridos.</li>
-                <li>Emissão do Relatório de Impacto à Proteção de Dados Pessoais (RIPD).</li>
-                <li>Auditoria periódica do expurgo e do bloqueio de auto-registro anônimo.</li>
-              </ul>
-            </div>
-
-            {/* Papel 4: RBAC Plataforma (Admin vs. Operator) */}
-            <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-[#F59E0B] font-bold">
-                  RBAC no Código do Sistema
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30">
-                  role: admin | operador
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <KeyRound className="w-5 h-5 text-[#F59E0B]" />
-                Papéis de Acesso Operacional (RBAC)
-              </h3>
-              <p className="text-xs text-[#CBD5E1] leading-relaxed">
-                Implementados e fiscalizados pelas regras de segurança (RLS) da collection{' '}
-                <code>users</code>:
-              </p>
-              <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                  <strong className="text-white block">Papel admin (Gestor de Gabinete):</strong>
-                  <span className="text-[#94A3B8] text-[11px]">
-                    Acesso total, gestão de contas de agentes do órgão, visualização da trilha de
-                    auditoria soberana, criação/revogação de chaves de API e configuração CGU.
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                  <strong className="text-white block">Papel operador (Fiscal de Campo):</strong>
-                  <span className="text-[#94A3B8] text-[11px]">
-                    Acesso à coleta inercial de campo (PWA), visualização do mapa municipal e
-                    Cockpit técnico; sem permissão de criar usuários ou revogar credenciais.
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SEÇÃO 4: FLUXO DE INCIDENTES E RESPOSTA */}
-        {/* ========================================================================= */}
-        <section id="fluxo-incidentes" className="space-y-6 scroll-mt-24">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#EF4444]/15 text-[#EF4444] font-mono text-xs font-bold border border-[#EF4444]/30">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              PEÇA 4 DE 6 • CONTINUIDADE E SEGURANÇA
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              4. Fluxo de Incidentes & Resposta Operacional
-            </h2>
-            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              Procedimento oficial de 5 etapas para gestão de indisponibilidades, anomalias e
-              incidentes de segurança, referenciando o RTO contratual de 24 horas e a política de
-              backup testada documentada na <b>/operacao</b>.
-            </p>
-          </div>
-
-          {/* Stepper dos 5 Passos */}
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-            {[
-              {
-                step: '01',
-                title: 'Detecção',
-                time: 'Até 15 min',
-                desc: 'Alertas automáticos de telemetria, indisponibilidade de rotas ou chamados via suporte técnico institucional.',
-                color: 'border-[#38BDF8]/40 bg-[#0A1128]',
-                textColor: 'text-[#38BDF8]',
-              },
-              {
-                step: '02',
-                title: 'Contenção',
-                time: 'Até 1 hora',
-                desc: 'Isolamento de nós afetados, suspensão de credenciais vulneráveis e ativação do modo de contingência local offline.',
-                color: 'border-[#F59E0B]/40 bg-[#0A1128]',
-                textColor: 'text-[#F59E0B]',
-              },
-              {
-                step: '03',
-                title: 'Comunicação',
-                time: 'Até 2 horas',
-                desc: 'Notificação imediata ao Fiscal Técnico e Gestor do Contrato do órgão público com protocolo e impacto previsto.',
-                color: 'border-[#A78BFA]/40 bg-[#0A1128]',
-                textColor: 'text-[#A78BFA]',
-              },
-              {
-                step: '04',
-                title: 'Correção',
-                time: 'RTO máx. 24h',
-                desc: 'Restauração de dados a partir do backup diário ou hotfix emergencial. Em ensaio formal, RTO aferido foi de 1,45s. Acompanhe a saúde contínua em /status.',
-                color: 'border-[#10B981]/40 bg-[#0A1128]',
-                textColor: 'text-[#10B981]',
-              },
-              {
-                step: '05',
-                title: 'Prestação de Contas',
-                time: 'Até 5 dias úteis',
-                desc: 'Relatório pós-incidente (RCA) com causa raiz, ações corretivas, hash SHA-256 e arquivamento para fiscalização.',
-                color: 'border-[#60A5FA]/40 bg-[#0A1128]',
-                textColor: 'text-[#60A5FA]',
-              },
-            ].map((s) => (
-              <div
-                key={s.step}
-                className={`p-4 rounded-xl border ${s.color} space-y-2 flex flex-col justify-between`}
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className={`font-mono text-xs font-black ${s.textColor}`}>{s.step}</span>
-                    <span className="text-[10px] font-mono text-[#94A3B8]">{s.time}</span>
-                  </div>
-                  <h4 className="font-bold text-white text-sm">{s.title}</h4>
-                </div>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Destaque do Backup & RTO real */}
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-[#0A1128] via-[#101B3A] to-[#0A1128] border border-[#1A2A5A] flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-                <span className="text-xs font-bold uppercase font-mono text-[#10B981]">
-                  Ensaio Oficial de Restauração Auditado & Monitoramento Ativo
-                </span>
-              </div>
-              <h4 className="text-base font-bold text-white">
-                RTO Contratual: 24 Horas • RTO Real Auditado em Produção: 1,45 Segundo
-              </h4>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">
-                A política de backup com retenção em repouso, execução de teste de restauração
-                (protocolo ORBIS-RESTORE-TEST-2026-001) e o monitoramento ativo com sondas a cada 5
-                minutos garantem que a continuidade é verificável em tempo real.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <Link
-                to="/status"
-                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>Painel /status</span>
-                <Activity className="w-3.5 h-3.5" />
-              </Link>
-              <Link
-                to="/operacao"
-                className="px-3.5 py-2 rounded-xl font-bold text-xs text-white bg-[#10B981] hover:bg-[#059669] transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>Pacote Operacional (/operacao)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SEÇÃO 5: CADEIA DE CUSTÓDIA DO DADO */}
-        {/* ========================================================================= */}
-        <section id="cadeia-custodia" className="space-y-6 scroll-mt-24">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#60A5FA]/15 text-[#60A5FA] font-mono text-xs font-bold border border-[#60A5FA]/30">
-              <Layers className="w-3.5 h-3.5" />
-              PEÇA 5 DE 6 • TRILHA DO SENSOR AO LAUDO
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              5. Cadeia de Custódia do Dado (Do Sensor ao Laudo)
-            </h2>
-            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              O ciclo completo de vida dos dados desde o acelerômetro do smartphone na frota pública
-              até o laudo técnico com valor probatório para Tribunais de Contas.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Estágio 1: Borda */}
-              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[#38BDF8]">
-                  <span>ESTÁGIO 1</span>
-                  <span>50 Hz Edge</span>
-                </div>
-                <h4 className="font-bold text-white text-sm">Coleta na Borda & FFT</h4>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                  Amostragem inercial nativa a 50 Hz. Janelamento Hanning de 2,56s com FFT Radix-2
-                  embarcada no dispositivo. O áudio, vídeo ou dados pessoais nunca são capturados.
-                </p>
-                <div className="text-[10px] font-mono text-[#60A5FA] bg-[#0A1128] p-2 rounded">
-                  Payload por janela: ~50 bytes (RMS vertical, picos Z e banda dominante).
-                </div>
-              </div>
-
-              {/* Estágio 2: Transmissão & Ingestão */}
-              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[#F59E0B]">
-                  <span>ESTÁGIO 2</span>
-                  <span>TLS 1.3 & API PRF</span>
-                </div>
-                <h4 className="font-bold text-white text-sm">Transmissão & Conectores</h4>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                  Fila IndexedDB no PWA com envio idempotente TLS 1.3. Para dados externos, fluxo
-                  soberano com upload ou conector REST governamental direto (API Oficial PRF), com
-                  higienização imediata de dados sensíveis na borda do servidor.
-                </p>
-                <div className="text-[10px] font-mono text-[#F59E0B] bg-[#0A1128] p-2 rounded">
-                  Imune a túneis e sombras de sinal 4G com sincronização posterior.
-                </div>
-              </div>
-
-              {/* Estágio 3: Agregação H3 */}
-              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[#10B981]">
-                  <span>ESTÁGIO 3</span>
-                  <span>k ≥ 3 sessões</span>
-                </div>
-                <h4 className="font-bold text-white text-sm">Grade Hexagonal H3</h4>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                  Indexação espacial em células hexagonais H3 (resolução 9 no urbano). Aplicação
-                  rigorosa do k-anonimato (Art. 12 LGPD): hexágonos com menos de 3 passagens
-                  distintas são ocultados no portal aberto.
-                </p>
-                <div className="text-[10px] font-mono text-[#10B981] bg-[#0A1128] p-2 rounded">
-                  Impossibilita inferência de placas, trajetos individuais ou condutores.
-                </div>
-              </div>
-
-              {/* Estágio 4: Laudo e Descarte */}
-              <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[#A78BFA]">
-                  <span>ESTÁGIO 4</span>
-                  <span>SHA-256</span>
-                </div>
-                <h4 className="font-bold text-white text-sm">Hash & Descarte (180d)</h4>
-                <p className="text-[11px] text-[#94A3B8] leading-relaxed">
-                  Os laudos emitidos contêm hash criptográfico SHA-256 carimbado no PDF. A
-                  telemetria bruta é automaticamente expurgada aos 180 dias por rotina cron diária
-                  (telemetry_purge_180d).
-                </p>
-                <div className="text-[10px] font-mono text-[#A78BFA] bg-[#0A1128] p-2 rounded">
-                  Preservam-se os indicadores consolidados dos segmentos viários.
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#94A3B8]">
-              <span>
-                Para a formulação matemática completa dos 4 pilares do IMV e bandas espectrais de
-                mobilidade ativa:
-              </span>
-              <Link
-                to="/metodologia"
-                className="text-[#38BDF8] hover:underline font-semibold flex items-center gap-1 shrink-0"
-              >
-                <span>Explorar Pipeline DSP em /metodologia</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SEÇÃO 6: GOVERNANÇA DO PRODUTO */}
-        {/* ========================================================================= */}
-        <section id="governanca-produto" className="space-y-6 scroll-mt-24">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#A78BFA]/15 text-[#A78BFA] font-mono text-xs font-bold border border-[#A78BFA]/30">
-              <GitBranch className="w-3.5 h-3.5" />
-              PEÇA 6 DE 6 • ENGENHARIA E EVOLUÇÃO
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              6. Governança do Produto, Versionamento & Honestidade Técnica
-            </h2>
-            <p className="text-xs sm:text-sm text-[#94A3B8] max-w-4xl leading-relaxed">
-              O ciclo de entregas públicas e a honestidade metodológica sobre os três caminhos de
-              captura de telemetria da plataforma.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Bloco 1: Versionamento & Changelog */}
-            <div className="lg:col-span-2 p-6 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
-                <div>
-                  <h3 className="font-bold text-white text-base">
-                    Histórico de Releases e Entregas Oficiais
-                  </h3>
-                  <span className="text-xs text-[#94A3B8]">
-                    Versão atual do produto em produção: <b>v0.0.34</b>
-                  </span>
-                </div>
-                <span className="font-mono text-xs px-2.5 py-1 rounded bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 font-bold">
-                  Produção Ativa
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                {/* v0.0.34 */}
-                <div className="p-3.5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-[#60A5FA]">
-                      Release v0.0.34 (Atual)
-                    </span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">
-                      Consolidação Governança
-                    </span>
-                  </div>
-                  <div className="font-semibold text-white">
-                    Página Institucional /governanca Verificável
-                  </div>
-                  <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                    Consolidação centralizada das 6 peças de governança em URL pública com âncoras,
-                    mapa regulatório cruzado, matriz RBAC e catálogo soberano de eventos de
-                    auditoria.
-                  </p>
-                </div>
-
-                {/* v0.0.29 */}
-                <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-white">Release v0.0.29</span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">
-                      Laudo Dry-Run & Homologação
-                    </span>
-                  </div>
-                  <div className="font-semibold text-[#CBD5E1]">
-                    Auditoria de 7 Critérios Objetivos & Protocolo Oficial
-                  </div>
-                  <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                    Publicação formal da página /homologacao com emissão de laudo em PDF
-                    (ORBIS-DRYRUN-2026-001) e registro do evento soberano
-                    DRY_RUN_HOMOLOGATION_EXECUTED.
-                  </p>
-                </div>
-
-                {/* v0.0.25 */}
-                <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-white">Release v0.0.25</span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">
-                      Sandbox & Chaves de API
-                    </span>
-                  </div>
-                  <div className="font-semibold text-[#CBD5E1]">
-                    Interoperabilidade B2G & Gestão de Credenciais
-                  </div>
-                  <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                    Implementação do Sandbox Playground com testes de chaves de leitura, eventos
-                    API_KEY_CREATED/REVOKED na audit_trail e suporte a GeoJSON RFC 7946.
-                  </p>
-                </div>
-
-                {/* v0.0.21 */}
-                <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-white">Release v0.0.21</span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">
-                      Hardening RBAC & Purga 180d
-                    </span>
-                  </div>
-                  <div className="font-semibold text-[#CBD5E1]">
-                    Separação Soberana Admin/Operador e Expurgo Automático
-                  </div>
-                  <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                    Bloqueio do auto-registro anônimo, criação de contas individuais auditáveis e
-                    job diário de purga de telemetria bruta com base no Art. 16 da LGPD.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bloco 2: Honestidade dos 3 Caminhos de Captura */}
-            <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#10B981]/15 text-[#10B981] font-mono text-[11px] font-bold border border-[#10B981]/30">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Honestidade Técnica Declarada
-                </div>
-                <h3 className="text-base font-bold text-white">
-                  Os Três Caminhos de Captura de Telemetria
-                </h3>
-                <p className="text-xs text-[#94A3B8] leading-relaxed">
-                  Nenhum sensor de celular substitui um perfilômetro laser de precisão milimétrica.
-                  O ORBIS UOS estabelece com clareza o papel de cada caminho de captura:
-                </p>
-
-                <div className="space-y-2.5 text-xs pt-1">
-                  <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                    <div className="font-bold text-white text-[11px]">
-                      Caminho 1: Frota Pública Existente
-                    </div>
-                    <p className="text-[10px] text-[#94A3B8] mt-0.5">
-                      Coleta oportunista contínua em ônibus e viaturas. Excelente para cobertura
-                      diária da malha sem custo adicional de combustível ou hardware proprietário.
-                    </p>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                    <div className="font-bold text-white text-[11px]">
-                      Caminho 2: Aplicativos Parceiros (SDK)
-                    </div>
-                    <p className="text-[10px] text-[#94A3B8] mt-0.5">
-                      Integração via SDK leve (ORBIS Core) em rotas de coleta de resíduos e veículos
-                      conveniados para densificação da amostragem em vias coletoras e locais.
-                    </p>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A]">
-                    <div className="font-bold text-white text-[11px]">
-                      Caminho 3: Vistoria Técnica Orientada
-                    </div>
-                    <p className="text-[10px] text-[#94A3B8] mt-0.5">
-                      Veículo calibrado com Fator K aferido e operador dedicado para homologação de
-                      trechos críticos que antecedem ou sucedem obras de recapeamento.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-[#1A2A5A]">
-                <Link
-                  to="/metodologia#caminhos-captura"
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#101B3A] hover:bg-[#1A2A5A] text-[#60A5FA] hover:text-white border border-[#1A2A5A] text-xs font-semibold transition-all"
-                >
-                  <span>Ver tabela comparativa em /metodologia</span>
-                  <ExternalLink className="w-3 h-3" />
+              <div className="flex items-center gap-3">
+                <Link to="/privacidade" className="text-[#38BDF8] hover:underline">
+                  /privacidade
+                </Link>
+                <span>•</span>
+                <Link to="/metodologia" className="text-[#38BDF8] hover:underline">
+                  /metodologia
+                </Link>
+                <span>•</span>
+                <Link to="/status" className="text-[#10B981] hover:underline">
+                  /status
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Banner CTA Final de Conversão Institucional */}
-        <section className="p-8 rounded-2xl bg-gradient-to-r from-[#0A1128] via-[#101B3A] to-[#1A2A5A] border-2 border-[#3B82F6]/40 shadow-2xl space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <span className="font-mono text-xs text-[#38BDF8] uppercase tracking-wider font-bold">
-                Instrumento Formal para Procuradorias e Fiscais de Contrato
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white">
-                Pronto para auditar a governança do ORBIS UOS no seu município?
-              </h3>
-              <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed">
-                Acesse o Tour de Demonstração Autoguiada B2G para percorrer o Diagnóstico Express, o
-                Simulador do Art. 320 e a geração de laudos técnicos com protocolo verificável.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-              <Link
-                to="/homologacao"
-                className="px-4 py-2.5 rounded-xl font-bold text-xs text-[#CBD5E1] hover:text-white bg-[#0A1128] border border-[#1A2A5A] hover:border-[#10B981] transition-all text-center"
-              >
-                Laudo Dry-Run (/homologacao)
-              </Link>
-              <Link
-                to="/demo"
-                className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-lg shadow-[#3B82F6]/30 transition-all text-center flex items-center justify-center gap-1.5"
-              >
-                <span>Ver Demonstração Orientada</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+        {/* Rodapé da Página */}
+        <div className="pt-6 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#64748B] font-mono">
+          <div>
+            ORBIS.UOS GovTech • Pacote de Evidências Técnicas •{' '}
+            <b>Versão 1.0 (26 de Setembro de 2026)</b> • Release v0.0.41
           </div>
-        </section>
-
-        {/* Rodapé da Página com Informações de Auditoria e Versão */}
-        <div className="pt-4 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#64748B] font-mono">
-          <div>ORBIS UOS GovTech • Página de Governança Verificável • Versão v0.0.34</div>
           <div className="flex items-center gap-3">
             <Link to="/privacidade" className="hover:text-[#94A3B8] transition-colors">
               Privacidade
             </Link>
             <span>•</span>
-            <Link to="/termos" className="hover:text-[#94A3B8] transition-colors">
-              Termos B2G
-            </Link>
-            <span>•</span>
-            <Link to="/operacao" className="hover:text-[#94A3B8] transition-colors">
-              Operação
+            <Link to="/metodologia" className="hover:text-[#94A3B8] transition-colors">
+              Metodologia
             </Link>
             <span>•</span>
             <Link to="/status" className="hover:text-[#94A3B8] transition-colors">
               Status
             </Link>
             <span>•</span>
-            <a href="#conformidade-normativa" className="text-[#38BDF8] hover:underline">
+            <a href="#secao-1-infraestrutura" className="text-[#38BDF8] hover:underline">
               Voltar ao Topo ↑
             </a>
           </div>

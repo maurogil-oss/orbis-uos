@@ -57,7 +57,7 @@ export function Footer() {
                   to="/governanca"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#38BDF8] font-semibold"
                 >
-                  Governança Verificável (6 Peças B2G)
+                  Governança & Evidências Técnicas (/governanca)
                 </Link>
               </li>
               <li>
@@ -299,7 +299,7 @@ export function Footer() {
 
         {/* Versão do Sistema */}
         <div className="mt-4 text-center text-xs text-[#64748B]">
-          ORBIS UOS GovTech • v0.0.34 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
+          ORBIS UOS GovTech • v0.0.41 • Curitiba / PR (IBGE 4106902) • Conformidade LC 182/2021 &
           Art. 12 LGPD
         </div>
       </div>
