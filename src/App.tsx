@@ -19,6 +19,8 @@ import Governanca from './pages/Governanca'
 import Status from './pages/Status'
 import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
 import Login from './pages/Login'
+import EsqueciSenha from './pages/EsqueciSenha'
+import RedefinirSenha from './pages/RedefinirSenha'
 import PortalCidadao from './pages/PortalCidadao'
 import Interoperabilidade from './pages/Interoperabilidade'
 import Sandbox from './pages/Sandbox'
@@ -50,6 +52,10 @@ const App = () => (
             <Route path="/termos" element={<Termos />} />
             <Route path="/login" element={<Login />} />
             <Route path="/acesso" element={<Login />} />
+            <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+            <Route path="/recuperar-senha" element={<EsqueciSenha />} />
+            <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+            <Route path="/reset-password" element={<RedefinirSenha />} />
             <Route path="/cidadao" element={<PortalCidadao />} />
             <Route path="/portal-cidadao" element={<PortalCidadao />} />
             <Route path="/sandbox" element={<Sandbox />} />

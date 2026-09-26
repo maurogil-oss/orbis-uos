@@ -12,7 +12,7 @@
  * - Múltiplos exercícios (5 anos) com cálculo de média anual do gasto viário
  */
 
-import { pb } from '@/lib/pocketbase/client'
+import pb from '@/lib/pocketbase/client'
 
 export interface SiconfiItemViario {
   cod_conta?: string

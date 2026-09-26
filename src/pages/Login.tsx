@@ -124,6 +124,12 @@ export default function Login() {
                 >
                   Senha de Acesso
                 </label>
+                <Link
+                  to="/esqueci-senha"
+                  className="text-xs text-[#3B82F6] hover:text-[#60A5FA] transition-colors font-medium hover:underline"
+                >
+                  Esqueci minha senha
+                </Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#94A3B8]">
