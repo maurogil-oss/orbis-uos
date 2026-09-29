@@ -172,33 +172,28 @@ export function Navbar() {
           : 'bg-[#0A1128]/85 backdrop-blur-sm border-b border-[#1A2A5A]/50'
       }`}
     >
-      <div className="max-w-[1360px] mx-auto px-3 sm:px-5 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 lg:gap-4">
-        {/* Logomarca Oficial do ORBIS UOS */}
-        <Link
-          to="/"
-          onClick={() => {
-            if (location.pathname === '/') {
-              window.scrollTo({ top: 0, behavior: 'smooth' })
-            }
-          }}
-          className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded-md p-1 transition-transform hover:opacity-95"
-          aria-label="Orbis UOS - Início"
-        >
-          <OrbisLogo height={32} colorMode="dark" variant="full" />
-        </Link>
+      <div className="w-full px-3 sm:px-5 lg:px-8 h-14 sm:h-16 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] md:items-center gap-2 lg:gap-4">
+        {/* Coluna 1: Logomarca Oficial do ORBIS UOS (alinhada à esquerda na borda) */}
+        <div className="flex items-center justify-start min-w-0">
+          <Link
+            to="/"
+            onClick={() => {
+              if (location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
+            className="flex items-center shrink-0 group focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded-md p-1 transition-transform hover:opacity-95"
+            aria-label="Orbis UOS - Início"
+          >
+            <OrbisLogo height={32} colorMode="dark" variant="full" />
+          </Link>
+        </div>
 
-        {/* Desktop Navigation Principal
-            Nova ordem solicitada:
-            1. Soluções (dropdown com subitens existentes + Calibração Fator K)
-            2. Simulador
-            3. Cockpit
-            4. Ver Demonstração
-            5. Acesso
-            6. Solicitar Piloto (estilizado como botão destacado CTA primário)
-            7. Fale Conosco
+        {/* Coluna 2: Menu de Navegação Central (Soluções, Simulador, Cockpit, Ver Demonstração)
+            VISUALMENTE CENTRALIZADO no eixo horizontal exato do cabeçalho
         */}
         <nav
-          className="hidden md:flex items-center gap-1 lg:gap-2 shrink-0"
+          className="hidden md:flex items-center justify-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0"
           aria-label="Navegação principal"
         >
           {/* 1. Soluções (Dropdown com Calibração Fator K + Instrumentos B2G) */}
@@ -206,7 +201,7 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
+                className={`text-xs font-semibold px-2 lg:px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] shrink-0 ${
                   dropdownOpen
                     ? 'bg-[#101B3A] text-white border border-[#3B82F6]/50'
                     : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60 border border-transparent'
@@ -223,7 +218,7 @@ export function Navbar() {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-              align="start"
+              align="center"
               sideOffset={10}
               className="w-80 p-2 bg-[#0A1128]/98 backdrop-blur-xl border border-[#1A2A5A] rounded-xl shadow-2xl text-[#F8FAFC] z-50 animate-in fade-in-0 zoom-in-95 max-h-[calc(100vh-5rem)] overflow-y-auto"
             >
@@ -343,7 +338,7 @@ export function Navbar() {
           <a
             href="/#simulador"
             onClick={(e) => handleLinkClick(e, '/#simulador')}
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors"
+            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2 lg:px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors shrink-0"
           >
             Simulador
           </a>
@@ -351,7 +346,7 @@ export function Navbar() {
           {/* 3. Cockpit */}
           <Link
             to="/cockpit"
-            className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
+            className={`text-xs font-semibold px-2 lg:px-2.5 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shrink-0 ${
               location.pathname === '/cockpit'
                 ? 'text-white bg-[#101B3A] border border-[#1A2A5A]'
                 : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
@@ -365,7 +360,7 @@ export function Navbar() {
           {/* 4. Ver Demonstração */}
           <Link
             to="/demo"
-            className={`text-xs font-bold px-2.5 lg:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm ${
+            className={`text-xs font-bold px-2 lg:px-2.5 xl:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm shrink-0 ${
               location.pathname === '/demo'
                 ? 'bg-[#3B82F6] text-white shadow-[#3B82F6]/30 ring-1 ring-[#60A5FA]'
                 : 'bg-[#3B82F6]/15 hover:bg-[#3B82F6]/25 border border-[#3B82F6]/40 text-[#60A5FA] hover:text-white shadow-[#3B82F6]/20'
@@ -373,73 +368,82 @@ export function Navbar() {
             title="Tour Autoguiado B2G — Modo Demonstração Orientada"
           >
             <Compass className="w-3.5 h-3.5 text-[#38BDF8]" />
-            <span>Ver Demonstração</span>
+            <span className="whitespace-nowrap">Ver Demonstração</span>
           </Link>
-
-          {/* 5. Acesso (se logado exibe nome e botão sair; se deslogado link direto Acesso) */}
-          {isAuthenticated ? (
-            <div className="flex items-center gap-1.5 pl-1.5 border-l border-[#1A2A5A]">
-              <Link
-                to="/cockpit"
-                title="Painel Institucional"
-                className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[100px] lg:max-w-[130px] truncate px-1 py-1 rounded hover:bg-[#101B3A]"
-              >
-                {user?.name}
-              </Link>
-              <button
-                type="button"
-                onClick={logout}
-                title="Sair do painel institucional"
-                className="p-1 rounded-md text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
-                aria-label="Sair"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all"
-              title="Acesso Institucional com credenciais"
-            >
-              <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
-              <span>Acesso</span>
-            </Link>
-          )}
-
-          {/* 6. Solicitar Piloto (Estilizado como BOTÃO DESTACADO / CTA Primário) */}
-          <a
-            href="/#manifesto"
-            onClick={(e) => handleLinkClick(e, '/#manifesto')}
-            className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-md shadow-[#3B82F6]/30 hover:shadow-[#3B82F6]/50 whitespace-nowrap border border-[#60A5FA]/40"
-            title="Solicitar Piloto Institucional — Manifesto CPSI (LC 182/2021)"
-          >
-            <Rocket className="w-3.5 h-3.5 mr-1.5 text-white/90" />
-            <span>Solicitar Piloto</span>
-            <ArrowRight className="w-3 h-3 ml-1 text-white/70" />
-          </a>
-
-          {/* 7. Fale Conosco (Item de menu ao lado do botão) */}
-          <a
-            href="/#contato"
-            onClick={(e) => handleLinkClick(e, '/#contato')}
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors whitespace-nowrap"
-            title="Fale Conosco — Contato Geral, Dúvidas e Imprensa"
-          >
-            Fale Conosco
-          </a>
         </nav>
 
-        {/* Mobile Hamburger Toggle */}
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
-          aria-expanded={mobileMenuOpen}
-          aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        {/* Coluna 3: Grupo de Ações Alinhado à Direita até a borda
+            Itens: 5. Acesso -> 6. Solicitar Piloto (CTA) -> 7. Fale Conosco
+            Mobile: botão Hamburger
+        */}
+        <div className="flex items-center justify-end gap-1.5 lg:gap-2.5 shrink-0 min-w-0">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-1.5 lg:gap-2 xl:gap-2.5 shrink-0">
+            {/* 5. Acesso (se logado exibe nome e botão sair; se deslogado link direto Acesso) */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-1.5 pl-1.5 border-l border-[#1A2A5A] shrink-0">
+                <Link
+                  to="/cockpit"
+                  title="Painel Institucional"
+                  className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[90px] lg:max-w-[120px] truncate px-1 py-1 rounded hover:bg-[#101B3A]"
+                >
+                  {user?.name}
+                </Link>
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Sair do painel institucional"
+                  className="p-1 rounded-md text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+                  aria-label="Sair"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1 px-2 lg:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all shrink-0"
+                title="Acesso Institucional com credenciais"
+              >
+                <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
+                <span>Acesso</span>
+              </Link>
+            )}
+
+            {/* 6. Solicitar Piloto (Estilizado como BOTÃO DESTACADO / CTA Primário) */}
+            <a
+              href="/#manifesto"
+              onClick={(e) => handleLinkClick(e, '/#manifesto')}
+              className="inline-flex items-center justify-center px-2.5 lg:px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-md shadow-[#3B82F6]/30 hover:shadow-[#3B82F6]/50 whitespace-nowrap border border-[#60A5FA]/40 shrink-0"
+              title="Solicitar Piloto Institucional — Manifesto CPSI (LC 182/2021)"
+            >
+              <Rocket className="w-3.5 h-3.5 mr-1 lg:mr-1.5 text-white/90 shrink-0" />
+              <span>Solicitar Piloto</span>
+              <ArrowRight className="w-3 h-3 ml-1 text-white/70 shrink-0" />
+            </a>
+
+            {/* 7. Fale Conosco (Item de menu ao lado do botão) */}
+            <a
+              href="/#contato"
+              onClick={(e) => handleLinkClick(e, '/#contato')}
+              className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2 lg:px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors whitespace-nowrap shrink-0"
+              title="Fale Conosco — Contato Geral, Dúvidas e Imprensa"
+            >
+              Fale Conosco
+            </a>
+          </div>
+
+          {/* Mobile Hamburger Toggle (exibido apenas em telas menores que md) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Slide-down Overlay Menu Completo e Organizado */}
