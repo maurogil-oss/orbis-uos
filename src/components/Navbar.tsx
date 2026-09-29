@@ -38,6 +38,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [mobileSolucoesOpen, setMobileSolucoesOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export function Navbar() {
   useEffect(() => {
     setMobileMenuOpen(false)
     setDropdownOpen(false)
+    setMobileSolucoesOpen(false)
   }, [location.pathname, location.hash])
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -70,8 +72,16 @@ export function Navbar() {
     }
   }
 
-  // Links secundários reunidos no menu institucional "Soluções"
+  // Links reunidos no menu institucional "Soluções" (incluindo Calibração Fator K)
   const baseInstitutionalLinks = [
+    {
+      label: 'Calibração Fator K',
+      desc: 'Ajuste fino de sensores e telemetria veicular',
+      href: '/cockpit/calibracao-fator-k',
+      icon: SlidersHorizontal,
+      badge: 'Algoritmo',
+      highlight: true,
+    },
     {
       label: 'Governança & Evidências',
       desc: 'Infraestrutura, contingência, segurança e auditoria',
@@ -133,7 +143,7 @@ export function Navbar() {
   // Homologação Dry-Run é rota operacional — apenas para usuários autenticados
   const institutionalMoreLinks = isAuthenticated
     ? [
-        ...baseInstitutionalLinks.slice(0, 4),
+        ...baseInstitutionalLinks.slice(0, 5),
         {
           label: 'Homologação Dry-Run',
           desc: 'Laudo oficial B2G e critérios de auditoria',
@@ -141,7 +151,7 @@ export function Navbar() {
           icon: CheckCircle2,
           badge: 'Laudo Oficial',
         },
-        ...baseInstitutionalLinks.slice(4),
+        ...baseInstitutionalLinks.slice(5),
       ]
     : baseInstitutionalLinks
 
@@ -177,45 +187,21 @@ export function Navbar() {
           <OrbisLogo height={32} colorMode="dark" variant="full" />
         </Link>
 
-        {/* Desktop Navigation Principal (Objetiva, sem transbordar) */}
+        {/* Desktop Navigation Principal
+            Nova ordem solicitada:
+            1. Soluções (dropdown com subitens existentes + Calibração Fator K)
+            2. Simulador
+            3. Cockpit
+            4. Ver Demonstração
+            5. Acesso
+            6. Solicitar Piloto (estilizado como botão destacado CTA primário)
+            7. Fale Conosco
+        */}
         <nav
-          className="hidden md:flex items-center gap-1.5 lg:gap-2.5 shrink-0"
+          className="hidden md:flex items-center gap-1 lg:gap-2 shrink-0"
           aria-label="Navegação principal"
         >
-          {/* 1. Item Principal: Simulador de Economicidade */}
-          <a
-            href="/#simulador"
-            onClick={(e) => handleLinkClick(e, '/#simulador')}
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors"
-          >
-            Simulador
-          </a>
-
-          {/* 2. Item Principal: Botão Destaque Ver Demonstração */}
-          <Link
-            to="/demo"
-            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm ${
-              location.pathname === '/demo'
-                ? 'bg-[#3B82F6] text-white shadow-[#3B82F6]/30 ring-1 ring-[#60A5FA]'
-                : 'bg-[#3B82F6]/15 hover:bg-[#3B82F6]/25 border border-[#3B82F6]/40 text-[#60A5FA] hover:text-white shadow-[#3B82F6]/20'
-            }`}
-            title="Tour Autoguiado B2G — Modo Demonstração Orientada"
-          >
-            <Compass className="w-3.5 h-3.5 text-[#38BDF8]" />
-            <span>Ver Demonstração</span>
-          </Link>
-
-          {/* 3. Item Principal: Fale Conosco (Canal Geral de Contato) */}
-          <a
-            href="/#contato"
-            onClick={(e) => handleLinkClick(e, '/#contato')}
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors"
-            title="Fale Conosco — Contato Geral, Dúvidas e Imprensa"
-          >
-            Fale Conosco
-          </a>
-
-          {/* 4. Dropdown Menu "Soluções" (Agrupa links secundários: Metodologia, Pacote Operacional, Homologação, Implantação, Interoperabilidade, Enquadramento) */}
+          {/* 1. Soluções (Dropdown com Calibração Fator K + Instrumentos B2G) */}
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <button
@@ -223,9 +209,9 @@ export function Navbar() {
                 className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
                   dropdownOpen
                     ? 'bg-[#101B3A] text-white border border-[#3B82F6]/50'
-                    : 'text-[#94A3B8] hover:text-white hover:bg-[#101B3A]/60 border border-transparent'
+                    : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60 border border-transparent'
                 }`}
-                aria-label="Menu de soluções e recursos institucionais"
+                aria-label="Menu de Soluções e recursos institucionais"
               >
                 <span>Soluções</span>
                 <ChevronDown
@@ -239,17 +225,18 @@ export function Navbar() {
             <DropdownMenuContent
               align="start"
               sideOffset={10}
-              className="w-80 p-2 bg-[#0A1128]/98 backdrop-blur-xl border border-[#1A2A5A] rounded-xl shadow-2xl text-[#F8FAFC] z-50 animate-in fade-in-0 zoom-in-95"
+              className="w-80 p-2 bg-[#0A1128]/98 backdrop-blur-xl border border-[#1A2A5A] rounded-xl shadow-2xl text-[#F8FAFC] z-50 animate-in fade-in-0 zoom-in-95 max-h-[calc(100vh-5rem)] overflow-y-auto"
             >
               <DropdownMenuLabel className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#94A3B8] flex items-center justify-between">
-                <span>Dossiês & Instrumentos B2G</span>
-                <span className="text-xs text-[#3B82F6] font-semibold">LC 182/2021</span>
+                <span>Soluções & Instrumentos B2G</span>
+                <span className="text-xs text-[#3B82F6] font-semibold">ORBIS.UOS</span>
               </DropdownMenuLabel>
 
               <div className="space-y-0.5">
                 {institutionalMoreLinks.map((item) => {
                   const Icon = item.icon
                   const isActive = location.pathname === item.href
+                  const isFatorK = item.href === '/cockpit/calibracao-fator-k'
                   return (
                     <DropdownMenuItem
                       key={item.href}
@@ -260,18 +247,38 @@ export function Navbar() {
                         to={item.href}
                         onClick={() => setDropdownOpen(false)}
                         className={`flex items-start gap-2.5 w-full ${
-                          isActive ? 'bg-[#101B3A] text-white' : ''
+                          isActive
+                            ? 'bg-[#101B3A] text-white'
+                            : isFatorK
+                              ? 'bg-[#38BDF8]/10 border border-[#38BDF8]/20'
+                              : ''
                         }`}
                       >
-                        <div className="p-1.5 rounded-md bg-[#101B3A] border border-[#1A2A5A] shrink-0 text-[#60A5FA] mt-0.5">
+                        <div
+                          className={`p-1.5 rounded-md border shrink-0 mt-0.5 ${
+                            isFatorK
+                              ? 'bg-[#38BDF8]/20 border-[#38BDF8]/40 text-[#38BDF8]'
+                              : 'bg-[#101B3A] border-[#1A2A5A] text-[#60A5FA]'
+                          }`}
+                        >
                           <Icon className="w-3.5 h-3.5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <span className="text-xs font-semibold text-[#F8FAFC] truncate">
+                            <span
+                              className={`text-xs font-semibold truncate ${
+                                isFatorK ? 'text-[#38BDF8]' : 'text-[#F8FAFC]'
+                              }`}
+                            >
                               {item.label}
                             </span>
-                            <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded border border-[#10B981]/25 shrink-0 font-medium">
+                            <span
+                              className={`text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium ${
+                                isFatorK
+                                  ? 'text-[#38BDF8] bg-[#38BDF8]/15 border-[#38BDF8]/30 font-semibold'
+                                  : 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25'
+                              }`}
+                            >
                               {item.badge}
                             </span>
                           </div>
@@ -332,50 +339,50 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Divisor sutil */}
-          <span className="h-4 w-[1px] bg-[#1A2A5A] mx-0.5" aria-hidden="true" />
-
-          {/* Portal Cidadão (visível em telas maiores lg+) */}
-          <Link
-            to="/cidadao"
-            className="hidden xl:inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-[#10B981] hover:text-[#34D399] hover:bg-[#10B981]/10 transition-colors"
-            title="Portal de Transparência do Cidadão"
+          {/* 2. Simulador */}
+          <a
+            href="/#simulador"
+            onClick={(e) => handleLinkClick(e, '/#simulador')}
+            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors"
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>Portal Cidadão</span>
+            Simulador
+          </a>
+
+          {/* 3. Cockpit */}
+          <Link
+            to="/cockpit"
+            className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
+              location.pathname === '/cockpit'
+                ? 'text-white bg-[#101B3A] border border-[#1A2A5A]'
+                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
+            }`}
+            title="Cockpit Municipal de Gestão Viária"
+          >
+            <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+            <span>Cockpit</span>
           </Link>
 
-          {/* Rotas operacionais (Cockpit e Fator K): exibidas apenas para usuários autenticados */}
-          {isAuthenticated && (
-            <>
-              <Link
-                to="/cockpit"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-[#CBD5E1] hover:text-white hover:bg-[#101B3A] transition-colors"
-                title="Cockpit Municipal"
-              >
-                <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-                <span className="hidden lg:inline">Cockpit</span>
-              </Link>
-              <Link
-                to="/cockpit/calibracao-fator-k"
-                className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-md text-[#38BDF8] hover:text-white transition-colors"
-                title="Calibração do Fator K"
-              >
-                <SlidersHorizontal className="w-3 h-3" />
-                <span className="hidden xl:inline">Fator K</span>
-              </Link>
-            </>
-          )}
-        </nav>
+          {/* 4. Ver Demonstração */}
+          <Link
+            to="/demo"
+            className={`text-xs font-bold px-2.5 lg:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm ${
+              location.pathname === '/demo'
+                ? 'bg-[#3B82F6] text-white shadow-[#3B82F6]/30 ring-1 ring-[#60A5FA]'
+                : 'bg-[#3B82F6]/15 hover:bg-[#3B82F6]/25 border border-[#3B82F6]/40 text-[#60A5FA] hover:text-white shadow-[#3B82F6]/20'
+            }`}
+            title="Tour Autoguiado B2G — Modo Demonstração Orientada"
+          >
+            <Compass className="w-3.5 h-3.5 text-[#38BDF8]" />
+            <span>Ver Demonstração</span>
+          </Link>
 
-        {/* Bloco Desktop CTA & Acesso Institucional / Logout */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
+          {/* 5. Acesso (se logado exibe nome e botão sair; se deslogado link direto Acesso) */}
           {isAuthenticated ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-[#1A2A5A]">
+            <div className="flex items-center gap-1.5 pl-1.5 border-l border-[#1A2A5A]">
               <Link
                 to="/cockpit"
-                title="Ir para o Cockpit Institucional"
-                className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[120px] truncate"
+                title="Painel Institucional"
+                className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[100px] lg:max-w-[130px] truncate px-1 py-1 rounded hover:bg-[#101B3A]"
               >
                 {user?.name}
               </Link>
@@ -384,6 +391,7 @@ export function Navbar() {
                 onClick={logout}
                 title="Sair do painel institucional"
                 className="p-1 rounded-md text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+                aria-label="Sair"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -391,7 +399,7 @@ export function Navbar() {
           ) : (
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all"
               title="Acesso Institucional com credenciais"
             >
               <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
@@ -399,18 +407,28 @@ export function Navbar() {
             </Link>
           )}
 
-          {/* CTA Principal de Conversão B2G: Solicitar Piloto (Manifesto CPSI) */}
+          {/* 6. Solicitar Piloto (Estilizado como BOTÃO DESTACADO / CTA Primário) */}
           <a
             href="/#manifesto"
             onClick={(e) => handleLinkClick(e, '/#manifesto')}
-            className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-sm shadow-[#3B82F6]/25 whitespace-nowrap"
+            className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-[0.98] transition-all shadow-md shadow-[#3B82F6]/30 hover:shadow-[#3B82F6]/50 whitespace-nowrap border border-[#60A5FA]/40"
             title="Solicitar Piloto Institucional — Manifesto CPSI (LC 182/2021)"
           >
-            <Rocket className="w-3 h-3 mr-1.5 text-white/90" />
+            <Rocket className="w-3.5 h-3.5 mr-1.5 text-white/90" />
             <span>Solicitar Piloto</span>
             <ArrowRight className="w-3 h-3 ml-1 text-white/70" />
           </a>
-        </div>
+
+          {/* 7. Fale Conosco (Item de menu ao lado do botão) */}
+          <a
+            href="/#contato"
+            onClick={(e) => handleLinkClick(e, '/#contato')}
+            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors whitespace-nowrap"
+            title="Fale Conosco — Contato Geral, Dúvidas e Imprensa"
+          >
+            Fale Conosco
+          </a>
+        </nav>
 
         {/* Mobile Hamburger Toggle */}
         <button
@@ -454,12 +472,76 @@ export function Navbar() {
               <ArrowRight className="w-4 h-4 text-white" />
             </Link>
 
-            {/* Seção 1: Itens Principais */}
-            <div className="space-y-1">
+            {/* Seção 1: Menu Mobile na mesma hierarquia do cabeçalho */}
+            <div className="space-y-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
-                Itens Principais
+                Menu de Navegação
               </span>
-              <div className={`grid ${isAuthenticated ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
+
+              {/* 1. Soluções com Dropdown / Acordeão expansível no mobile */}
+              <div className="rounded-xl border border-[#1A2A5A] bg-[#101B3A]/40 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileSolucoesOpen(!mobileSolucoesOpen)}
+                  className="w-full flex items-center justify-between p-3 text-xs font-bold text-white hover:bg-[#101B3A] transition-colors"
+                  aria-expanded={mobileSolucoesOpen}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-[#3B82F6]" />
+                    <span>Soluções (inclui Fator K)</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-[#94A3B8] transition-transform duration-200 ${
+                      mobileSolucoesOpen ? 'rotate-180 text-[#3B82F6]' : ''
+                    }`}
+                  />
+                </button>
+
+                {mobileSolucoesOpen && (
+                  <div className="p-2 border-t border-[#1A2A5A] bg-[#0A1128]/70 space-y-1 animate-in fade-in-0 duration-150">
+                    {institutionalMoreLinks.map((item) => {
+                      const Icon = item.icon
+                      const isFatorK = item.href === '/cockpit/calibracao-fator-k'
+                      const isActive = location.pathname === item.href
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex items-center justify-between text-xs font-medium p-2 rounded-lg transition-colors ${
+                            isActive
+                              ? 'bg-[#101B3A] text-white'
+                              : isFatorK
+                                ? 'bg-[#38BDF8]/10 text-[#38BDF8] hover:bg-[#38BDF8]/20 border border-[#38BDF8]/30'
+                                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <Icon
+                              className={`w-3.5 h-3.5 shrink-0 ${
+                                isFatorK ? 'text-[#38BDF8]' : 'text-[#60A5FA]'
+                              }`}
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          <span
+                            className={`text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium ${
+                              isFatorK
+                                ? 'text-[#38BDF8] bg-[#38BDF8]/15 border-[#38BDF8]/30 font-semibold'
+                                : 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 2. Simulador e 3. Cockpit em grid */}
+              <div className="grid grid-cols-2 gap-2">
                 <a
                   href="/#simulador"
                   onClick={(e) => handleLinkClick(e, '/#simulador')}
@@ -468,71 +550,36 @@ export function Navbar() {
                   <SlidersHorizontal className="w-3.5 h-3.5 text-[#3B82F6]" />
                   <span>Simulador</span>
                 </a>
+
+                <Link
+                  to="/cockpit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>Cockpit</span>
+                </Link>
+              </div>
+
+              {/* Links adicionais Cidadão & Enquadramento */}
+              <div className="grid grid-cols-2 gap-2">
                 <Link
                   to="/cidadao"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#10B981] hover:border-[#10B981] transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#10B981] hover:border-[#10B981] transition-colors"
                 >
                   <Users className="w-3.5 h-3.5" />
-                  <span>Cidadão</span>
+                  <span>Portal Cidadão</span>
                 </Link>
                 <Link
                   to="/enquadramento"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#60A5FA] hover:border-[#3B82F6] transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#60A5FA] hover:border-[#3B82F6] transition-colors"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>Enquadramento</span>
                 </Link>
-                {isAuthenticated && (
-                  <>
-                    <Link
-                      to="/cockpit"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
-                    >
-                      <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-                      <span>Cockpit</span>
-                    </Link>
-                    <Link
-                      to="/cockpit/calibracao-fator-k"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-[#38BDF8] hover:border-[#38BDF8] transition-colors col-span-2"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5" />
-                      <span>Calibração do Fator K</span>
-                    </Link>
-                  </>
-                )}
               </div>
-            </div>
-
-            {/* Seção 2: Links Institucionais e Técnicos (agrupados em Soluções) */}
-            <div className="space-y-1 pt-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
-                Documentação & Instrumentos B2G
-              </span>
-              <nav className="flex flex-col gap-1" aria-label="Navegação secundária mobile">
-                {institutionalMoreLinks.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <Link
-                      key={item.href}
-                      to={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between text-xs font-medium text-[#CBD5E1] hover:text-white p-2 rounded-lg hover:bg-[#101B3A] transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Icon className="w-3.5 h-3.5 text-[#60A5FA]" />
-                        <span>{item.label}</span>
-                      </div>
-                      <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.5 rounded border border-[#10B981]/25 font-medium">
-                        {item.badge}
-                      </span>
-                    </Link>
-                  )
-                })}
-              </nav>
             </div>
 
             {/* Seção 3: Seções da Landing Page */}
