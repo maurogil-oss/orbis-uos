@@ -172,9 +172,9 @@ export function Navbar() {
           : 'bg-[#0A1128]/85 backdrop-blur-sm border-b border-[#1A2A5A]/50'
       }`}
     >
-      <div className="w-full px-3 sm:px-5 lg:px-8 h-14 sm:h-16 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] md:items-center gap-2 lg:gap-4">
-        {/* Coluna 1: Logomarca Oficial do ORBIS UOS (alinhada à esquerda na borda) */}
-        <div className="flex items-center justify-start min-w-0">
+      <div className="relative w-full px-3 sm:px-5 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+        {/* Coluna 1: Logomarca Oficial do ORBIS UOS (alinhada à esquerda no fluxo normal) */}
+        <div className="flex items-center justify-start shrink-0 z-10">
           <Link
             to="/"
             onClick={() => {
@@ -190,10 +190,11 @@ export function Navbar() {
         </div>
 
         {/* Coluna 2: Menu de Navegação Central (Soluções, Simulador, Cockpit, Ver Demonstração)
-            VISUALMENTE CENTRALIZADO no eixo horizontal exato do cabeçalho
+            CENTRALIZADO no eixo horizontal da tela (largura total do viewport),
+            usando posicionamento absoluto independente das larguras das colunas laterais.
         */}
         <nav
-          className="hidden md:flex items-center justify-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0"
+          className="hidden md:flex items-center justify-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0 absolute left-1/2 -translate-x-1/2 pointer-events-auto z-20"
           aria-label="Navegação principal"
         >
           {/* 1. Soluções (Dropdown com Calibração Fator K + Instrumentos B2G) */}
@@ -372,28 +373,29 @@ export function Navbar() {
           </Link>
         </nav>
 
-        {/* Coluna 3: Grupo de Ações Alinhado à Direita até a borda
+        {/* Coluna 3: Grupo de Ações Alinhado à Direita no fluxo normal
             Itens: 5. Acesso -> 6. Solicitar Piloto (CTA) -> 7. Fale Conosco
             Mobile: botão Hamburger
         */}
-        <div className="flex items-center justify-end gap-1.5 lg:gap-2.5 shrink-0 min-w-0">
+        <div className="flex items-center justify-end gap-1.5 lg:gap-2.5 shrink-0 z-10">
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-1.5 lg:gap-2 xl:gap-2.5 shrink-0">
-            {/* 5. Acesso (se logado exibe nome e botão sair; se deslogado link direto Acesso) */}
+            {/* 5. Acesso (rótulo curto "Acesso", mesmo quando autenticado, conforme solicitado) */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-1.5 pl-1.5 border-l border-[#1A2A5A] shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Link
                   to="/cockpit"
-                  title="Painel Institucional"
-                  className="text-xs text-[#CBD5E1] hover:text-white font-medium max-w-[90px] lg:max-w-[120px] truncate px-1 py-1 rounded hover:bg-[#101B3A]"
+                  title={`Painel Institucional — ${user?.name || 'Acesso'}`}
+                  className="inline-flex items-center gap-1 px-2 lg:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all shrink-0"
                 >
-                  {user?.name}
+                  <Lock className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>Acesso</span>
                 </Link>
                 <button
                   type="button"
                   onClick={logout}
                   title="Sair do painel institucional"
-                  className="p-1 rounded-md text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+                  className="p-1.5 rounded-lg text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors border border-transparent hover:border-[#EF4444]/30"
                   aria-label="Sair"
                 >
                   <LogOut className="w-3.5 h-3.5" />
