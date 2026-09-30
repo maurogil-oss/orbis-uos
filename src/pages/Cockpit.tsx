@@ -36,8 +36,10 @@ import {
   KeyRound,
   SlidersHorizontal,
   Terminal,
+  Radio,
 } from 'lucide-react'
 import { CamadasDadosExternosTab } from '@/components/CamadasDadosExternosTab'
+import { IngestionTransmissionTab } from '@/components/IngestionTransmissionTab'
 import {
   listSinistros,
   listCamadasExposicao,
@@ -61,8 +63,10 @@ export default function Cockpit() {
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedEvent, setSelectedEvent] = useState<RoadEventRecord | null>(null)
 
-  // View Mode: 'gabinete' | 'tecnico' | 'dados_externos'
-  const [activeTab, setActiveTab] = useState<'gabinete' | 'tecnico' | 'dados_externos'>('gabinete')
+  // View Mode: 'gabinete' | 'tecnico' | 'dados_externos' | 'ingestao'
+  const [activeTab, setActiveTab] = useState<
+    'gabinete' | 'tecnico' | 'dados_externos' | 'ingestao'
+  >('gabinete')
   const [showTceDossierModal, setShowTceDossierModal] = useState<boolean>(false)
 
   // Camadas de Dados Externos (Sinistralidade + Exposição H3)
@@ -356,6 +360,18 @@ export default function Cockpit() {
                   {sinistros.length}
                 </span>
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('ingestao')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'ingestao'
+                    ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-md shadow-[#10B981]/30'
+                    : 'text-[#10B981] hover:text-white hover:bg-[#10B981]/20'
+                }`}
+              >
+                <Radio className="w-3.5 h-3.5" />
+                <span>Ingestão & Transmissão</span>
+              </button>
             </div>
 
             {/* Calibração Real do Fator K */}
@@ -414,8 +430,10 @@ export default function Cockpit() {
           </div>
         </div>
 
-        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS DADOS EXTERNOS */}
-        {activeTab === 'dados_externos' ? (
+        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS DADOS EXTERNOS VS INGESTÃO */}
+        {activeTab === 'ingestao' ? (
+          <IngestionTransmissionTab />
+        ) : activeTab === 'dados_externos' ? (
           <CamadasDadosExternosTab
             sinistros={sinistros}
             exposicoes={exposicoes}

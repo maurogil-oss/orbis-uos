@@ -30,8 +30,12 @@ import {
   PhoneMountPosition,
 } from '@/hooks/useDeviceMotionCollector'
 import { createRoadEvent, RoadEventRecord } from '@/services/roadEvents'
+import { AgentTaxonomyCode } from '@/services/roadSegments'
+import { drainOfflineQueue, getQueueStats } from '@/lib/collectorOfflineDb'
+import { useAuth } from '@/contexts/AuthContext'
 import { VeiculoTipoCalibracao, VEICULO_TIPOS_CONFIG } from '@/services/fatorKCalibration'
 import { toast } from '@/hooks/use-toast'
+import { RefreshCw } from 'lucide-react'
 
 interface RealCollectorModalProps {
   isOpen: boolean
@@ -59,14 +63,25 @@ export function RealCollectorModal({
   const [manualLat, setManualLat] = useState(-25.4372)
   const [manualLng, setManualLng] = useState(-49.2731)
 
+  const { user } = useAuth()
   // Persisting state
   const [persistedAnomalyIds, setPersistedAnomalyIds] = useState<Set<string>>(new Set())
   const [isPersistingAll, setIsPersistingAll] = useState(false)
+  const [isDrainingQueue, setIsDrainingQueue] = useState(false)
   const [initialPhonePosition, setInitialPhonePosition] = useState<PhoneMountPosition>('painel')
 
   // Sensor collector hook
   const veiculoAtualConfig =
     VEICULO_TIPOS_CONFIG[veiculoTipoCanonico] || VEICULO_TIPOS_CONFIG.onibus
+
+  // Mapeamento dinâmico para agent_code
+  const agentCode: AgentTaxonomyCode = (() => {
+    if (veiculoAtualConfig.modoCategoria === 'pedestre') return 'PEDESTRE'
+    if (veiculoAtualConfig.modoCategoria === 'ciclista') return 'CICLISTA'
+    if (veiculoAtualConfig.modoCategoria === 'motociclista') return 'MOTOCICLISTA'
+    if (veiculoTipoCanonico === 'onibus') return 'ONIBUS_FROTA'
+    return 'VEICULO_FROTA'
+  })()
 
   const {
     status,
@@ -114,14 +129,48 @@ export function RealCollectorModal({
     veiculoTipoCanonico,
     modoColeta: veiculoAtualConfig.modoCategoria,
     indiceAlvo: veiculoAtualConfig.indiceAlvo,
+    agentCode,
     phonePosition: initialPhonePosition,
     codigoIbge: '4106902',
     manualLat,
     manualLng,
+    operadorNome: user?.name || user?.email || 'Operador de Campo / Cockpit',
     autoPersistWindows: true,
+    autoPersistAnomalies: true,
+    onAnomalyPersisted: (anomaly) => {
+      setPersistedAnomalyIds((prev) => new Set([...prev, anomaly.id]))
+    },
   })
 
   if (!isOpen) return null
+
+  // Manual drain trigger
+  const handleManualDrain = async () => {
+    setIsDrainingQueue(true)
+    try {
+      const stats = await getQueueStats()
+      if (stats.totalPending === 0) {
+        toast({
+          title: 'Fila offline vazia',
+          description: 'Nenhum dado pendente de transmissão.',
+        })
+        return
+      }
+      const res = await drainOfflineQueue()
+      toast({
+        title: 'Drenagem da fila concluída!',
+        description: `${res.windowsDrained} janela(s) e ${res.anomaliesDrained} anomalia(s) reenviadas. Restantes: ${res.remainingPending}`,
+      })
+    } catch (err: any) {
+      toast({
+        title: 'Erro na drenagem',
+        description: err?.message || 'Falha ao processar fila offline.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsDrainingQueue(false)
+    }
+  }
 
   // Format elapsed time (mm:ss)
   const formatTime = (ms: number) => {
@@ -1131,19 +1180,35 @@ export function RealCollectorModal({
                     Anomalias Pontuais de Alto Impacto ({anomalies.length})
                   </h4>
                   <span className="text-[10px] text-[#94A3B8]">
-                    Eventos inerciais que ultrapassaram o limiar de {thresholdG}g
+                    Eventos inerciais que ultrapassaram {thresholdG}g (Auto-persistência ativa em
+                    tempo real)
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handlePersistAll}
-                  disabled={isPersistingAll}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] flex items-center gap-1.5 transition-colors disabled:opacity-50"
-                >
-                  <Database className="w-3.5 h-3.5" />
-                  {isPersistingAll ? 'Gravando...' : 'Gravar Todas no Banco'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleManualDrain}
+                    disabled={isDrainingQueue}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#94A3B8] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    title="Drenar fila offline se houver eventos pendentes"
+                  >
+                    <RefreshCw
+                      className={`w-3 h-3 ${isDrainingQueue ? 'animate-spin text-[#3B82F6]' : ''}`}
+                    />
+                    <span>Drenar Fila</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handlePersistAll}
+                    disabled={isPersistingAll}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  >
+                    <Database className="w-3.5 h-3.5" />
+                    {isPersistingAll ? 'Gravando...' : 'Re-gravar Todas'}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2 max-h-44 overflow-y-auto pr-1">

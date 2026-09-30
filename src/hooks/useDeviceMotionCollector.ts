@@ -12,6 +12,8 @@ import {
   saveOfflineSession,
   getLatestPausedSession,
   enqueueOfflineWindow,
+  enqueueOfflineAnomaly,
+  drainOfflineQueue,
   OfflineSessionRecord,
 } from '@/lib/collectorOfflineDb'
 import {
@@ -19,7 +21,10 @@ import {
   createSegmentReading,
   registerSegmentPassage,
   CreateSegmentReadingPayload,
+  AgentTaxonomyCode,
 } from '@/services/roadSegments'
+import { createRoadEvent } from '@/services/roadEvents'
+import { upsertFleetTelemetry } from '@/services/fleet'
 import { latLngToCell, getH3ResolutionForModo } from '@/lib/diagnostics/h3Engine'
 import {
   createFieldSession,
@@ -102,13 +107,17 @@ export interface CollectorConfig {
   veiculoTipoCanonico?: VeiculoTipoCalibracao
   modoColeta?: ModoMobilidadeColeta
   indiceAlvo?: 'IMV' | 'IMA'
+  agentCode?: AgentTaxonomyCode
   phonePosition?: PhoneMountPosition
   veiculoId?: string
   codigoIbge?: string
   manualLat?: number
   manualLng?: number
+  operadorNome?: string
   autoPersistWindows?: boolean // Salva agregados automaticamente no PocketBase
+  autoPersistAnomalies?: boolean // Salva anomalias automaticamente no PocketBase
   onSessionComplete?: (summary: SessionSummary) => void
+  onAnomalyPersisted?: (anomaly: DetectedAnomaly) => void
 }
 
 export type CollectorStatus = 'idle' | 'calibrating' | 'collecting' | 'paused' | 'stopped'
@@ -232,6 +241,16 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     config.modoColeta || configInfo.modoCategoria || 'veiculo_frota'
   const indiceAlvoEfetivo: 'IMV' | 'IMA' = config.indiceAlvo || configInfo.indiceAlvo || 'IMV'
 
+  // Mapeamento canônico do agente para o código de taxonomia
+  const agentCodeEfetivo: AgentTaxonomyCode = (() => {
+    if (config.agentCode) return config.agentCode
+    if (modoAtivoEfetivo === 'pedestre') return 'PEDESTRE'
+    if (modoAtivoEfetivo === 'ciclista') return 'CICLISTA'
+    if (modoAtivoEfetivo === 'motociclista') return 'MOTOCICLISTA'
+    if (canonicoTipo === 'onibus') return 'ONIBUS_FROTA'
+    return 'VEICULO_FROTA'
+  })()
+
   // Banda FFT selecionada para o processamento
   const bandConfigFft =
     modoAtivoEfetivo === 'pedestre'
@@ -242,7 +261,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
           ? FFT_BANDS_BY_MODE.motociclista
           : FFT_BANDS_BY_MODE.veiculo
 
-  // Checagem de suporte de sensores e WakeLock no mount
+  // Checagem de suporte de sensores e WakeLock no mount + listener online para drenagem
   useEffect(() => {
     if (typeof window === 'undefined') {
       setSensorSupport('unsupported')
@@ -270,7 +289,32 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     } else {
       setSensorSupport('supported')
     }
+
+    // Listener de conectividade 'online': ao retornar a rede, drena a fila offline
+    const handleOnline = () => {
+      console.log('[Collector] Dispositivo voltou online, acionando drenagem de fila...')
+      drainOfflineQueue().catch((err) =>
+        console.warn('Erro na auto-drenagem ao voltar online:', err),
+      )
+    }
+    window.addEventListener('online', handleOnline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+    }
   }, [])
+
+  // Drenagem periódica da fila offline durante sessão ativa (a cada 60 segundos)
+  useEffect(() => {
+    if (status !== 'collecting') return
+
+    const intervalId = setInterval(() => {
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        drainOfflineQueue().catch((err) => console.warn('Erro na drenagem periódica:', err))
+      }
+    }, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [status])
 
   // Checar se há sessão pausada no IndexedDB para auto-retomada
   useEffect(() => {
@@ -436,6 +480,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
             veiculo_tipo: config.veiculoTipo || 'Smartphone Embarcado',
             modo_coleta: modoAtivoEfetivo,
             indice_alvo: indiceAlvoEfetivo,
+            agent_code: agentCodeEfetivo,
             desvio_angular_taxa: metrics.desvioAngularCount,
             rms_vertical: metrics.rmsVerticalG,
             pico_acel_z: metrics.peakZ_G,
@@ -457,6 +502,19 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
           await createSegmentReading(payload)
           // Atualizar o Fator de Confiança do segmento de 100m
           await registerSegmentPassage(payload)
+
+          // PARTE 1.4.c: Alimentar fleet_telemetry em tempo real com posição e velocidade
+          upsertFleetTelemetry({
+            veiculo_id: veiculoId,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            velocidade: currentSpeed,
+            status: currentSpeed > 0 ? 'em_rota' : 'parado',
+            linha: config.linhaFrota || viaName,
+            anomalias_detectadas: metrics.impactsCount,
+          }).catch((fleetErr) => {
+            console.warn('Erro ao atualizar telemetria da frota ativa:', fleetErr)
+          })
 
           setProcessedWindows((prev) =>
             prev.map((w) => (w.id === windowData.id ? { ...w, isPersisted: true } : w)),
@@ -482,10 +540,12 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       thresholdG,
       config.autoPersistWindows,
       config.veiculoTipo,
+      config.linhaFrota,
       codigoIbge,
       bandConfigFft,
       modoAtivoEfetivo,
       indiceAlvoEfetivo,
+      agentCodeEfetivo,
     ],
   )
 
@@ -671,9 +731,61 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
               dominantFreq: quickSpec.dominantFrequency,
               spectralSignature: quickSpec.spectralSignature,
               segmentoId: segId,
+              persisted: false,
             }
 
             setAnomalies((prev) => [newAnomaly, ...prev])
+
+            // PARTE 1.2: AUTO-PERSISTÊNCIA DE ANOMALIAS
+            // Grava automaticamente no PocketBase / road_events; se offline, enfileira
+            if (config.autoPersistAnomalies !== false) {
+              const anomalyPayload: CreateRoadEventPayload = {
+                via:
+                  config.via ||
+                  `Via Municipal • Lat ${coords.latitude.toFixed(4)}, Long ${coords.longitude.toFixed(4)}`,
+                bairro: config.bairro || 'Curitiba',
+                tipo,
+                severidade: severity,
+                iri_score: calculatedIRI,
+                aceleracao_z: Math.abs(roundedG),
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                h3_index: latLngToCell(
+                  coords.latitude,
+                  coords.longitude,
+                  getH3ResolutionForModo(modoAtivoEfetivo),
+                ),
+                velocidade_kmh: currentSpeed,
+                status: 'detectado',
+                veiculo_tipo: config.veiculoTipo || 'Smartphone Frota 1',
+                linha_frota: config.linhaFrota || 'Frota de Coleta',
+                agent_code: agentCodeEfetivo,
+              }
+
+              createRoadEvent(anomalyPayload)
+                .then((created) => {
+                  newAnomaly.persisted = true
+                  setAnomalies((curr) =>
+                    curr.map((a) => (a.id === newAnomaly.id ? { ...a, persisted: true } : a)),
+                  )
+                  if (config.onAnomalyPersisted) {
+                    config.onAnomalyPersisted({ ...newAnomaly, persisted: true })
+                  }
+                })
+                .catch((persistErr) => {
+                  console.warn(
+                    'Falha na persistência imediata de anomalia, enfileirando offline:',
+                    persistErr,
+                  )
+                  enqueueOfflineAnomaly({
+                    id: newAnomaly.id,
+                    sessionId: sessionIdRef.current,
+                    timestamp: now,
+                    payload: anomalyPayload,
+                    persisted: false,
+                  })
+                })
+            }
           }
         }
       }
@@ -687,8 +799,13 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       config.via,
       config.bairro,
       config.veiculoTipo,
+      config.linhaFrota,
+      config.autoPersistAnomalies,
+      config.onAnomalyPersisted,
       codigoIbge,
       modoAtivoEfetivo,
+      agentCodeEfetivo,
+      calculatedIRI,
     ],
   )
 
@@ -784,6 +901,11 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     const granted = await requestMotionPermission()
     if (!granted) return false
 
+    // PARTE 1.1: Drenar fila offline existente ao iniciar a sessão
+    drainOfflineQueue().catch((err) => {
+      console.warn('Erro ao drenar fila offline ao iniciar sessão:', err)
+    })
+
     // Ativar Wake Lock para prevenir tela de apagar
     await requestWakeLock()
 
@@ -830,16 +952,20 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     setStatus('stopped')
 
     // Descarregar última janela residual
+    // PARTE 1.4.a CORREÇÃO: Usar config.veiculoId e NÃO config.veiculoTipo
     const segId = computeSegmentId(
       coordsRef.current.latitude,
       coordsRef.current.longitude,
       codigoIbge,
     )
+    const effectiveVeiculoId =
+      config.veiculoId || `DEV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`
+
     flushEdgeWindow(
       segId,
       config.via || 'Via Municipal',
       config.bairro || 'Centro',
-      config.veiculoTipo || 'Smartphone',
+      effectiveVeiculoId,
     )
 
     // Calcular distância aproximada baseada nos pontos de GPS (haversine)
@@ -898,6 +1024,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     }
 
     // Persistir registro formal da sessão de campo para alimentação da Calibração do Fator K e IMA
+    // PARTE 1.4.e CORREÇÃO: usar o operador real autenticado fornecido na config
     const sessionCode = `SES-${Date.now().toString(36).toUpperCase()}`
     createFieldSession({
       session_code: sessionCode,
@@ -905,11 +1032,11 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       veiculo_tipo: canonicoTipo,
       modo_coleta: modoAtivoEfetivo,
       indice_alvo: indiceAlvoEfetivo,
+      agent_code: agentCodeEfetivo,
       desvios_detectados: totalDesviosSessionRef.current,
       banda_fft_min_hz: configInfo.bandaFftHz.min,
       banda_fft_max_hz: configInfo.bandaFftHz.max,
-      veiculo_id:
-        config.veiculoId || `DEV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+      veiculo_id: effectiveVeiculoId,
       linha_frota:
         config.linhaFrota ||
         (modoAtivoEfetivo === 'pedestre' ? 'Rota Pedestre' : 'Linha Operacional'),
@@ -924,7 +1051,7 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
       segmentos_cobertos: Array.from(segSet),
       iri_medio: calculatedIRI,
       pico_g: peakSessionG,
-      operador_nome: 'Operador de Campo / Cockpit (Onda 3)',
+      operador_nome: config.operadorNome || 'Operador de Campo / Cockpit',
     }).catch((err) => {
       console.warn('Registro de field_session salvo localmente:', err)
     })
@@ -946,6 +1073,8 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     config.veiculoTipoCanonico,
     config.veiculoId,
     config.linhaFrota,
+    config.operadorNome,
+    agentCodeEfetivo,
     config.onSessionComplete,
     gpsTrack,
     elapsedMs,
@@ -1109,11 +1238,11 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
         status: 'detectado',
         veiculo_tipo: sessionMeta.veiculoTipo || 'Dispositivo Mobile (Acelerômetro Real)',
         linha_frota: sessionMeta.linhaFrota || 'Coleta Inercial Mobile Real',
+        agent_code: agentCodeEfetivo,
       }
     },
-    [calculatedIRI, speedKmh, modoAtivoEfetivo],
+    [calculatedIRI, speedKmh, modoAtivoEfetivo, agentCodeEfetivo],
   )
-
   return {
     status,
     sensorSupport,

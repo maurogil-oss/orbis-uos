@@ -6,6 +6,15 @@ export type RoadSeverity = 'baixa' | 'media' | 'alta' | 'critica'
 
 export type RoadStatus = 'detectado' | 'triagem' | 'os_emitida' | 'reparado'
 
+export type AgentTaxonomyCode =
+  | 'VEICULO_FROTA'
+  | 'ONIBUS_FROTA'
+  | 'MOTOCICLISTA'
+  | 'CICLISTA'
+  | 'PEDESTRE'
+  | 'PASSAGEIRO_ONIBUS'
+  | 'OUTRO'
+
 export interface RoadEventRecord {
   id: string
   via: string
@@ -20,6 +29,7 @@ export interface RoadEventRecord {
   status: RoadStatus
   veiculo_tipo?: string
   linha_frota?: string
+  agent_code?: AgentTaxonomyCode
   created: string
   updated: string
 }
@@ -38,6 +48,7 @@ export interface CreateRoadEventPayload {
   status: RoadStatus
   veiculo_tipo: string
   linha_frota: string
+  agent_code?: AgentTaxonomyCode
 }
 export async function listRoadEvents(filter?: string): Promise<RoadEventRecord[]> {
   try {

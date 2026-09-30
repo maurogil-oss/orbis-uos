@@ -185,18 +185,28 @@ export interface FatorKCalibrationRecord {
   updated?: string
 }
 
+export type AgentTaxonomyCode =
+  | 'VEICULO_FROTA'
+  | 'ONIBUS_FROTA'
+  | 'MOTOCICLISTA'
+  | 'CICLISTA'
+  | 'PEDESTRE'
+  | 'PASSAGEIRO_ONIBUS'
+  | 'OUTRO'
+
 export interface FieldSessionRecord {
-  id?: string
+  id: string
   session_code: string
   codigo_ibge: string
-  veiculo_tipo: VeiculoTipoCalibracao
+  veiculo_tipo: string
+  veiculo_id?: string
+  linha_frota?: string
   modo_coleta?: ModoMobilidadeColeta
   indice_alvo?: 'IMV' | 'IMA'
+  agent_code?: AgentTaxonomyCode
   desvios_detectados?: number
   banda_fft_min_hz?: number
   banda_fft_max_hz?: number
-  veiculo_id?: string
-  linha_frota?: string
   via_inicial?: string
   bairro?: string
   duracao_ms: number
@@ -210,7 +220,6 @@ export interface FieldSessionRecord {
   created?: string
   updated?: string
 }
-
 export interface CalibracaoResultadoPorTipo {
   tipo: VeiculoTipoCalibracao
   config: VeiculoTipoOption

@@ -7,6 +7,15 @@ import {
 } from '@/lib/diagnostics/immEngine'
 import { latLngToCell, getH3ResolutionForModo } from '@/lib/diagnostics/h3Engine'
 
+export type AgentTaxonomyCode =
+  | 'VEICULO_FROTA'
+  | 'ONIBUS_FROTA'
+  | 'MOTOCICLISTA'
+  | 'CICLISTA'
+  | 'PEDESTRE'
+  | 'PASSAGEIRO_ONIBUS'
+  | 'OUTRO'
+
 export interface SegmentReadingRecord {
   id: string
   segmento_id: string
@@ -17,6 +26,7 @@ export interface SegmentReadingRecord {
   veiculo_tipo?: string
   modo_coleta?: 'veiculo_frota' | 'pedestre' | 'ciclista' | 'motociclista'
   indice_alvo?: 'IMV' | 'IMA'
+  agent_code?: AgentTaxonomyCode
   desvio_angular_taxa?: number
   rms_vertical?: number
   pico_acel_z?: number
@@ -45,6 +55,7 @@ export interface CreateSegmentReadingPayload {
   veiculo_tipo?: string
   modo_coleta?: 'veiculo_frota' | 'pedestre' | 'ciclista' | 'motociclista'
   indice_alvo?: 'IMV' | 'IMA'
+  agent_code?: AgentTaxonomyCode
   desvio_angular_taxa?: number
   rms_vertical: number
   pico_acel_z: number
@@ -157,7 +168,9 @@ export async function registerSegmentPassage(
   const nowIso = new Date().toISOString()
 
   if (!existing) {
-    // Criar novo segmento com a 1ª passagem
+    // Tentar criar novo segmento com a 1ª passagem.
+    // Tratamento de concorrência / colisão de índice único (idx_road_segments_seg_ibge):
+    // Se outra janela simultânea gravou no mesmo milissegundo, recupera o existente e atualiza.
     const veiculos = [veiculo_id]
     const passagensCount = 1
     const confiancaValida = passagensCount >= 3
@@ -181,31 +194,47 @@ export async function registerSegmentPassage(
     const h3Resolution = reading.h3_resolution || getH3ResolutionForModo(reading.modo_coleta)
     const h3Cell = reading.h3_index || latLngToCell(latitude, longitude, h3Resolution)
 
-    const newRecord = await pb.collection('road_segments').create<RoadSegmentRecord>({
-      segmento_id,
-      codigo_ibge,
-      via,
-      bairro: bairro || 'Curitiba',
-      tipo_via: via.toLowerCase().includes('av') ? 'arterial' : 'coletora',
-      extensao_metros: 100,
-      passagens_veiculos_distintos: passagensCount,
-      veiculos_registrados: veiculos,
-      fator_confianca_valido: confiancaValida,
-      iri_estimado: Number(iri_janela.toFixed(2)),
-      total_impactos: impactos_count,
-      pico_max_z: Number(pico_acel_z.toFixed(2)),
-      solavancos_angulares_total: solavancos_angulares,
-      score_imm: baseScore,
-      faixa_imm: faixa.nome,
-      passagens_modos_ativos: isModoAtivo ? 1 : 0,
-      desvios_coletivos_count: desviosInit,
-      latitude_centro: latitude,
-      longitude_centro: longitude,
-      h3_index: h3Cell,
-      h3_resolution: h3Resolution,
-      ultima_passagem: nowIso,
-    })
-    return newRecord
+    try {
+      const newRecord = await pb.collection('road_segments').create<RoadSegmentRecord>({
+        segmento_id,
+        codigo_ibge,
+        via,
+        bairro: bairro || 'Curitiba',
+        tipo_via: via.toLowerCase().includes('av') ? 'arterial' : 'coletora',
+        extensao_metros: 100,
+        passagens_veiculos_distintos: passagensCount,
+        veiculos_registrados: veiculos,
+        fator_confianca_valido: confiancaValida,
+        iri_estimado: Number(iri_janela.toFixed(2)),
+        total_impactos: impactos_count,
+        pico_max_z: Number(pico_acel_z.toFixed(2)),
+        solavancos_angulares_total: solavancos_angulares,
+        score_imm: baseScore,
+        faixa_imm: faixa.nome,
+        passagens_modos_ativos: isModoAtivo ? 1 : 0,
+        desvios_coletivos_count: desviosInit,
+        latitude_centro: latitude,
+        longitude_centro: longitude,
+        h3_index: h3Cell,
+        h3_resolution: h3Resolution,
+        ultima_passagem: nowIso,
+      })
+      return newRecord
+    } catch (createErr: any) {
+      // Conflito de unicidade (outra janela gravou entre o get e o create)
+      console.warn(
+        '[registerSegmentPassage] Conflito detectado na criação de road_segment, recuperando registro para update:',
+        createErr?.message,
+      )
+      const list = await pb.collection('road_segments').getList<RoadSegmentRecord>(1, 1, {
+        filter: `segmento_id = '${segmento_id}' && codigo_ibge = '${codigo_ibge}'`,
+      })
+      if (list.items.length > 0) {
+        existing = list.items[0]
+      } else {
+        throw createErr
+      }
+    }
   }
 
   // Segmento já existe: somar veículo distinto se ainda não passou

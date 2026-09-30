@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T18:49:31.910Z",
+  "generatedAt": "2026-09-30T17:00:11.713Z",
   "collections": [
     {
       "name": "users",
@@ -240,11 +240,27 @@
           "type": "text",
           "required": false,
           "system": false
+        },
+        {
+          "name": "agent_code",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "VEICULO_FROTA",
+            "ONIBUS_FROTA",
+            "MOTOCICLISTA",
+            "CICLISTA",
+            "PEDESTRE",
+            "PASSAGEIRO_ONIBUS",
+            "OUTRO"
+          ]
         }
       ],
       "indexes": [
         "CREATE INDEX idx_road_events_severidade ON road_events (severidade)",
-        "CREATE INDEX idx_road_events_status ON road_events (status)"
+        "CREATE INDEX idx_road_events_status ON road_events (status)",
+        "CREATE INDEX `idx_road_events_agent` ON `road_events` (agent_code)"
       ]
     },
     {
@@ -974,13 +990,29 @@
           "type": "number",
           "required": false,
           "system": false
+        },
+        {
+          "name": "agent_code",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "VEICULO_FROTA",
+            "ONIBUS_FROTA",
+            "MOTOCICLISTA",
+            "CICLISTA",
+            "PEDESTRE",
+            "PASSAGEIRO_ONIBUS",
+            "OUTRO"
+          ]
         }
       ],
       "indexes": [
         "CREATE INDEX idx_seg_readings_segmento ON segment_readings (segmento_id)",
         "CREATE INDEX idx_seg_readings_ibge ON segment_readings (codigo_ibge)",
         "CREATE INDEX idx_seg_readings_veiculo ON segment_readings (veiculo_id)",
-        "CREATE INDEX `idx_seg_readings_h3` ON `segment_readings` (h3_index)"
+        "CREATE INDEX `idx_seg_readings_h3` ON `segment_readings` (h3_index)",
+        "CREATE INDEX `idx_seg_readings_agent` ON `segment_readings` (agent_code)"
       ]
     },
     {
@@ -1424,12 +1456,28 @@
           "type": "number",
           "required": false,
           "system": false
+        },
+        {
+          "name": "agent_code",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "VEICULO_FROTA",
+            "ONIBUS_FROTA",
+            "MOTOCICLISTA",
+            "CICLISTA",
+            "PEDESTRE",
+            "PASSAGEIRO_ONIBUS",
+            "OUTRO"
+          ]
         }
       ],
       "indexes": [
         "CREATE UNIQUE INDEX idx_field_sessions_code ON field_sessions (session_code)",
         "CREATE INDEX idx_field_sessions_ibge ON field_sessions (codigo_ibge)",
-        "CREATE INDEX idx_field_sessions_veiculo_tipo ON field_sessions (veiculo_tipo)"
+        "CREATE INDEX idx_field_sessions_veiculo_tipo ON field_sessions (veiculo_tipo)",
+        "CREATE INDEX `idx_field_sessions_agent` ON `field_sessions` (agent_code)"
       ]
     },
     {

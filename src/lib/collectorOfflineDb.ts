@@ -4,9 +4,16 @@
  * Garante a integridade da coleta PWA e SDK Edge em áreas de sombra de conectividade 4G/5G:
  * 1. Sessões ativas ou pausadas por suspensão de aba/background
  * 2. Janelas agregadas de telemetria pendentes de envio
- * 3. Anomalias pontuais capturadas
- * 4. Metadados de cobertura de rota e posição do celular
+ * 3. Anomalias pontuais capturadas pendentes de envio
+ * 4. Drenagem automática e retransmissão confiável
  */
+
+import {
+  CreateSegmentReadingPayload,
+  createSegmentReading,
+  registerSegmentPassage,
+} from '@/services/roadSegments'
+import { CreateRoadEventPayload, createRoadEvent } from '@/services/roadEvents'
 
 const DB_NAME = 'orbis_collector_offline_db'
 const DB_VERSION = 1
@@ -23,6 +30,7 @@ export interface OfflineSessionRecord {
   linhaFrota: string
   veiculoTipo: string
   veiculoTipoCanonico: string
+  agentCode?: string
   phonePosition: 'painel' | 'bolso_outro'
   status: 'active' | 'paused_background' | 'stopped'
   startTime: number
@@ -43,16 +51,30 @@ export interface OfflinePendingWindow {
   sessionId: string
   timestamp: number
   segmentoId: string
-  payload: any
+  payload: CreateSegmentReadingPayload | any
   persisted: boolean
+  attempts?: number
+  lastAttemptAt?: number
+  error?: string
 }
 
 export interface OfflinePendingAnomaly {
   id: string
   sessionId: string
   timestamp: number
-  payload: any
+  payload: CreateRoadEventPayload
   persisted: boolean
+  attempts?: number
+  lastAttemptAt?: number
+  error?: string
+}
+
+export interface QueueDrainResult {
+  windowsDrained: number
+  windowsFailed: number
+  anomaliesDrained: number
+  anomaliesFailed: number
+  remainingPending: number
 }
 
 function openDatabase(): Promise<IDBDatabase> {
@@ -149,13 +171,19 @@ export async function getLatestPausedSession(): Promise<OfflineSessionRecord | n
   }
 }
 
+// ----------------- FILA DE JANELAS -----------------
+
 export async function enqueueOfflineWindow(item: OfflinePendingWindow): Promise<void> {
   try {
     const db = await openDatabase()
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_WINDOWS, 'readwrite')
       const store = tx.objectStore(STORE_WINDOWS)
-      const putReq = store.put(item)
+      const putReq = store.put({
+        ...item,
+        attempts: item.attempts || 0,
+        lastAttemptAt: Date.now(),
+      })
       putReq.onsuccess = () => resolve()
       putReq.onerror = () => reject(putReq.error)
     })
@@ -193,18 +221,202 @@ export async function markOfflineWindowPersisted(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_WINDOWS, 'readwrite')
       const store = tx.objectStore(STORE_WINDOWS)
-      const getReq = store.get(id)
-      getReq.onsuccess = () => {
-        if (getReq.result) {
-          getReq.result.persisted = true
-          store.put(getReq.result)
-        }
-        resolve()
-      }
-      getReq.onerror = () => reject(getReq.error)
+      // Remover da fila para não crescer indefinidamente
+      const delReq = store.delete(id)
+      delReq.onsuccess = () => resolve()
+      delReq.onerror = () => reject(delReq.error)
     })
   } catch {
     /* intentionally ignored */
+  }
+}
+
+// ----------------- FILA DE ANOMALIAS -----------------
+
+export async function enqueueOfflineAnomaly(item: OfflinePendingAnomaly): Promise<void> {
+  try {
+    const db = await openDatabase()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_ANOMALIES, 'readwrite')
+      const store = tx.objectStore(STORE_ANOMALIES)
+      const putReq = store.put({
+        ...item,
+        attempts: item.attempts || 0,
+        lastAttemptAt: Date.now(),
+      })
+      putReq.onsuccess = () => resolve()
+      putReq.onerror = () => reject(putReq.error)
+    })
+  } catch (err) {
+    console.warn('Erro ao enfileirar anomalia offline:', err)
+  }
+}
+
+export async function getPendingOfflineAnomalies(
+  sessionId?: string,
+): Promise<OfflinePendingAnomaly[]> {
+  try {
+    const db = await openDatabase()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_ANOMALIES, 'readonly')
+      const store = tx.objectStore(STORE_ANOMALIES)
+      const req = store.getAll()
+      req.onsuccess = () => {
+        let results = (req.result || []) as OfflinePendingAnomaly[]
+        if (sessionId) {
+          results = results.filter((a) => a.sessionId === sessionId)
+        }
+        resolve(results.filter((a) => !a.persisted))
+      }
+      req.onerror = () => reject(req.error)
+    })
+  } catch {
+    return []
+  }
+}
+
+export async function markOfflineAnomalyPersisted(id: string): Promise<void> {
+  try {
+    const db = await openDatabase()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_ANOMALIES, 'readwrite')
+      const store = tx.objectStore(STORE_ANOMALIES)
+      const delReq = store.delete(id)
+      delReq.onsuccess = () => resolve()
+      delReq.onerror = () => reject(delReq.error)
+    })
+  } catch {
+    /* intentionally ignored */
+  }
+}
+
+// ----------------- DRENAGEM AUTOMÁTICA DA FILA -----------------
+
+let isDraining = false
+
+/**
+ * Drena todas as janelas e anomalias pendentes de transmissão.
+ * Chamado automaticamente:
+ * 1. Ao iniciar ou retomar sessão de campo
+ * 2. Periodicamente (a cada 60s ou N min) durante sessão ativa
+ * 3. Ao disparar o evento 'online' do navegador
+ */
+export async function drainOfflineQueue(
+  options: {
+    onSuccessWindow?: (windowId: string) => void
+    onSuccessAnomaly?: (anomalyId: string) => void
+  } = {},
+): Promise<QueueDrainResult> {
+  if (isDraining) {
+    return {
+      windowsDrained: 0,
+      windowsFailed: 0,
+      anomaliesDrained: 0,
+      anomaliesFailed: 0,
+      remainingPending: 0,
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    const pendingWins = await getPendingOfflineWindows()
+    const pendingAnoms = await getPendingOfflineAnomalies()
+    return {
+      windowsDrained: 0,
+      windowsFailed: 0,
+      anomaliesDrained: 0,
+      anomaliesFailed: 0,
+      remainingPending: pendingWins.length + pendingAnoms.length,
+    }
+  }
+
+  isDraining = true
+  let windowsDrained = 0
+  let windowsFailed = 0
+  let anomaliesDrained = 0
+  let anomaliesFailed = 0
+
+  try {
+    const pendingWindows = await getPendingOfflineWindows()
+    for (const win of pendingWindows) {
+      try {
+        const payload = win.payload as CreateSegmentReadingPayload
+        if (payload && payload.segmento_id) {
+          await createSegmentReading(payload)
+          await registerSegmentPassage(payload)
+          await markOfflineWindowPersisted(win.id)
+          windowsDrained++
+          if (options.onSuccessWindow) options.onSuccessWindow(win.id)
+        } else {
+          // Payload inválido, descarte seguro
+          await markOfflineWindowPersisted(win.id)
+        }
+      } catch (err: any) {
+        windowsFailed++
+        console.warn(`[Offline Queue] Falha ao reenviar janela ${win.id}:`, err?.message || err)
+        // Atualizar tentativas
+        await enqueueOfflineWindow({
+          ...win,
+          attempts: (win.attempts || 0) + 1,
+          lastAttemptAt: Date.now(),
+          error: err?.message || String(err),
+        })
+      }
+    }
+
+    const pendingAnomalies = await getPendingOfflineAnomalies()
+    for (const anom of pendingAnomalies) {
+      try {
+        const payload = anom.payload
+        if (payload && payload.via) {
+          await createRoadEvent(payload)
+          await markOfflineAnomalyPersisted(anom.id)
+          anomaliesDrained++
+          if (options.onSuccessAnomaly) options.onSuccessAnomaly(anom.id)
+        } else {
+          await markOfflineAnomalyPersisted(anom.id)
+        }
+      } catch (err: any) {
+        anomaliesFailed++
+        console.warn(`[Offline Queue] Falha ao reenviar anomalia ${anom.id}:`, err?.message || err)
+        await enqueueOfflineAnomaly({
+          ...anom,
+          attempts: (anom.attempts || 0) + 1,
+          lastAttemptAt: Date.now(),
+          error: err?.message || String(err),
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('[Offline Queue] Erro geral na drenagem:', err)
+  } finally {
+    isDraining = false
+  }
+
+  const remainingWins = await getPendingOfflineWindows()
+  const remainingAnoms = await getPendingOfflineAnomalies()
+
+  return {
+    windowsDrained,
+    windowsFailed,
+    anomaliesDrained,
+    anomaliesFailed,
+    remainingPending: remainingWins.length + remainingAnoms.length,
+  }
+}
+
+export async function getQueueStats(): Promise<{
+  pendingWindowsCount: number
+  pendingAnomaliesCount: number
+  totalPending: number
+}> {
+  const [wins, anoms] = await Promise.all([
+    getPendingOfflineWindows(),
+    getPendingOfflineAnomalies(),
+  ])
+  return {
+    pendingWindowsCount: wins.length,
+    pendingAnomaliesCount: anoms.length,
+    totalPending: wins.length + anoms.length,
   }
 }
 
