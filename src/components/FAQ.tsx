@@ -10,10 +10,10 @@ export function FAQ() {
   const faqs = [
     {
       id: 'item-1',
-      badge: 'SDK Edge & Consumo 1,2–1,8%/h',
-      question: 'Por que o SDK Edge consome tão pouca bateria (1,2–1,8% por hora)?',
+      badge: 'Motor ORBIS DSP & Eficiência',
+      question: 'Como o Motor ORBIS DSP assegura alta eficiência energética no dispositivo?',
       answer:
-        'Porque todo o processamento espectral (janelamento Hanning + FFT Radix-2 de aceleração vertical Z) acontece localmente no smartphone, isolando a banda relevante de 1 a 20 Hz e descartando 99,8% do ruído em repouso. O dispositivo não faz streaming pesado de dados brutos; apenas transmite a assinatura do evento (poucos bytes) no instante exato da anomalia. Um turno de 8 horas consome entre 10% e 15% de bateria.',
+        'Porque todo o processamento espectral embarcado acontece diretamente no smartphone pelo Motor ORBIS DSP, que isola vibrações relevantes e descarta ruídos em repouso na própria borda. O dispositivo não faz streaming pesado de dados brutos; apenas transmite a assinatura compacta do evento no instante exato da anomalia viária. O consumo de bateria é medido em campo, a ser publicado no relatório da PoC.',
     },
     {
       id: 'item-2',

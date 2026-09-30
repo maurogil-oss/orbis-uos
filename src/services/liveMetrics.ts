@@ -47,7 +47,7 @@ export async function getPlatformLiveMetrics(): Promise<PlatformLiveMetrics> {
       averageIri,
       activeCitiesCount: 3, // Curitiba (piloto ativo) + 2 cidades em validação CPSI
       recentVias,
-      batteryDrainPerHour: '1,2–1,8%/h',
+      batteryDrainPerHour: 'Consumo medido em campo (PoC)',
       updatedAt: new Date().toISOString(),
     }
   } catch (error) {
@@ -64,7 +64,7 @@ export async function getPlatformLiveMetrics(): Promise<PlatformLiveMetrics> {
         'Av. Cândido de Abreu, 750',
         'Linha Verde (BR-476), km 142',
       ],
-      batteryDrainPerHour: '1,2–1,8%/h',
+      batteryDrainPerHour: 'Consumo medido em campo (PoC)',
       updatedAt: new Date().toISOString(),
     }
   }

@@ -4,9 +4,9 @@ export function Comparison() {
   const comparisonRows = [
     {
       criterion: 'Arquitetura de Coleta',
-      bad: 'Aplicativos extras que motoristas recusam instalar, drenam a bateria em 3 horas ou exigem hardware/sensores caros no painel.',
-      good: 'SDK Edge embarcado nos apps que a frota já usa. FFT na borda com consumo medido de apenas 1,2–1,8%/h de bateria e Zero CAPEX.',
-      goodBadge: 'SDK Edge (1,2–1,8%/h)',
+      bad: 'Aplicativos extras que motoristas recusam instalar, drenam rapidamente a bateria ou exigem hardware/sensores caros no painel.',
+      good: 'Motor ORBIS DSP embarcado nos apps que a frota já usa. Processamento espectral na borda com consumo medido em campo, a ser publicado no relatório da PoC e Zero CAPEX.',
+      goodBadge: 'Motor ORBIS DSP (Zero CAPEX)',
     },
     {
       criterion: 'Detecção de Falhas no Asfalto',

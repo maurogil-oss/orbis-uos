@@ -18,14 +18,14 @@ export function TechnicalAssuranceSection() {
           </div>
           <div className="flex items-center gap-2.5">
             <BatteryCharging className="w-4 h-4 text-[#3B82F6] shrink-0" />
-            <span className="text-[#94A3B8]">Consumo Aferido:</span>
-            <b className="text-[#F8FAFC] font-semibold">1,2–1,8% / hora</b>
-            <span className="text-xs text-[#94A3B8]">(Turno 8h = 10–15%)</span>
+            <span className="text-[#94A3B8]">Consumo do Dispositivo:</span>
+            <b className="text-[#F8FAFC] font-semibold">Consumo medido em campo</b>
+            <span className="text-xs text-[#94A3B8]">(A ser publicado no relatório da PoC)</span>
           </div>
           <div className="flex items-center gap-2.5">
             <Cpu className="w-4 h-4 text-[#60A5FA] shrink-0" />
             <span className="text-[#94A3B8]">Processamento Local:</span>
-            <b className="text-[#60A5FA] font-semibold">FFT Banda 1–20 Hz na Borda</b>
+            <b className="text-[#60A5FA] font-semibold">Motor ORBIS DSP Embarcado</b>
           </div>
         </div>
 

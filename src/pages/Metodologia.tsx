@@ -134,7 +134,7 @@ export default function Metodologia() {
                 onClick={handleDownloadDossie}
                 disabled={isGeneratingPdf || isGeneratingSecPdf}
                 className="px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] border border-[#3B82F6]/60 shadow-lg shadow-[#2563EB]/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
-                title="Baixar documento completo com capa institucional, hierarquia de índices, pilares IMV, FFT e hash SHA-256"
+                title="Baixar documento completo com capa institucional, hierarquia de índices, pilares IMV, Motor ORBIS DSP e hash SHA-256"
               >
                 {isGeneratingPdf ? (
                   <>
@@ -156,8 +156,8 @@ export default function Metodologia() {
           </h1>
           <p className="text-sm text-[#94A3B8] leading-relaxed">
             Documentação técnica pública dos princípios, algoritmos de cálculo, matrizes de
-            ponderação, viés de desvio declarado, bandas espectrais FFT e grade hexagonal H3 da
-            plataforma ORBIS.UOS (Versão 2.2 Homologada).
+            ponderação, viés de desvio declarado, processamento espectral do Motor ORBIS DSP e grade
+            hexagonal H3 da plataforma ORBIS.UOS (Versão 2.2 Homologada).
           </p>
 
           {/* Feedback de Geração / Hash se já emitido */}
@@ -350,8 +350,8 @@ export default function Metodologia() {
               </h3>
               <p className="text-[#CBD5E1] leading-relaxed text-[11px]">
                 Coleta real por pedestres (calçadas), ciclistas (ciclovias) e motociclistas
-                (pistas). Fator K próprio, banda FFT especializada e viés de desvio tratado
-                estatisticamente.
+                (pistas). Fator K próprio, calibração espectral dedicada pelo Motor ORBIS DSP e viés
+                de desvio tratado estatisticamente.
               </p>
               <div className="pt-1.5 border-t border-[#1A2A5A] text-[11px] font-mono text-[#10B981]">
                 <b>Status:</b> Onda 3 Real (Homologado)
@@ -367,7 +367,7 @@ export default function Metodologia() {
           </div>
         </div>
 
-        {/* Seção Nova: Onda 3 — Módulo Mobilidade Ativa e Bandas FFT por Modo */}
+        {/* Seção Nova: Onda 3 — Módulo Mobilidade Ativa e Calibração Espectral por Modo */}
         <div className="p-6 rounded-2xl bg-[#101B3A] border-2 border-[#10B981]/50 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
             <h2 className="text-xl font-bold text-[#F8FAFC] flex items-center gap-2">
@@ -383,7 +383,8 @@ export default function Metodologia() {
             <p>
               A coleta de vibração em pedestres, ciclistas e motociclistas possui física mecânica
               distinta da suspensão veicular pesada. Portanto, a metodologia estabelece{' '}
-              <b>bandas espectrais FFT especializadas</b> e <b>Fatores K baselines dedicados</b>:
+              <b>processamento espectral dedicado via Motor ORBIS DSP</b> e{' '}
+              <b>Fatores K baselines dedicados</b>:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -395,12 +396,12 @@ export default function Metodologia() {
                   </span>
                 </div>
                 <div className="text-[11px] font-mono text-[#60A5FA]">
-                  Banda FFT: 0,8 a 3,5 Hz (Cadência do Passo)
+                  Motor ORBIS DSP: Cadência do Passo
                 </div>
                 <p className="text-[11px] text-[#94A3B8]">
-                  O passo humano atua como filtro passa-baixa. Detecta fissuras em ladrilhos,
-                  degraus, desníveis de raiz e rampas inacessíveis sem confundir o balanço normal do
-                  caminhar.
+                  O processamento espectral embarcado isola a dinâmica do caminhar. Detecta fissuras
+                  em ladrilhos, degraus, desníveis de raiz e rampas inacessíveis sem confundir o
+                  balanço normal do caminhar.
                 </p>
               </div>
 
@@ -412,7 +413,7 @@ export default function Metodologia() {
                   </span>
                 </div>
                 <div className="text-[11px] font-mono text-[#60A5FA]">
-                  Banda FFT: 2,0 a 12,0 Hz (Micromobilidade)
+                  Motor ORBIS DSP: Micromobilidade
                 </div>
                 <p className="text-[11px] text-[#94A3B8]">
                   Garfo rígido e pneus de alta pressão transmitem impactos secos diretamente ao
@@ -429,7 +430,7 @@ export default function Metodologia() {
                   </span>
                 </div>
                 <div className="text-[11px] font-mono text-[#60A5FA]">
-                  Banda FFT: 3,0 a 22,0 Hz (Duas Rodas)
+                  Motor ORBIS DSP: Duas Rodas
                 </div>
                 <p className="text-[11px] text-[#94A3B8]">
                   Suspensão telescópica dianteira e alta agilidade. Utilizado como complemento de
@@ -934,8 +935,7 @@ export default function Metodologia() {
                   Somente após a confirmação do movimento sustentado pela Etapa 1, o circuito de
                   alta potência de <b>GPS/Geolocalização é ligado</b>. O GPS confirma se o veículo
                   está de fato em deslocamento viário real com <b>velocidade &gt; 5 km/h</b>. Se
-                  confirmado, a amostragem inercial a 50 Hz e o janelamento FFT entram em operação
-                  plena.
+                  confirmado, a amostragem inercial e o Motor ORBIS DSP entram em operação plena.
                 </p>
               </div>
             </div>
@@ -1032,31 +1032,34 @@ export default function Metodologia() {
             </div>
           </div>
 
-          {/* Pipeline Detalhado do Coletor PWA (Filtros, Bandas, Limiares e Calibração) */}
+          {/* Pipeline Detalhado do Coletor PWA (Filtros, Limiares e Calibração) */}
           <div className="p-5 rounded-xl bg-[#101B3A] border border-[#3B82F6]/40 space-y-3 text-xs">
             <div className="flex items-center gap-2 font-bold text-white text-sm">
               <Activity className="w-4 h-4 text-[#38BDF8]" />
-              <span>Pipeline DSP Detalhado do Coletor PWA (Borda Ativa & FFT)</span>
+              <span>Pipeline do Coletor PWA com Motor ORBIS DSP</span>
             </div>
             <p className="text-[#CBD5E1] leading-relaxed">
-              O pipeline do coletor PWA implementa em JavaScript/TypeScript puro no navegador o
-              mesmo rigor matemático do SDK C++/Kotlin embarcado:
+              O pipeline do coletor PWA implementa diretamente na borda o mesmo rigor analítico do
+              Motor ORBIS DSP com processamento espectral embarcado:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px]">
               <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
-                <span className="font-bold text-[#38BDF8] block">1. Resample para 50 Hz Fixo</span>
+                <span className="font-bold text-[#38BDF8] block">
+                  1. Equalização Temporal na Borda
+                </span>
                 <p className="text-[#94A3B8]">
-                  Compensa o jitter e a taxa variável de sensores móveis (30–100 Hz), interpolando
-                  linearmente para um passo exato de Δt = 20ms antes de alimentar a FFT Radix-2.
+                  Compensa variações temporais e jitter de sensores móveis com interpolação estável
+                  antes de alimentar o Motor ORBIS DSP.
                 </p>
               </div>
 
               <div className="p-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] space-y-1">
-                <span className="font-bold text-[#10B981] block">2. Janela de Hann & Bandas</span>
+                <span className="font-bold text-[#10B981] block">
+                  2. Filtragem e Extração de Assinaturas
+                </span>
                 <p className="text-[#94A3B8]">
-                  Elimina o <i>spectral leakage</i> com Janelamento de Hann (0.5*(1-cos)). Isola as
-                  bandas canônicas: <b>1–4 Hz</b> (resposta da suspensão/IRI) e <b>5–20 Hz</b>{' '}
-                  (impactos de anomalias).
+                  Processamento espectral embarcado que isola assinaturas mecânicas de
+                  irregularidades do pavimento e respostas de amortecimento.
                 </p>
               </div>
 
@@ -1145,8 +1148,9 @@ export default function Metodologia() {
                   <b className="text-[#F8FAFC]">
                     Método Primário (Razão em Segmentos Compartilhados):
                   </b>{' '}
-                  Compara a aceleração vertical RMS e picos FFT da categoria avaliada em relação aos
-                  demais veículos que trafegaram exatamente sobre o mesmo trecho físico.
+                  Compara a aceleração vertical RMS e assinaturas espectrais da categoria avaliada
+                  em relação aos demais veículos que trafegaram exatamente sobre o mesmo trecho
+                  físico.
                 </li>
                 <li>
                   <b className="text-[#F8FAFC]">Método Secundário (Fallback de RMS Absoluto):</b> Na
@@ -1524,7 +1528,7 @@ export default function Metodologia() {
             </h3>
             <p className="text-xs text-[#94A3B8] leading-relaxed">
               Baixe o Dossiê de Arquitetura em PDF com capa institucional, matrizes matemáticas dos
-              4 pilares do IMV, bandas FFT dos modos ativos, catálogo de endpoints e hash
+              4 pilares do IMV, calibração do Motor ORBIS DSP, catálogo de endpoints e hash
               criptográfico SHA-256.
             </p>
           </div>

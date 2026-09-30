@@ -46,7 +46,7 @@ export default function Index() {
       {/* 5. Onda 2 por Porte: Módulos Green Light Bridge e Meio-fio & Vagas para Cidade Média */}
       <Onda2Modules selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 6. Benefits (4 pilares estendidos: SDK Edge FFT, Green Light, Art. 320 CTB, LGPD) */}
+      {/* 6. Benefits (4 pilares estendidos: Motor ORBIS DSP, Green Light, Art. 320 CTB, LGPD) */}
       <Benefits />
 
       {/* 7. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}

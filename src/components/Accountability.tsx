@@ -66,7 +66,7 @@ export function Accountability() {
       subtitle: 'Dados públicos abertos, auditáveis e cientificamente embasados',
       accent: '#818CF8',
       description:
-        'Fim da disputa de narrativas sobre a qualidade do pavimento. Indicadores calculados segundo métodos consagrados de engenharia de transportes (IRI, FFT de aceleração vertical) e metodologia pública auditável.',
+        'Fim da disputa de narrativas sobre a qualidade do pavimento. Indicadores calculados segundo métodos consagrados de engenharia de transportes (IRI, processamento espectral de aceleração vertical pelo Motor ORBIS DSP) e metodologia pública auditável.',
       points: [
         'Métricas públicas mensuráveis sem distorções de comunicação partidária',
         'Painéis de interesse público para acompanhamento de metas municipais e do PPA',

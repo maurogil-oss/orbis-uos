@@ -64,15 +64,15 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
       icon: Database,
     },
     {
-      category: 'Camada de Borda (SDK Edge & FFT)',
+      category: 'Camada de Borda (Motor ORBIS DSP)',
       title: 'Pipeline Inercial Embarcado nos Aplicativos da Frota',
-      tag: 'Zero CAPEX • 1,2–1,8%/h Bateria',
+      tag: 'Zero CAPEX • Bateria Otimizada',
       description:
-        'SDK leve que se integra aos aplicativos já usados pelos motoristas (rastreamento, fiscalização, coleta). Processa a aceleração Z localmente com janelamento Hanning e FFT 1–20 Hz, descartando 99,8% do ruído e transmitindo apenas a assinatura do evento viário.',
+        'SDK leve integrado com o Motor ORBIS DSP que se conecta aos aplicativos já usados pelos motoristas (rastreamento, fiscalização, coleta). Executa processamento espectral embarcado diretamente no smartphone, isolando eventos relevantes e transmitindo apenas a assinatura do evento viário com consumo medido em campo, a ser publicado no relatório da PoC.',
       protocols: [
         'DeviceMotion W3C API',
-        'Fast Fourier Transform (FFT Radix-2)',
-        'Filtro Passa-Banda 1–20Hz',
+        'Motor ORBIS DSP Embarcado',
+        'Filtragem Espectral na Borda',
         'Criptografia TLS 1.3 / mTLS',
       ],
       icon: Cpu,

@@ -42,7 +42,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
         'Decisão pública mais rápida, transparente e responsável: o gestor decide com base em evidências e o sistema documenta. A frota que já circula pela cidade afere o pavimento em tempo real, garantindo vias seguras ao pedestre, socorro ágil a serviços essenciais e resposta direta aos anseios da população.',
       honestCoverage: '100% da frota pública aferindo o pavimento em rotinas regulares',
       entryArg: 'Adesão institucional simplificada • Marco Legal CPSI (LC 182/2021)',
-      batteryTrust: '1,2–1,8%/h de bateria',
+      batteryTrust: 'Consumo medido em campo (PoC)',
       pilotDays: 'Diagnóstico preliminar em 30 dias',
     },
     media: {
@@ -53,7 +53,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
         'Onda 2 (fase de expansão / roadmap): insumos de sincronismo semafórico adaptativo (Green Light Bridge) para engenharia de tráfego e auditoria de estacionamento/faixa amarela pela frota existente (Zero CAPEX). Gestão integrada entre zeladoria, mobilidade e conformidade estrita ao Art. 320 do CTB.',
       honestCoverage: `${liveMetrics ? liveMetrics.totalKmMonitored.toLocaleString('pt-BR') : '1.482'} km monitorados com integridade`,
       entryArg: 'Green Light Bridge + Meio-fio & Vagas • Onda 2 (Expansão)',
-      batteryTrust: '1,2–1,8%/h de bateria',
+      batteryTrust: 'Consumo medido em campo (PoC)',
       pilotDays: 'Piloto institucional em 60 dias',
     },
     grande: {
@@ -64,7 +64,7 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
         'Interoperabilidade para corredores estruturais, integração metropolitana e governança alinhada às normas ISO 37120/37122/37125. Redução de acidentes, menos tempo perdido no trânsito e máxima integridade nas relações com Tribunais de Contas, órgãos de controle e cooperação federativa.',
       honestCoverage: 'Gêmeo digital e auditoria contínua da malha metropolitana',
       entryArg: 'Padrão ISO 37120/37122/37125 • Instrumento de cooperação federativa',
-      batteryTrust: '1,2–1,8%/h de bateria',
+      batteryTrust: 'Consumo medido em campo (PoC)',
       pilotDays: 'Acordo de cooperação em 90 dias',
     },
   }

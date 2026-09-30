@@ -14,7 +14,7 @@ export function TrustStrip() {
     'Interoperabilidade GTFS & NTCIP 1202',
     'Dossiê Pré-formatado para TCE / MP',
     'Governança Digital (Lei 14.129/21)',
-    'Processamento Espectral FFT na Borda',
+    'Processamento Espectral via Motor ORBIS DSP',
   ]
 
   // Double the list to create a seamless infinite loop

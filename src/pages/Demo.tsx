@@ -643,8 +643,9 @@ export default function Demo() {
                   <div className="p-3 rounded-xl bg-[#0A1128]/80 border border-[#1A2A5A] text-xs text-[#94A3B8] space-y-1">
                     <div className="text-[11px] font-bold text-white">Arquitetura de Borda:</div>
                     <p className="text-[11px] leading-relaxed">
-                      Transformada Rápida de Fourier (FFT) calcula a densidade espectral no próprio
-                      aparelho, descartando dados brutos e enviando apenas a assinatura matemática.
+                      O Motor ORBIS DSP executa processamento espectral embarcado no próprio
+                      aparelho, descartando ruídos brutos e enviando apenas a assinatura matemática
+                      compacta.
                     </p>
                   </div>
                 </div>

@@ -12,14 +12,14 @@ import {
 export function Benefits() {
   const pillars = [
     {
-      title: 'SDK Edge com FFT Embarcada (1,2–1,8%/h)',
+      title: 'Motor ORBIS DSP Embarcado',
       tag: 'Zero CAPEX • Bateria Protegida',
       badge: 'Processamento Local',
       description:
-        'Não é mais um aplicativo para o motorista instalar; é um SDK leve que embute a telemetria nos apps que sua frota já usa. O processamento espectral FFT isola frequências de 1 a 20 Hz no próprio smartphone e envia apenas assinaturas de anomalias viárias com baixíssimo consumo de bateria.',
-      metric: '1,2–1,8%/h',
-      metricLabel: 'Consumo medido de bateria (Turno de 8h = 10–15%)',
-      submetric: 'Filtro Hanning + Janela FFT de 0 a 25 Hz',
+        'Não é mais um aplicativo para o motorista instalar; é um SDK leve com o Motor ORBIS DSP que embute a telemetria nos apps que sua frota já usa. O processamento espectral embarcado isola padrões viários no próprio smartphone e envia apenas assinaturas compactas de anomalias com alta eficiência energética.',
+      metric: 'PoC em Campo',
+      metricLabel: 'Consumo medido em campo, a ser publicado no relatório da PoC',
+      submetric: 'Processamento espectral embarcado pelo Motor ORBIS DSP',
       icon: Activity,
       accent: '#3B82F6',
     },

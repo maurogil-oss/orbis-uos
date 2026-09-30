@@ -99,7 +99,7 @@ export function Navbar() {
     },
     {
       label: 'Metodologia',
-      desc: 'Ciência de dados, IRI, FFT e k-anonimato',
+      desc: 'Ciência de dados, IRI, Motor ORBIS DSP e k-anonimato',
       href: '/metodologia',
       icon: BookOpen,
       badge: 'Científico',
