@@ -11,6 +11,7 @@ import {
   SlidersHorizontal,
   Compass,
   ChevronDown,
+  Smartphone,
   BookOpen,
   Server,
   CheckCircle2,
@@ -546,8 +547,17 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* 2. Simulador e 3. Cockpit em grid */}
+              {/* 2. Simulador, Cockpit e Modo Campo em grid */}
               <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/campo"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 p-2.5 rounded-lg bg-gradient-to-r from-[#3B82F6]/20 to-[#2563EB]/20 border border-[#3B82F6]/50 text-xs font-bold text-white hover:border-[#3B82F6] transition-colors col-span-2 sm:col-span-1"
+                >
+                  <Smartphone className="w-4 h-4 text-[#38BDF8]" />
+                  <span>Modo Campo (Mobile)</span>
+                </Link>
+
                 <a
                   href="/#simulador"
                   onClick={(e) => handleLinkClick(e, '/#simulador')}

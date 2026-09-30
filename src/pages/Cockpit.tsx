@@ -405,16 +405,28 @@ export default function Cockpit() {
               Atualizar
             </button>
 
-            {/* Coleta de Campo Real (DeviceMotion + FFT na Borda) */}
+            {/* Atalho dedicado para Modo Campo (Mobile-First) */}
+            <Link
+              to="/campo"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#3B82F6] to-[#2563EB] hover:from-[#2563EB] hover:to-[#1D4ED8] shadow-md shadow-[#3B82F6]/25 flex items-center gap-2 transition-all active:scale-95"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Modo Campo</span>
+              <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-black/25 text-[#93C5FD]">
+                Mobile
+              </span>
+            </Link>
+
+            {/* Coleta de Campo Real Desktop (Modal tradicional) */}
             <button
               type="button"
               onClick={() => setShowRealCollectorModal(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md shadow-[#10B981]/25 flex items-center gap-2 transition-all active:scale-95"
+              className="hidden md:inline-flex px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md shadow-[#10B981]/25 items-center gap-2 transition-all active:scale-95"
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Coleta de Campo Real</span>
+              <span>Coleta Desktop</span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-black/25 text-[#A7F3D0]">
-                FFT na Borda
+                FFT Borda
               </span>
             </button>
 

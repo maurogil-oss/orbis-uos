@@ -35,7 +35,8 @@ import { drainOfflineQueue, getQueueStats } from '@/lib/collectorOfflineDb'
 import { useAuth } from '@/contexts/AuthContext'
 import { VeiculoTipoCalibracao, VEICULO_TIPOS_CONFIG } from '@/services/fatorKCalibration'
 import { toast } from '@/hooks/use-toast'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, ExternalLink } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface RealCollectorModalProps {
   isOpen: boolean
@@ -315,6 +316,31 @@ export function RealCollectorModal({
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Banner de atalho para Modo Campo Mobile */}
+        <div className="mx-5 mt-4 p-3 rounded-xl bg-gradient-to-r from-[#3B82F6]/20 to-[#1D4ED8]/20 border border-[#3B82F6]/50 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Smartphone className="w-4 h-4 text-[#38BDF8] shrink-0" />
+            <div>
+              <span className="font-bold text-white block">Está no smartphone ou tablet?</span>
+              <span className="text-[11px] text-[#CBD5E1]">
+                Acesse o <strong>Modo Campo</strong> dedicado, com stepper mobile-first e botões
+                gigantes.
+              </span>
+            </div>
+          </div>
+          <Link
+            to="/campo"
+            onClick={() => {
+              if (isCollecting || isCalibrating) stopSession()
+              onClose()
+            }}
+            className="px-3 py-1.5 rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#3B82F6]/30 shrink-0 transition-transform active:scale-95"
+          >
+            <span>Abrir Modo Campo</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* Warning / Unsupported Notice */}

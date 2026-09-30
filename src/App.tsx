@@ -18,6 +18,7 @@ import Termos from './pages/Termos'
 import Governanca from './pages/Governanca'
 import Status from './pages/Status'
 import FatorKCalibrationPage from './pages/FatorKCalibrationPage'
+import ModoCampo from './pages/ModoCampo'
 import Login from './pages/Login'
 import EsqueciSenha from './pages/EsqueciSenha'
 import RedefinirSenha from './pages/RedefinirSenha'
@@ -71,6 +72,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Cockpit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campo"
+              element={
+                <ProtectedRoute>
+                  <ModoCampo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/modo-campo"
+              element={
+                <ProtectedRoute>
+                  <ModoCampo />
                 </ProtectedRoute>
               }
             />
