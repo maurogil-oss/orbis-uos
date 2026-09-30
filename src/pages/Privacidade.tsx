@@ -346,8 +346,7 @@ export default function Privacidade() {
                     Categoria D
                   </span>
                   <h3 className="text-base font-bold text-[#F8FAFC]">
-                    Telemetria de Vibração Mecânica (DeviceMotion + Transformada Rápida de Fourier —
-                    FFT)
+                    Telemetria de Vibração Mecânica (DeviceMotion + Motor ORBIS DSP)
                   </h3>
                 </div>
                 <span className="text-[11px] font-mono font-semibold text-[#A78BFA] bg-[#8B5CF6]/15 px-2.5 py-0.5 rounded">
@@ -448,8 +447,8 @@ export default function Privacidade() {
               </div>
               <h3 className="text-base font-bold text-white">Telemetria Bruta de Vibração</h3>
               <p className="text-xs text-[#CBD5E1] leading-relaxed">
-                Amostras inerciais brutas de 50 Hz, picos de aceleração e séries temporais de FFT
-                são mantidas por no máximo <b>180 dias</b> contados da data da sessão de coleta.
+                Amostras inerciais brutas, picos de aceleração e assinaturas inerciais são mantidas
+                por no máximo <b>180 dias</b> contados da data da sessão de coleta.
               </p>
               <div className="text-[11px] text-[#94A3B8] pt-2 border-t border-[#1A2A5A] font-mono">
                 <b>Regra de Purga:</b> Após 180 dias, os dados brutos são destruídos de forma
@@ -1032,8 +1031,8 @@ export default function Privacidade() {
                   Consulte a documentação técnica e os Termos de Uso:
                 </span>
                 <span className="text-[#94A3B8] text-[11px] block">
-                  A metodologia completa de cálculo dos índices IMV/IMA, filtros de Fourier (FFT),
-                  Fator K e os Termos de Uso para contratação governamental (B2G) estão disponíveis
+                  A metodologia completa de cálculo dos índices IMV/IMA, Motor ORBIS DSP, Fator K e
+                  os Termos de Uso para contratação governamental (B2G) estão disponíveis
                   publicamente.
                 </span>
               </div>

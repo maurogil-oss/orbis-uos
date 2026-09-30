@@ -312,7 +312,9 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
 
                 {/* Frota Pública Passiva Sugerida */}
                 <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A] flex items-center justify-between text-xs">
-                  <span className="text-[#94A3B8]">Frota pública sugerida para o SDK Edge:</span>
+                  <span className="text-[#94A3B8]">
+                    Frota pública sugerida para o Motor ORBIS DSP:
+                  </span>
                   <span className="font-mono font-bold text-[#10B981]">
                     ~{fleetSuggested} veículos (ônibus/coleta)
                   </span>

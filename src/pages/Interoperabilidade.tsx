@@ -201,7 +201,7 @@ export default function Interoperabilidade() {
       path: '/backend/v1/telemetry/leituras-agregadas',
       title: 'Leituras Inerciais Agregadas e Anomalias Detectadas',
       description:
-        'Série histórica agregada das leituras dos sensores embarcados (aceleração Z em m/s², velocidade e frequência FFT em Hz). Todos os dados são 100% anonimizados em conformidade com a LGPD.',
+        'Série histórica agregada das leituras inerciais processadas pelo Motor ORBIS DSP (aceleração Z em m/s² e velocidade). Todos os dados são 100% anonimizados em conformidade com a LGPD.',
       status: 'disponivel',
       authRequired: true,
       updateFrequency: 'A cada 15 minutos (Near Realtime)',

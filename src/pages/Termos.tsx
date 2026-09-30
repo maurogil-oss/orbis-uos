@@ -213,7 +213,7 @@ export function Termos() {
               <p>
                 <b>1.2.</b> O objeto destes Termos de Uso consiste no licenciamento de direito de
                 uso e prestação de serviços de inteligência viária, abrangendo a aferição inercial
-                contínua por smartphones (DeviceMotion a 50 Hz), cálculo do Índice Multicritério
+                contínua por smartphones com o Motor ORBIS DSP, cálculo do Índice Multicritério
                 Viário (IMV), indexação espacial Uber H3 em resoluções 8 a 10, e emissão de ordens
                 de serviço automatizadas para zeladoria do pavimento.
               </p>
@@ -290,7 +290,7 @@ export function Termos() {
               <p>
                 <b>3.1.</b> A coleta de dados cinemáticos via smartphone baseia-se na API{' '}
                 <code>DeviceMotionEvent</code> do navegador, convertendo variações de aceleração e
-                espectro de frequência (FFT de 16 bandas na borda) em laudos de irregularidade.
+                assinaturas processadas pelo Motor ORBIS DSP embarcado em laudos de irregularidade.
               </p>
               <p>
                 <b>3.2. Compromissos Operacionais do Agente de Campo:</b>

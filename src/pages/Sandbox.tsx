@@ -75,12 +75,12 @@ export default function Sandbox() {
     },
     {
       id: 'leituras-agregadas',
-      name: 'Leituras Inerciais Agregadas e Análise Espectral FFT',
+      name: 'Leituras Inerciais Agregadas (Motor ORBIS DSP)',
       method: 'GET',
       endpoint: '/backend/v1/sandbox/leituras-agregadas',
       params: {},
       description:
-        'Amostras sintéticas de aceleração vertical Z e pico espectral FFT na faixa de 10-20 Hz geradas por sensores embarcados de demonstração.',
+        'Amostras sintéticas de aceleração vertical Z processadas pelo Motor ORBIS DSP embarcado, geradas por sensores de demonstração.',
       kAnonimatoFoco: 'Agregação temporal em janelas mínimas de 15 minutos',
     },
   ]

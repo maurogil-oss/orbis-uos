@@ -593,11 +593,11 @@ export default function Demo() {
                   </div>
                 </div>
 
-                {/* Painel Lateral com Leituras Recentes de FFT e Aceleração */}
+                {/* Painel Lateral com Leituras Recentes do Motor ORBIS DSP e Aceleração */}
                 <div className="lg:col-span-4 bg-[#101B3A] border border-[#1A2A5A] rounded-2xl p-4 sm:p-6 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
                     <span className="text-xs font-bold uppercase tracking-wider text-[#60A5FA]">
-                      Telemetria Inercial (Borda)
+                      Motor ORBIS DSP (Borda)
                     </span>
                     <span className="text-[10px] font-mono text-[#94A3B8]">Aceleração Z (g)</span>
                   </div>
