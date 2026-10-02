@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Smartphone,
@@ -8,7 +8,6 @@ import {
   RotateCcw,
   ShieldCheck,
   Activity,
-  Compass,
   Lock,
   Unlock,
   Radio,
@@ -19,29 +18,37 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  ChevronRight,
-  Info,
   Car,
   Bus,
   Bike,
   Footprints,
   UserCheck,
   HelpCircle,
-  Clock,
-  Sparkles,
-  MapPin,
   RefreshCw,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  Sliders,
+  Check,
+  AlertCircle,
 } from 'lucide-react'
-import {
-  useDeviceMotionCollector,
-  PhoneMountPosition,
-  SessionSummary,
-} from '@/hooks/useDeviceMotionCollector'
+import { useDeviceMotionCollector, PhoneMountPosition } from '@/hooks/useDeviceMotionCollector'
 import { AgentTaxonomyCode } from '@/services/roadSegments'
 import { VeiculoTipoCalibracao, VEICULO_TIPOS_CONFIG } from '@/services/fatorKCalibration'
 import { drainOfflineQueue, getQueueStats } from '@/lib/collectorOfflineDb'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from '@/hooks/use-toast'
+import {
+  validateRealMotionSensors,
+  SensorValidationResult,
+  SensorValidationProgress,
+  isDevicePreAuthorized,
+  saveDeviceAuthorized,
+  getStoredCollectorPreferences,
+  saveCollectorPreferences,
+  isAndroidDevice,
+  isInAppBrowser,
+} from '@/lib/sensorValidation'
 
 interface AgentOption {
   code: AgentTaxonomyCode
@@ -132,23 +139,58 @@ const AGENT_OPTIONS: AgentOption[] = [
   },
 ]
 
-type Step = 1 | 2 | 3 | 4
+// Fluxo de 2 Telas:
+// Tela 1: Liberação & Validação Real de Sensores (Contexto LGPD enxuto + Verificação ~2s + Desbloqueio Android/iOS)
+// Tela 2: Coleta (Seleção do Tipo de Agente + Iniciar/Monitoramento ativo)
+type Screen = 1 | 2
+
+type ValidationStatus = 'idle' | 'validating' | 'passed' | 'blocked' | 'unsupported'
 
 export default function ModoCampo() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // Stepper: 1: Contexto/LGPD -> 2: Permissões de Sensores -> 3: Agente & Config -> 4: Coleta Ativa
-  const [currentStep, setCurrentStep] = useState<Step>(1)
+  // Preferências memorizadas neste aparelho
+  const initialPrefs = useMemo(() => getStoredCollectorPreferences(), [])
+  const isPreAuthorized = useMemo(() => isDevicePreAuthorized(), [])
 
-  // Seleção consciente e explícita do agente (SEM pré-seleção)
-  const [selectedAgentCode, setSelectedAgentCode] = useState<AgentTaxonomyCode | null>(null)
+  // Tela atual: se já pré-autorizado, pula cerimônia de liberação e vai direto para Tela 2
+  const [currentScreen, setCurrentScreen] = useState<Screen>(isPreAuthorized ? 2 : 1)
 
-  // Metadados mínimos de configuração
-  const [via, setVia] = useState('')
-  const [bairro, setBairro] = useState('Batel')
-  const [linhaFrota, setLinhaFrota] = useState('')
-  const [phonePosition, setPhonePosition] = useState<PhoneMountPosition>('painel')
+  // Status da validação ativa de sensores
+  const [validationStatus, setValidationStatus] = useState<ValidationStatus>(
+    isPreAuthorized ? 'passed' : 'idle',
+  )
+  const [validationProgress, setValidationProgress] = useState<SensorValidationProgress>({
+    motionSamplesCount: 0,
+    orientationSamplesCount: 0,
+    hasAccelerationData: false,
+    lastZValue: null,
+  })
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  // Mensagem explícita de erro na tela quando "Iniciar Coleta" falha
+  const [startCollectionError, setStartCollectionError] = useState<string | null>(null)
+  const [isStartingCollection, setIsStartingCollection] = useState<boolean>(false)
+
+  // Seleção de agente (pré-seleciona a última escolha se existir em memória, mas mantém editável)
+  const [selectedAgentCode, setSelectedAgentCode] = useState<AgentTaxonomyCode | null>(
+    (initialPrefs.lastAgentCode as AgentTaxonomyCode) || null,
+  )
+
+  // Campos opcionais discretos
+  const [showAdvancedFields, setShowAdvancedFields] = useState<boolean>(false)
+  const [via, setVia] = useState(initialPrefs.via || '')
+  const [bairro, setBairro] = useState(initialPrefs.bairro || 'Batel')
+  const [linhaFrota, setLinhaFrota] = useState(initialPrefs.linhaFrota || '')
+  const [phonePosition, setPhonePosition] = useState<PhoneMountPosition>(
+    initialPrefs.phonePosition || 'painel',
+  )
+
+  // Detecções de ambiente
+  const isAndroid = useMemo(() => isAndroidDevice(), [])
+  const isAppBrowser = useMemo(() => isInAppBrowser(), [])
+  const [showIosAlternative, setShowIosAlternative] = useState<boolean>(!isAndroid)
 
   // Fila offline e status de rede
   const [isOnline, setIsOnline] = useState<boolean>(
@@ -165,7 +207,7 @@ export default function ModoCampo() {
   })
   const [isDraining, setIsDraining] = useState<boolean>(false)
 
-  // Selecionado config
+  // Agente selecionado
   const selectedAgentOption = useMemo(
     () => AGENT_OPTIONS.find((a) => a.code === selectedAgentCode) || null,
     [selectedAgentCode],
@@ -182,17 +224,12 @@ export default function ModoCampo() {
     isWakeLocked,
     wakeLockSupported,
     toggleWakeLock,
-    requestWakeLock,
     samplingRateHz,
     currentZ,
-    peakSessionG,
     anomalies,
     processedWindows,
     elapsedMs,
     calculatedIRI,
-    currentCoords,
-    currentSegmentId,
-    gpsStatus,
     speedKmh,
     startSession,
     stopSession,
@@ -242,6 +279,67 @@ export default function ModoCampo() {
     }
   }, [])
 
+  // Função central para executar a validação real de sensores por ~2 segundos
+  const handleValidateSensors = useCallback(async () => {
+    setValidationStatus('validating')
+    setValidationError(null)
+    setValidationProgress({
+      motionSamplesCount: 0,
+      orientationSamplesCount: 0,
+      hasAccelerationData: false,
+      lastZValue: null,
+    })
+
+    // Caso iOS: disparar requestPermission sob clique do usuário antes de iniciar escuta
+    if (typeof (window as any).DeviceMotionEvent?.requestPermission === 'function') {
+      try {
+        const resp = await (window as any).DeviceMotionEvent.requestPermission()
+        if (resp !== 'granted') {
+          setValidationStatus('blocked')
+          setValidationError(
+            'Permissão negada no Safari iOS. Abra Ajustes > Safari > Movimento e Orientação > Permitir.',
+          )
+          return
+        }
+      } catch (iosErr: any) {
+        setValidationStatus('blocked')
+        setValidationError(iosErr?.message || 'Falha ao solicitar autorização aos sensores do iOS.')
+        return
+      }
+    }
+
+    // Escuta ativa de eventos por ~2.2 segundos para garantir amostras reais
+    const result: SensorValidationResult = await validateRealMotionSensors(2200, 3, (prog) =>
+      setValidationProgress(prog),
+    )
+
+    if (result.active) {
+      setValidationStatus('passed')
+      saveDeviceAuthorized(true)
+      toast({
+        title: 'Sensores Ativos ✓',
+        description: `${result.samplesReceived} amostras inerciais validadas. Aparelho liberado!`,
+      })
+    } else {
+      if (result.reason === 'unsupported') {
+        setValidationStatus('unsupported')
+      } else {
+        setValidationStatus('blocked')
+      }
+      setValidationError(
+        result.errorMessage ||
+          'Nenhum evento de sensor chegou em 2 segundos. Siga as instruções de desbloqueio abaixo.',
+      )
+    }
+  }, [])
+
+  // Auto-iniciar validação na Tela 1 se não estiver validado e for a primeira visita
+  useEffect(() => {
+    if (currentScreen === 1 && validationStatus === 'idle') {
+      handleValidateSensors()
+    }
+  }, [currentScreen, validationStatus, handleValidateSensors])
+
   // Atualizar fila manualmente
   const handleDrainQueue = async () => {
     if (!isOnline) {
@@ -288,25 +386,71 @@ export default function ModoCampo() {
     return Math.round(durationSecs * spd)
   }, [sessionSummary, elapsedMs, speedKmh])
 
-  // Iniciar coleta na tela 4
+  // Iniciar coleta na Tela 2 com tratamento rigoroso de falhas e mensagem explícita
   const handleStartCollection = async () => {
+    setStartCollectionError(null)
+
     if (!selectedAgentCode) {
+      setStartCollectionError('Selecione uma categoria de agente antes de iniciar a coleta.')
       toast({
-        title: 'Selecione uma categoria',
-        description: 'Escolha o tipo de agente antes de iniciar a coleta.',
+        title: 'Categoria obrigatória',
+        description:
+          'Selecione o tipo de agente (ex: Veículo Institucional, Ônibus ou Motociclista).',
         variant: 'destructive',
       })
       return
     }
-    const started = await startSession()
-    if (started) {
-      setCurrentStep(4)
+
+    // Persistir a escolha consciente do agente e preferências
+    saveCollectorPreferences({
+      lastAgentCode: selectedAgentCode,
+      via,
+      bairro,
+      linhaFrota,
+      phonePosition,
+    })
+
+    setIsStartingCollection(true)
+    try {
+      const started = await startSession()
+      if (!started) {
+        const errorDetail =
+          permissionError ||
+          'O navegador não conseguiu acessar o acelerômetro. Sensores podem estar silenciados pelo sistema ou sem permissão.'
+        setStartCollectionError(errorDetail)
+        toast({
+          title: 'Falha ao iniciar sensores',
+          description: errorDetail,
+          variant: 'destructive',
+        })
+      } else {
+        setStartCollectionError(null)
+      }
+    } catch (err: any) {
+      const msg = err?.message || 'Erro inesperado ao iniciar captura inercial.'
+      setStartCollectionError(msg)
+      toast({
+        title: 'Erro na ativação',
+        description: msg,
+        variant: 'destructive',
+      })
+    } finally {
+      setIsStartingCollection(false)
     }
+  }
+
+  // Voltar e reliberar sensores
+  const handleResetAuthorization = () => {
+    saveDeviceAuthorized(false)
+    setStartCollectionError(null)
+    setValidationStatus('idle')
+    setCurrentScreen(1)
   }
 
   const isCollecting = status === 'collecting'
   const isCalibrating = status === 'calibrating'
   const isPaused = status === 'paused'
+  const isSessionActive = isCollecting || isCalibrating || isPaused || status === 'stopped'
 
   return (
     <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] flex flex-col justify-between selection:bg-[#3B82F6]/30">
@@ -324,11 +468,15 @@ export default function ModoCampo() {
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-sm tracking-tight text-white">ORBIS Modo Campo</span>
               <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40">
-                PWA Mobile
+                PWA
               </span>
             </div>
             <p className="text-[11px] text-[#94A3B8] line-clamp-1">
-              Coleta inercial veicular e mobilidade urbana
+              {isSessionActive
+                ? 'Coleta inercial em andamento'
+                : currentScreen === 1
+                  ? 'Etapa 1/2: Validação de Sensores'
+                  : 'Etapa 2/2: Seleção de Agente & Coleta'}
             </p>
           </div>
         </div>
@@ -370,79 +518,77 @@ export default function ModoCampo() {
         </div>
       </header>
 
-      {/* Stepper Progress Bar (quando não estiver em coleta ativa ou para navegação clara) */}
-      {status === 'idle' && (
+      {/* Stepper Enxuto de 2 Telas (visível antes de iniciar a sessão ativa) */}
+      {!isSessionActive && (
         <div className="bg-[#0A1128] border-b border-[#1A2A5A] px-4 py-2.5">
           <div className="max-w-md mx-auto flex items-center justify-between text-xs">
+            {/* Tela 1: Sensores & Liberação */}
             <button
               type="button"
-              onClick={() => setCurrentStep(1)}
-              className={`flex items-center gap-1.5 transition-colors ${
-                currentStep === 1
+              onClick={() => setCurrentScreen(1)}
+              className={`flex items-center gap-2 transition-colors ${
+                currentScreen === 1
                   ? 'text-[#3B82F6] font-bold'
-                  : currentStep > 1
+                  : validationStatus === 'passed'
                     ? 'text-[#10B981]'
-                    : 'text-[#64748B]'
+                    : 'text-[#94A3B8]'
               }`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                  currentStep === 1
-                    ? 'bg-[#3B82F6] text-white'
-                    : currentStep > 1
+                  currentScreen === 1
+                    ? 'bg-[#3B82F6] text-white ring-2 ring-[#3B82F6]/30'
+                    : validationStatus === 'passed'
                       ? 'bg-[#10B981] text-white'
                       : 'bg-[#1E293B] text-[#94A3B8]'
                 }`}
               >
-                1
+                {validationStatus === 'passed' ? '✓' : '1'}
               </span>
-              <span>Contexto</span>
+              <span>1. Sensores & LGPD</span>
             </button>
 
-            <ChevronRight className="w-3.5 h-3.5 text-[#334155]" />
+            <div className="h-0.5 flex-1 mx-3 bg-[#1A2A5A] relative">
+              <div
+                className={`h-full transition-all duration-300 ${
+                  currentScreen === 2 || validationStatus === 'passed'
+                    ? 'bg-[#10B981] w-full'
+                    : 'bg-transparent w-0'
+                }`}
+              />
+            </div>
 
+            {/* Tela 2: Agente & Coleta */}
             <button
               type="button"
-              onClick={() => setCurrentStep(2)}
-              className={`flex items-center gap-1.5 transition-colors ${
-                currentStep === 2
+              onClick={() => {
+                if (validationStatus === 'passed') {
+                  setCurrentScreen(2)
+                } else {
+                  toast({
+                    title: 'Valide os sensores primeiro',
+                    description: 'Aguarde a verificação de movimento para prosseguir.',
+                  })
+                }
+              }}
+              className={`flex items-center gap-2 transition-colors ${
+                currentScreen === 2
                   ? 'text-[#3B82F6] font-bold'
-                  : currentStep > 2
-                    ? 'text-[#10B981]'
-                    : 'text-[#64748B]'
+                  : validationStatus === 'passed'
+                    ? 'text-[#94A3B8] hover:text-white'
+                    : 'text-[#475569] cursor-not-allowed'
               }`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                  currentStep === 2
-                    ? 'bg-[#3B82F6] text-white'
-                    : currentStep > 2
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-[#1E293B] text-[#94A3B8]'
+                  currentScreen === 2
+                    ? 'bg-[#3B82F6] text-white ring-2 ring-[#3B82F6]/30'
+                    : 'bg-[#1E293B] text-[#94A3B8]'
                 }`}
               >
                 2
               </span>
-              <span>Sensores</span>
-            </button>
-
-            <ChevronRight className="w-3.5 h-3.5 text-[#334155]" />
-
-            <button
-              type="button"
-              onClick={() => setCurrentStep(3)}
-              className={`flex items-center gap-1.5 transition-colors ${
-                currentStep === 3 ? 'text-[#3B82F6] font-bold' : 'text-[#64748B]'
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                  currentStep === 3 ? 'bg-[#3B82F6] text-white' : 'bg-[#1E293B] text-[#94A3B8]'
-                }`}
-              >
-                3
-              </span>
-              <span>Agente</span>
+              <span>2. Agente & Coleta</span>
             </button>
           </div>
         </div>
@@ -451,220 +597,340 @@ export default function ModoCampo() {
       {/* Conteúdo Principal — Mobile First */}
       <main className="flex-1 max-w-lg w-full mx-auto p-4 sm:p-5 flex flex-col justify-center">
         {/* =========================================================================
-            ETAPA 1: CONTEXTO, TRANSPARÊNCIA E LGPD (Mobile-First)
+            TELA 1: LIBERAÇÃO & VALIDAÇÃO REAL DE SENSORES (Android primário, iOS secundário)
            ========================================================================= */}
-        {currentStep === 1 && status === 'idle' && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="text-center space-y-2">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#3B82F6]/15 border border-[#3B82F6]/40 flex items-center justify-center text-[#3B82F6] shadow-lg shadow-[#3B82F6]/20">
-                <Smartphone className="w-8 h-8" />
+        {currentScreen === 1 && !isSessionActive && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            {/* Header com ícone e contexto LGPD enxuto */}
+            <div className="text-center space-y-1.5">
+              <div
+                className={`w-14 h-14 mx-auto rounded-2xl border flex items-center justify-center transition-all ${
+                  validationStatus === 'passed'
+                    ? 'bg-[#10B981]/15 border-[#10B981]/50 text-[#10B981] shadow-lg shadow-[#10B981]/20'
+                    : validationStatus === 'validating'
+                      ? 'bg-[#3B82F6]/15 border-[#3B82F6]/50 text-[#3B82F6] animate-pulse'
+                      : validationStatus === 'blocked'
+                        ? 'bg-[#EF4444]/15 border-[#EF4444]/50 text-[#EF4444]'
+                        : 'bg-[#3B82F6]/15 border-[#3B82F6]/40 text-[#3B82F6]'
+                }`}
+              >
+                {validationStatus === 'passed' ? (
+                  <CheckCircle2 className="w-7 h-7" />
+                ) : validationStatus === 'validating' ? (
+                  <Radio className="w-7 h-7 animate-spin" />
+                ) : validationStatus === 'blocked' ? (
+                  <AlertTriangle className="w-7 h-7" />
+                ) : (
+                  <Smartphone className="w-7 h-7" />
+                )}
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-white">
-                Coleta de Telemetria em Campo
+
+              <h1 className="text-xl font-black text-white">
+                {validationStatus === 'passed'
+                  ? 'Sensores Validados com Sucesso'
+                  : validationStatus === 'validating'
+                    ? 'Verificando sensores inerciais...'
+                    : validationStatus === 'blocked'
+                      ? 'Acesso aos Sensores Bloqueado'
+                      : 'Liberação de Sensores de Campo'}
               </h1>
-              <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed max-w-sm mx-auto">
-                Transforme este smartphone em uma sonda inercial para diagnosticar a qualidade do
-                pavimento viário e calçadas.
+
+              <p className="text-xs text-[#94A3B8] max-w-sm mx-auto leading-relaxed">
+                {validationStatus === 'validating'
+                  ? 'Movimente levemente o aparelho por ~2 segundos para confirmar a chegada de amostras reais.'
+                  : 'Sonda inercial veicular acoplada ao Motor ORBIS DSP para auditoria do pavimento.'}
               </p>
             </div>
 
-            {/* Card de Transparência e LGPD */}
+            {/* Aviso especial de WebView / In-App browser (WhatsApp / Instagram) */}
+            {isAppBrowser && (
+              <div className="p-3 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/50 text-xs text-[#FDE68A] flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#F59E0B] mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-white">Navegador interno detectado</p>
+                  <p className="text-[11px] text-[#CBD5E1]">
+                    Navegadores de redes sociais (WhatsApp/Instagram) bloqueiam os sensores de
+                    movimento. Toque nos <strong>três pontos (⋮)</strong> e selecione{' '}
+                    <strong>"Abrir no Chrome"</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Card de Status da Verificação em Tempo Real */}
             <div className="p-4 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#10B981]">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Privacidade Rigorosa & Conformidade LGPD</span>
-              </div>
-              <div className="space-y-2 text-xs text-[#CBD5E1] leading-relaxed">
-                <p>
-                  <strong className="text-white">O que será coletado:</strong> Apenas aceleração
-                  vertical (vibração mecânica do eixo Z), taxa angular (giroscópio) e posição GPS
-                  agregada em trechos de 100m.
-                </p>
-                <p>
-                  <strong className="text-white">O que NUNCA é coletado:</strong> Câmeras
-                  desligadas, sem captação de placas, sem fotos de condutores e sem identificação de
-                  pessoas. Apenas a classificação de categoria de agente institucional é registrada.
-                </p>
-                <p className="text-[11px] text-[#94A3B8]">
-                  Zero CAPEX: utiliza exclusivamente os sensores inerciais de bordo já presentes no
-                  aparelho.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setCurrentStep(2)}
-              className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#3B82F6] to-[#2563EB] hover:from-[#2563EB] hover:to-[#1D4ED8] shadow-lg shadow-[#3B82F6]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-            >
-              <span>Avançar para Permissão de Sensores</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* =========================================================================
-            ETAPA 2: LIBERAÇÃO DE SENSORES (DeviceMotion / GPS / WakeLock)
-           ========================================================================= */}
-        {currentStep === 2 && status === 'idle' && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="text-center space-y-2">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#10B981]/15 border border-[#10B981]/40 flex items-center justify-center text-[#10B981] shadow-lg shadow-[#10B981]/20">
-                <Radio className="w-8 h-8 animate-pulse" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white">
-                Permissão de Sensores Físicos
-              </h2>
-              <p className="text-xs sm:text-sm text-[#94A3B8] max-w-sm mx-auto">
-                O navegador requer autorização para ler o acelerômetro e a geolocalização.
-              </p>
-            </div>
-
-            {/* Status dos Sensores */}
-            <div className="p-4 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-[#1A2A5A]/60">
-                <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
+                <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-[#3B82F6]" />
-                  <span className="text-xs font-semibold text-white">
-                    Acelerômetro & Giroscópio
+                  <span className="text-xs font-bold text-white">
+                    Verificação Ativa de Movimento
                   </span>
                 </div>
                 <span
-                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${
-                    sensorSupport === 'supported'
-                      ? 'bg-[#10B981]/20 text-[#10B981]'
-                      : sensorSupport === 'permission_denied'
-                        ? 'bg-[#EF4444]/20 text-[#EF4444]'
-                        : 'bg-[#F59E0B]/20 text-[#F59E0B]'
+                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded flex items-center gap-1 ${
+                    validationStatus === 'passed'
+                      ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40'
+                      : validationStatus === 'validating'
+                        ? 'bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/40 animate-pulse'
+                        : validationStatus === 'blocked'
+                          ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40'
+                          : 'bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40'
                   }`}
                 >
-                  {sensorSupport === 'supported'
-                    ? 'Permitido / Ativo'
-                    : sensorSupport === 'permission_denied'
-                      ? 'Bloqueado'
-                      : 'Requer Autorização'}
+                  {validationStatus === 'passed' && <Check className="w-3 h-3" />}
+                  {validationStatus === 'passed'
+                    ? 'Sensores ativos ✓'
+                    : validationStatus === 'validating'
+                      ? 'Verificando...'
+                      : validationStatus === 'blocked'
+                        ? 'Sensores bloqueados'
+                        : 'Aguardando teste'}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-[#1A2A5A]/60">
-                <div className="flex items-center gap-2.5">
-                  <MapPin className="w-4 h-4 text-[#3B82F6]" />
-                  <span className="text-xs font-semibold text-white">GPS & Velocidade</span>
+              {/* Métricas da validação em tempo real */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-[#101B3A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Amostras de Movimento</span>
+                  <span className="font-mono font-bold text-sm text-white">
+                    {validationProgress.motionSamplesCount} recebidas
+                  </span>
                 </div>
-                <span
-                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${
-                    gpsStatus === 'active'
-                      ? 'bg-[#10B981]/20 text-[#10B981]'
-                      : 'bg-[#F59E0B]/20 text-[#F59E0B]'
-                  }`}
-                >
-                  {gpsStatus === 'active' ? 'Ativo' : 'Aguardando Início'}
-                </span>
+                <div className="p-2.5 rounded-xl bg-[#101B3A]">
+                  <span className="text-[10px] text-[#94A3B8] block">Leitura Dinâmica Z</span>
+                  <span className="font-mono font-bold text-sm text-[#10B981]">
+                    {validationProgress.lastZValue !== null
+                      ? `${validationProgress.lastZValue.toFixed(2)} m/s²`
+                      : '—'}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-2.5">
-                  <Lock className="w-4 h-4 text-[#3B82F6]" />
-                  <span className="text-xs font-semibold text-white">Travar Tela Acesa</span>
-                </div>
-                <span
-                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded ${
-                    wakeLockSupported
-                      ? 'bg-[#10B981]/20 text-[#10B981]'
-                      : 'bg-[#F59E0B]/20 text-[#F59E0B]'
-                  }`}
-                >
-                  {wakeLockSupported ? 'Suportado (Automático)' : 'Não Suportado'}
+              {/* Botão de Repetir Verificação */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-[#94A3B8]">
+                  Validação contínua com amostras reais
                 </span>
+                <button
+                  type="button"
+                  onClick={handleValidateSensors}
+                  disabled={validationStatus === 'validating'}
+                  className="text-xs text-[#38BDF8] hover:text-white flex items-center gap-1 font-semibold px-2 py-1 rounded bg-[#101B3A] border border-[#1A2A5A] disabled:opacity-50"
+                >
+                  <RefreshCw
+                    className={`w-3 h-3 ${validationStatus === 'validating' ? 'animate-spin' : ''}`}
+                  />
+                  <span>Testar novamente</span>
+                </button>
               </div>
             </div>
 
-            {/* Aviso de erro ou instrução de desbloqueio */}
-            {(sensorSupport === 'permission_denied' || permissionError) && (
-              <div className="p-4 rounded-2xl bg-[#EF4444]/15 border-2 border-[#EF4444] text-xs text-[#EF4444] space-y-2">
+            {/* Contexto LGPD Enxuto */}
+            <div className="p-3 rounded-xl bg-[#0A1128]/70 border border-[#1A2A5A] text-[11px] text-[#94A3B8] space-y-1">
+              <div className="flex items-center gap-1.5 text-white font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>Privacidade & LGPD</span>
+              </div>
+              <p className="leading-relaxed">
+                Coleta exclusivamente aceleração vertical Z e giroscópio acoplado. Câmeras
+                desligadas, sem registro de placas ou condutores.
+              </p>
+            </div>
+
+            {/* =========================================================================
+                INSTRUÇÕES DE DESBLOQUEIO ANDROID EM DESTAQUE (usuário principal Android)
+               ========================================================================= */}
+            {validationStatus === 'blocked' && (
+              <div className="p-4 rounded-2xl bg-[#EF4444]/10 border-2 border-[#EF4444]/60 text-xs space-y-3 animate-in fade-in">
                 <div className="flex items-center gap-2 font-bold text-white">
-                  <AlertTriangle className="w-4 h-4 text-[#EF4444]" />
-                  <span>Acesso aos sensores bloqueado no navegador</span>
+                  <AlertTriangle className="w-4 h-4 text-[#EF4444] shrink-0" />
+                  <span>Como desbloquear no Android / Chrome:</span>
                 </div>
-                <p className="text-[#CBD5E1] text-[11px] leading-relaxed">
-                  {permissionError || 'O navegador não tem permissão para ler o acelerômetro.'}
-                </p>
-                <div className="p-2.5 rounded-xl bg-[#0A1128] text-[#CBD5E1] text-[11px] space-y-1">
-                  <p className="font-bold text-[#F8FAFC]">Como reverter:</p>
-                  <p>
-                    • <strong>iPhone / iOS:</strong> Abra Ajustes &gt; Safari &gt; Movimento e
-                    Orientação &gt; Permitir.
-                  </p>
-                  <p>
-                    • <strong>Android / Chrome:</strong> Toque no ícone de cadeado na barra de
-                    endereço &gt; Permissões &gt; Movimento &gt; Permitir.
-                  </p>
+
+                <div className="space-y-2 text-[#CBD5E1] text-[11px] leading-relaxed">
+                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
+                    <span className="font-bold text-[#38BDF8] shrink-0">1.</span>
+                    <span>
+                      Abra diretamente no <strong>Google Chrome</strong> (evite navegadores internos
+                      de WhatsApp ou e-mail).
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
+                    <span className="font-bold text-[#38BDF8] shrink-0">2.</span>
+                    <span>
+                      Toque no <strong>ícone de cadeado / configurações</strong> na barra de
+                      endereço (ao lado de <em>orbis-uos.com.br</em>).
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
+                    <span className="font-bold text-[#38BDF8] shrink-0">3.</span>
+                    <span>
+                      Acesse <strong>Permissões &gt; Movimento / Sensores</strong> e selecione{' '}
+                      <strong className="text-[#10B981]">Permitir</strong>.
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
+                    <span className="font-bold text-[#38BDF8] shrink-0">4.</span>
+                    <span>
+                      Desative o modo <strong>Economia de Bateria</strong> do Android, que pode
+                      suspender o acelerômetro em segundo plano.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Instruções iOS como alternativa secundária colapsável */}
+                <div className="pt-2 border-t border-[#1A2A5A]">
+                  <button
+                    type="button"
+                    onClick={() => setShowIosAlternative(!showIosAlternative)}
+                    className="text-[11px] text-[#94A3B8] hover:text-white flex items-center justify-between w-full font-medium"
+                  >
+                    <span>Está usando iPhone (iOS / Safari)?</span>
+                    {showIosAlternative ? (
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+
+                  {showIosAlternative && (
+                    <div className="mt-2 p-2.5 rounded-lg bg-[#0A1128] text-[11px] text-[#CBD5E1] space-y-1">
+                      <p className="font-bold text-white">No Safari iOS:</p>
+                      <p>
+                        Abra <strong>Ajustes &gt; Safari &gt; Movimento e Orientação</strong> e
+                        ative a opção. Em seguida, recarregue esta página e toque em "Testar
+                        novamente".
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {sensorSupport === 'unsupported' && (
+            {/* Aviso quando sensores não são detectados (desktop/ambiente incompatível) */}
+            {validationStatus === 'unsupported' && (
               <div className="p-3.5 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-xs text-[#FDE68A] space-y-1">
-                <span className="font-bold block">Aviso de Dispositivo:</span>
+                <span className="font-bold block">Dispositivo sem sensores inerciais físicos:</span>
                 <p className="text-[11px] text-[#CBD5E1]">
-                  Nenhum sensor de movimento físico detectado. Se estiver em um computador, utilize
-                  o smartphone institucional para o teste real.
+                  Para coleta real, acesse esta rota diretamente pelo smartphone institucional
+                  (Android/Chrome).
                 </p>
               </div>
             )}
 
-            <div className="flex items-center gap-3">
+            {/* Botão de Avanço: Habilitado apenas quando a validação ativa passar */}
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={() => setCurrentStep(1)}
-                className="py-3 px-4 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-white bg-[#101B3A] border border-[#1A2A5A] transition-colors"
-              >
-                Voltar
-              </button>
-
-              <button
-                type="button"
-                onClick={async () => {
-                  // Tenta solicitar permissão no clique do usuário (necessário no iOS)
-                  if (typeof (window as any).DeviceMotionEvent?.requestPermission === 'function') {
-                    try {
-                      await (window as any).DeviceMotionEvent.requestPermission()
-                    } catch {
-                      /* handled */
-                    }
-                  }
-                  setCurrentStep(3)
+                disabled={validationStatus !== 'passed'}
+                onClick={() => {
+                  saveDeviceAuthorized(true)
+                  setCurrentScreen(2)
                 }}
-                className="flex-1 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-lg shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-lg shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <span>Confirmar e Selecionar Agente</span>
+                <span>Avançar para Seleção de Agente & Coleta</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {validationStatus !== 'passed' && (
+                <p className="text-[11px] text-[#94A3B8] text-center mt-2">
+                  O avanço só é liberado após a validação real de eventos inerciais por ~2s.
+                </p>
+              )}
             </div>
           </div>
         )}
 
         {/* =========================================================================
-            ETAPA 3: SELEÇÃO EXPLÍCITA DO TIPO DE AGENTE + CONFIG MÍNIMA (SEM PRÉ-SELEÇÃO)
+            TELA 2: COLETA & MONITORAMENTO ATIVO
+            (Seleção consciente do agente + Iniciar Coleta + Monitoramento)
            ========================================================================= */}
-        {currentStep === 3 && status === 'idle' && (
+        {currentScreen === 2 && !isSessionActive && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <span>Selecione a Categoria do Agente</span>
-                </h2>
-                <span className="text-[10px] font-mono uppercase bg-[#3B82F6]/20 text-[#60A5FA] px-2 py-0.5 rounded border border-[#3B82F6]/40 font-bold">
-                  Seleção Obrigatória
-                </span>
+            {/* Header da Tela 2 */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-lg font-black text-white flex items-center gap-2">
+                  <span>Categoria do Agente de Campo</span>
+                </h1>
+                <p className="text-xs text-[#94A3B8] mt-0.5">
+                  Identificação técnica institucional para calibração do Motor ORBIS DSP.
+                </p>
               </div>
-              <p className="text-xs text-[#94A3B8] mt-1">
-                Escolha conscientemente o veículo ou modal utilizado nesta sessão de coleta.
-              </p>
+
+              {/* Botão para rever autorização de sensores se necessário */}
+              <button
+                type="button"
+                onClick={handleResetAuthorization}
+                className="text-[10px] text-[#94A3B8] hover:text-white px-2 py-1 rounded bg-[#101B3A] border border-[#1A2A5A] flex items-center gap-1 font-mono shrink-0"
+                title="Rever liberação dos sensores"
+              >
+                <Check className="w-3 h-3 text-[#10B981]" />
+                <span>Sensores ✓</span>
+              </button>
             </div>
 
-            {/* Grid de Cards Grandes — SEM PRÉ-SELEÇÃO */}
-            <div className="space-y-2 max-h-[46vh] overflow-y-auto pr-1">
+            {/* MENSAGEM CLARA DE ERRO SE "INICIAR COLETA" FALHAR */}
+            {startCollectionError && (
+              <div className="p-3.5 rounded-2xl bg-[#EF4444]/15 border-2 border-[#EF4444] text-xs text-[#EF4444] space-y-2 animate-in fade-in">
+                <div className="flex items-center gap-2 font-bold text-white">
+                  <AlertTriangle className="w-4 h-4 text-[#EF4444] shrink-0" />
+                  <span>Falha ao Iniciar Coleta</span>
+                </div>
+                <p className="text-[#CBD5E1] text-[11px] leading-relaxed">{startCollectionError}</p>
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleResetAuthorization}
+                    className="py-1.5 px-3 rounded-lg bg-[#EF4444] hover:bg-[#DC2626] text-white text-xs font-bold transition-colors"
+                  >
+                    Voltar e liberar sensores
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleStartCollection}
+                    className="py-1.5 px-3 rounded-lg bg-[#0A1128] border border-[#EF4444]/60 text-white text-xs font-semibold hover:bg-[#101B3A]"
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Card com a categoria memorizada (atalho de 1 toque para quem já tem preferência) */}
+            {selectedAgentOption && (
+              <div className="p-3 rounded-xl bg-[#101B3A] border border-[#3B82F6]/50 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: `${selectedAgentOption.color}20`,
+                      color: selectedAgentOption.color,
+                    }}
+                  >
+                    <selectedAgentOption.icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-[#94A3B8] block uppercase font-mono">
+                      Selecionado (memorizado no aparelho)
+                    </span>
+                    <span className="text-xs font-bold text-white truncate block">
+                      {selectedAgentOption.label}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono text-[#10B981] font-bold bg-[#10B981]/15 px-2 py-0.5 rounded border border-[#10B981]/30">
+                  Pronto
+                </span>
+              </div>
+            )}
+
+            {/* Grid de Cards de Seleção Consciente (Requisito de Proveniência do Produto) */}
+            <div className="space-y-2 max-h-[38vh] overflow-y-auto pr-1">
               {AGENT_OPTIONS.map((opt) => {
                 const Icon = opt.icon
                 const isSelected = selectedAgentCode === opt.code
@@ -674,29 +940,31 @@ export default function ModoCampo() {
                     type="button"
                     onClick={() => {
                       setSelectedAgentCode(opt.code)
+                      setStartCollectionError(null)
                       if (!linhaFrota) {
                         setLinhaFrota(opt.label)
                       }
+                      saveCollectorPreferences({ lastAgentCode: opt.code })
                     }}
-                    className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 active:scale-[0.99] ${
+                    className={`w-full p-3 rounded-xl border text-left transition-all flex items-start gap-3 active:scale-[0.99] ${
                       isSelected
                         ? 'bg-[#101B3A] border-2 shadow-lg'
                         : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#3B82F6]/50'
                     }`}
                     style={{
                       borderColor: isSelected ? opt.color : undefined,
-                      boxShadow: isSelected ? `0 10px 25px -5px ${opt.color}33` : undefined,
+                      boxShadow: isSelected ? `0 8px 20px -4px ${opt.color}33` : undefined,
                     }}
                   >
                     <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
                       style={{
                         backgroundColor: `${opt.color}20`,
                         borderColor: `${opt.color}60`,
                         color: opt.color,
                       }}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-4 h-4" />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -718,21 +986,21 @@ export default function ModoCampo() {
                       <p className="text-[11px] text-[#CBD5E1] font-medium leading-tight mt-0.5">
                         {opt.sublabel}
                       </p>
-                      <p className="text-[10px] text-[#94A3B8] leading-relaxed mt-1 line-clamp-2">
+                      <p className="text-[10px] text-[#94A3B8] leading-relaxed mt-1 line-clamp-1">
                         {opt.description}
                       </p>
                     </div>
 
                     <div className="shrink-0 self-center">
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                           isSelected ? 'border-white' : 'border-[#475569]'
                         }`}
                         style={{
                           backgroundColor: isSelected ? opt.color : 'transparent',
                         }}
                       >
-                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                        {isSelected && <Check className="w-3 h-3 text-white" />}
                       </div>
                     </div>
                   </button>
@@ -740,102 +1008,123 @@ export default function ModoCampo() {
               })}
             </div>
 
-            {/* Configuração Mínima de Apoio */}
-            <div className="p-3.5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] block">
-                Configuração Mínima do Trecho
-              </span>
-
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <label className="text-[10px] text-[#94A3B8] block mb-1">
-                    Via / Logradouro Inicial
-                  </label>
-                  <input
-                    type="text"
-                    value={via}
-                    onChange={(e) => setVia(e.target.value)}
-                    placeholder="Ex: Av. Sete de Setembro"
-                    className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-[#94A3B8] block mb-1">Bairro / Região</label>
-                  <input
-                    type="text"
-                    value={bairro}
-                    onChange={(e) => setBairro(e.target.value)}
-                    placeholder="Ex: Batel, Centro"
-                    className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] text-[#94A3B8] block mb-1">
-                  Posição do Aparelho (Acoplamento Mecânico)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPhonePosition('painel')}
-                    className={`py-2 px-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                      phonePosition === 'painel'
-                        ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
-                        : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
-                    }`}
-                  >
-                    <span>Suporte Firme do Painel</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPhonePosition('bolso_outro')}
-                    className={`py-2 px-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                      phonePosition === 'bolso_outro'
-                        ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
-                        : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
-                    }`}
-                  >
-                    <span>Bolso / Mochila</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Botões de Ação */}
-            <div className="flex items-center gap-3 pt-1">
+            {/* Campos Opcionais Discretos (Via, Bairro, Acoplamento Mecânico) */}
+            <div className="rounded-xl border border-[#1A2A5A] bg-[#0A1128]/80 overflow-hidden">
               <button
                 type="button"
-                onClick={() => setCurrentStep(2)}
-                className="py-3 px-4 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-white bg-[#101B3A] border border-[#1A2A5A] transition-colors"
+                onClick={() => setShowAdvancedFields(!showAdvancedFields)}
+                className="w-full p-2.5 text-xs text-[#94A3B8] hover:text-white flex items-center justify-between transition-colors font-medium"
               >
-                Voltar
+                <div className="flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-[#3B82F6]" />
+                  <span>Campos Opcionais do Trecho (Via, Bairro e Posição)</span>
+                </div>
+                {showAdvancedFields ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
               </button>
 
+              {showAdvancedFields && (
+                <div className="p-3 border-t border-[#1A2A5A] space-y-2.5 animate-in fade-in-0 duration-150">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <label className="text-[10px] text-[#94A3B8] block mb-1">
+                        Via / Logradouro (Opcional)
+                      </label>
+                      <input
+                        type="text"
+                        value={via}
+                        onChange={(e) => setVia(e.target.value)}
+                        placeholder="Ex: Av. Sete de Setembro"
+                        className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-[#94A3B8] block mb-1">
+                        Bairro / Região
+                      </label>
+                      <input
+                        type="text"
+                        value={bairro}
+                        onChange={(e) => setBairro(e.target.value)}
+                        placeholder="Ex: Batel, Centro"
+                        className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#94A3B8] block mb-1">
+                      Posição do Aparelho (Acoplamento Mecânico)
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPhonePosition('painel')}
+                        className={`py-1.5 px-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                          phonePosition === 'painel'
+                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
+                            : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                        }`}
+                      >
+                        <span>Suporte do Painel</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPhonePosition('bolso_outro')}
+                        className={`py-1.5 px-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                          phonePosition === 'bolso_outro'
+                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
+                            : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                        }`}
+                      >
+                        <span>Bolso / Mochila</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* BOTÃO PRINCIPAL DE INÍCIO — 1 TOQUE PARA QUEM JÁ TEM O AGENTE SELECIONADO */}
+            <div className="pt-2 space-y-2">
               <button
                 type="button"
-                disabled={!selectedAgentCode}
+                disabled={!selectedAgentCode || isStartingCollection}
                 onClick={handleStartCollection}
-                className="flex-1 py-4 px-4 rounded-xl text-base font-black text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-xl shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full py-4 px-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-xl shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Play className="w-5 h-5 fill-white" />
                 <span>
-                  {selectedAgentCode ? 'Iniciar Coleta em Campo' : 'Escolha um Tipo de Agente'}
+                  {isStartingCollection
+                    ? 'Iniciando sensores...'
+                    : selectedAgentCode
+                      ? 'Iniciar Coleta em Campo'
+                      : 'Selecione uma Categoria'}
                 </span>
               </button>
+
+              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] px-1">
+                <span>Wake Lock automático (tela acesa)</span>
+                <button
+                  type="button"
+                  onClick={handleResetAuthorization}
+                  className="hover:text-white underline underline-offset-2"
+                >
+                  Voltar para tela 1
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* =========================================================================
-            ETAPA 4: TELA ATIVA DE COLETA MINIMALISTA (Feita para operar em movimento)
+            TELA ATIVA DE COLETA MINIMALISTA (Operação em movimento)
            ========================================================================= */}
-        {(status === 'collecting' ||
-          status === 'calibrating' ||
-          status === 'paused' ||
-          status === 'stopped' ||
-          currentStep === 4) && (
+        {isSessionActive && (
           <div className="space-y-4 animate-in fade-in duration-200">
             {/* Banner de Auto-Pausa em segundo plano */}
             {(isAutoPaused || isPaused) && (
@@ -943,7 +1232,7 @@ export default function ModoCampo() {
                 </div>
 
                 <span className="font-mono text-[11px] text-[#94A3B8]">
-                  {samplingRateHz} Hz • FFT Nyquist
+                  {samplingRateHz} Hz • Motor ORBIS DSP
                 </span>
               </div>
 
@@ -1031,8 +1320,7 @@ export default function ModoCampo() {
                   <button
                     type="button"
                     onClick={() => {
-                      setCurrentStep(3)
-                      setSelectedAgentCode(null)
+                      setCurrentScreen(2)
                     }}
                     className="flex-1 py-2.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] text-xs font-semibold text-white flex items-center justify-center gap-1.5"
                   >
@@ -1097,14 +1385,14 @@ export default function ModoCampo() {
                 </div>
               )}
 
-              {status === 'idle' && (
+              {status === 'stopped' && (
                 <button
                   type="button"
                   onClick={handleStartCollection}
                   className="w-full py-4 px-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-xl shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
                   <Play className="w-5 h-5 fill-white" />
-                  <span>Iniciar Coleta em Campo</span>
+                  <span>Iniciar Nova Coleta</span>
                 </button>
               )}
             </div>

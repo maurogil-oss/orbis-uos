@@ -896,52 +896,63 @@ export function useDeviceMotionCollector(config: Partial<CollectorConfig> = {}) 
     return true
   }, [])
 
-  // Iniciar sessão de coleta
+  // Iniciar sessão de coleta com retorno booleano e tratamento de exceção explícito
   const startSession = useCallback(async () => {
-    const granted = await requestMotionPermission()
-    if (!granted) return false
+    try {
+      const granted = await requestMotionPermission()
+      if (!granted) {
+        if (!permissionError) {
+          setPermissionError('Permissão para sensores inerciais negada ou indisponível.')
+        }
+        return false
+      }
 
-    // PARTE 1.1: Drenar fila offline existente ao iniciar a sessão
-    drainOfflineQueue().catch((err) => {
-      console.warn('Erro ao drenar fila offline ao iniciar sessão:', err)
-    })
+      // PARTE 1.1: Drenar fila offline existente ao iniciar a sessão
+      drainOfflineQueue().catch((err) => {
+        console.warn('Erro ao drenar fila offline ao iniciar sessão:', err)
+      })
 
-    // Ativar Wake Lock para prevenir tela de apagar
-    await requestWakeLock()
+      // Ativar Wake Lock para prevenir tela de apagar
+      await requestWakeLock()
 
-    // Reset de métricas da sessão
-    setRecentSamples([])
-    setSpectrumAnalysis(null)
-    setAnomalies([])
-    setProcessedWindows([])
-    setLatestWindowMetrics(null)
-    setSessionSummary(null)
-    setPeakSessionG(0)
-    setCurrentZ(0)
-    setGpsTrack([])
-    const now = Date.now()
-    setSessionStartTime(now)
-    setElapsedMs(0)
+      // Reset de métricas da sessão
+      setRecentSamples([])
+      setSpectrumAnalysis(null)
+      setAnomalies([])
+      setProcessedWindows([])
+      setLatestWindowMetrics(null)
+      setSessionSummary(null)
+      setPeakSessionG(0)
+      setCurrentZ(0)
+      setGpsTrack([])
+      const now = Date.now()
+      setSessionStartTime(now)
+      setElapsedMs(0)
 
-    // Reset de buffers
-    windowZBufferRef.current = []
-    windowAngularBufferRef.current = []
-    lastWindowFlushRef.current = now
+      // Reset de buffers
+      windowZBufferRef.current = []
+      windowAngularBufferRef.current = []
+      lastWindowFlushRef.current = now
 
-    // Calibração de baseline
-    baselineSamplesRef.current = []
-    calibrationStartRef.current = now
-    isCalibratingRef.current = true
-    setStatus('calibrating')
+      // Calibração de baseline
+      baselineSamplesRef.current = []
+      calibrationStartRef.current = now
+      isCalibratingRef.current = true
+      setStatus('calibrating')
 
-    // Conectar ouvinte
-    window.addEventListener('devicemotion', handleMotion, true)
+      // Conectar ouvinte
+      window.addEventListener('devicemotion', handleMotion, true)
 
-    // Conectar GPS
-    startGpsWatch()
+      // Conectar GPS
+      startGpsWatch()
 
-    return true
-  }, [handleMotion, requestMotionPermission, requestWakeLock, startGpsWatch])
+      return true
+    } catch (err: any) {
+      console.error('[useDeviceMotionCollector] Falha ao iniciar sessão de coleta:', err)
+      setPermissionError(err?.message || 'Erro inesperado ao inicializar sensores do dispositivo.')
+      return false
+    }
+  }, [handleMotion, requestMotionPermission, requestWakeLock, startGpsWatch, permissionError])
 
   // Encerrar sessão e calcular resumo final imediato
   const stopSession = useCallback(() => {

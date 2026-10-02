@@ -139,8 +139,8 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
             </p>
           </div>
 
-          {/* BLOCO 3 ANTES DA DOBRA: UM CTA DOMINANTE (+ LINK SECUNDÁRIO DISCRETO) */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center mb-10">
+          {/* BLOCO 3 ANTES DA DOBRA: UM CTA DOMINANTE (+ LINK SECUNDÁRIO DISCRETO + ACESSO RÁPIDO MODO CAMPO) */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-center mb-8">
             <button
               type="button"
               onClick={() => scrollTo('simulador')}
@@ -157,6 +157,14 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               Conhecer a plataforma
               <ArrowRight className="w-3.5 h-3.5 text-[#94A3B8]" />
             </button>
+            <Link
+              to="/campo"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#10B981] hover:text-white bg-[#10B981]/10 hover:bg-[#10B981]/25 border border-[#10B981]/30 hover:border-[#10B981]/60 px-3 py-2 rounded-xl transition-all shadow-sm"
+              title="Acesso direto para operadores de campo com smartphone"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#10B981]" />
+              <span>Modo Campo (Operador)</span>
+            </Link>
           </div>
 
           {/* BLOCO 4 ANTES DA DOBRA: MÉTRICAS VIVAS */}
