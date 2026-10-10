@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
-  Smartphone,
   Play,
   Square,
   Pause,
@@ -25,12 +24,15 @@ import {
   UserCheck,
   HelpCircle,
   RefreshCw,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
   Sliders,
   Check,
   AlertCircle,
+  Sparkles,
+  Settings,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Gauge,
 } from 'lucide-react'
 import { useDeviceMotionCollector, PhoneMountPosition } from '@/hooks/useDeviceMotionCollector'
 import { AgentTaxonomyCode } from '@/services/roadSegments'
@@ -139,28 +141,23 @@ const AGENT_OPTIONS: AgentOption[] = [
   },
 ]
 
-// Fluxo de 2 Telas:
-// Tela 1: Liberação & Validação Real de Sensores (Contexto LGPD enxuto + Verificação ~2s + Desbloqueio Android/iOS)
-// Tela 2: Coleta (Seleção do Tipo de Agente + Iniciar/Monitoramento ativo)
-type Screen = 1 | 2
-
 type ValidationStatus = 'idle' | 'validating' | 'passed' | 'blocked' | 'unsupported'
 
 export default function ModoCampo() {
-  const navigate = useNavigate()
   const { user } = useAuth()
 
-  // Preferências memorizadas neste aparelho
+  // Preferências memorizadas no aparelho
   const initialPrefs = useMemo(() => getStoredCollectorPreferences(), [])
-  const isPreAuthorized = useMemo(() => isDevicePreAuthorized(), [])
+  const [deviceAuthorized, setDeviceAuthorized] = useState<boolean>(() => isDevicePreAuthorized())
 
-  // Tela atual: se já pré-autorizado, pula cerimônia de liberação e vai direto para Tela 2
-  const [currentScreen, setCurrentScreen] = useState<Screen>(isPreAuthorized ? 2 : 1)
+  // Modo Expresso: se o aparelho já foi liberado alguma vez, abre direto na tela única expressa
+  const isExpressoMode = deviceAuthorized
 
-  // Status da validação ativa de sensores
-  const [validationStatus, setValidationStatus] = useState<ValidationStatus>(
-    isPreAuthorized ? 'passed' : 'idle',
-  )
+  // Estado de desbloqueio forçado (quando validação em background falhar com aparelho já liberado)
+  const [showUnlockScreen, setShowUnlockScreen] = useState<boolean>(false)
+
+  // Status da validação de sensores
+  const [validationStatus, setValidationStatus] = useState<ValidationStatus>('idle')
   const [validationProgress, setValidationProgress] = useState<SensorValidationProgress>({
     motionSamplesCount: 0,
     orientationSamplesCount: 0,
@@ -169,23 +166,23 @@ export default function ModoCampo() {
   })
   const [validationError, setValidationError] = useState<string | null>(null)
 
-  // Mensagem explícita de erro na tela quando "Iniciar Coleta" falha
+  // Erro explícito ao iniciar coleta
   const [startCollectionError, setStartCollectionError] = useState<string | null>(null)
   const [isStartingCollection, setIsStartingCollection] = useState<boolean>(false)
 
-  // Seleção de agente (pré-seleciona a última escolha se existir em memória, mas mantém editável)
-  const [selectedAgentCode, setSelectedAgentCode] = useState<AgentTaxonomyCode | null>(
-    (initialPrefs.lastAgentCode as AgentTaxonomyCode) || null,
-  )
+  // Seleção de agente memorizada (padrão: última categoria utilizada ou VEICULO_FROTA)
+  const [selectedAgentCode, setSelectedAgentCode] = useState<AgentTaxonomyCode>(() => {
+    return (initialPrefs.lastAgentCode as AgentTaxonomyCode) || 'VEICULO_FROTA'
+  })
 
-  // Campos opcionais discretos
-  const [showAdvancedFields, setShowAdvancedFields] = useState<boolean>(false)
-  const [via, setVia] = useState(initialPrefs.via || '')
-  const [bairro, setBairro] = useState(initialPrefs.bairro || 'Batel')
-  const [linhaFrota, setLinhaFrota] = useState(initialPrefs.linhaFrota || '')
+  // Seletor rápido de agente (modal / drawer de 1 toque)
+  const [isAgentSelectorOpen, setIsAgentSelectorOpen] = useState<boolean>(false)
+
+  // Configuração rápida da posição do aparelho (memorizada, sem pedir no fluxo diário)
   const [phonePosition, setPhonePosition] = useState<PhoneMountPosition>(
     initialPrefs.phonePosition || 'painel',
   )
+  const [showConfigDrawer, setShowConfigDrawer] = useState<boolean>(false)
 
   // Detecções de ambiente
   const isAndroid = useMemo(() => isAndroidDevice(), [])
@@ -209,14 +206,14 @@ export default function ModoCampo() {
 
   // Agente selecionado
   const selectedAgentOption = useMemo(
-    () => AGENT_OPTIONS.find((a) => a.code === selectedAgentCode) || null,
+    () => AGENT_OPTIONS.find((a) => a.code === selectedAgentCode) || AGENT_OPTIONS[0],
     [selectedAgentCode],
   )
 
-  const canonicoTipo: VeiculoTipoCalibracao = selectedAgentOption?.canonicalType || 'viatura'
+  const canonicoTipo: VeiculoTipoCalibracao = selectedAgentOption.canonicalType
   const veiculoAtualConfig = VEICULO_TIPOS_CONFIG[canonicoTipo] || VEICULO_TIPOS_CONFIG.viatura
 
-  // Sensor hook
+  // Sensor hook — via e bairro saíram do fluxo de início: preenchimento automático pelo GPS ou padrão
   const {
     status,
     sensorSupport,
@@ -239,17 +236,17 @@ export default function ModoCampo() {
     sessionSummary,
   } = useDeviceMotionCollector({
     thresholdG: 2.5,
-    via: via.trim() || 'Via em Coleta Móvel',
-    bairro: bairro.trim() || 'Curitiba',
-    linhaFrota: linhaFrota.trim() || (selectedAgentOption?.label ?? 'Modo Campo Móvel'),
-    veiculoTipo: selectedAgentOption?.label ?? 'Veículo Leve Institucional',
+    via: 'Via Coletada (Modo Expresso)',
+    bairro: 'Curitiba',
+    linhaFrota: selectedAgentOption.label,
+    veiculoTipo: selectedAgentOption.label,
     veiculoTipoCanonico: canonicoTipo,
     modoColeta: veiculoAtualConfig.modoCategoria,
     indiceAlvo: veiculoAtualConfig.indiceAlvo,
-    agentCode: selectedAgentCode || 'VEICULO_FROTA',
+    agentCode: selectedAgentCode,
     phonePosition,
     codigoIbge: '4106902',
-    operadorNome: user?.name || user?.email || 'Servidor em Campo (Modo Campo)',
+    operadorNome: user?.name || user?.email || 'Operador de Campo (Modo Expresso)',
     autoPersistWindows: true,
     autoPersistAnomalies: true,
   })
@@ -279,68 +276,106 @@ export default function ModoCampo() {
     }
   }, [])
 
-  // Função central para executar a validação real de sensores por ~2 segundos
-  const handleValidateSensors = useCallback(async () => {
+  // Validação central de sensores
+  // Quando em Modo Expresso (aparelho já liberado), roda em SEGUNDO PLANO silenciosamente.
+  // Só exibe a tela de desbloqueio se falhar.
+  const executeSensorValidation = useCallback(async (isSilentBackground: boolean = false) => {
     setValidationStatus('validating')
     setValidationError(null)
-    setValidationProgress({
-      motionSamplesCount: 0,
-      orientationSamplesCount: 0,
-      hasAccelerationData: false,
-      lastZValue: null,
-    })
 
-    // Caso iOS: disparar requestPermission sob clique do usuário antes de iniciar escuta
-    if (typeof (window as any).DeviceMotionEvent?.requestPermission === 'function') {
+    // Caso iOS: DeviceMotionEvent.requestPermission só pode ser acionado por clique
+    // Se for validação silenciosa no boot do iOS sem clique, prossegue sem forçar requestPermission
+    if (
+      !isSilentBackground &&
+      typeof (window as any).DeviceMotionEvent?.requestPermission === 'function'
+    ) {
       try {
         const resp = await (window as any).DeviceMotionEvent.requestPermission()
         if (resp !== 'granted') {
           setValidationStatus('blocked')
           setValidationError(
-            'Permissão negada no Safari iOS. Abra Ajustes > Safari > Movimento e Orientação > Permitir.',
+            'Permissão negada no Safari iOS. Ajustes > Safari > Movimento e Orientação > Permitir.',
           )
-          return
+          setShowUnlockScreen(true)
+          return false
         }
       } catch (iosErr: any) {
         setValidationStatus('blocked')
         setValidationError(iosErr?.message || 'Falha ao solicitar autorização aos sensores do iOS.')
-        return
+        setShowUnlockScreen(true)
+        return false
       }
     }
 
-    // Escuta ativa de eventos por ~2.2 segundos para garantir amostras reais
-    const result: SensorValidationResult = await validateRealMotionSensors(2200, 3, (prog) =>
-      setValidationProgress(prog),
-    )
+    const result: SensorValidationResult = await validateRealMotionSensors(2000, 3, (prog) => {
+      setValidationProgress(prog)
+    })
 
     if (result.active) {
       setValidationStatus('passed')
       saveDeviceAuthorized(true)
-      toast({
-        title: 'Sensores Ativos ✓',
-        description: `${result.samplesReceived} amostras inerciais validadas. Aparelho liberado!`,
-      })
+      setDeviceAuthorized(true)
+      setShowUnlockScreen(false)
+      if (!isSilentBackground) {
+        toast({
+          title: 'Sensores Ativos ✓',
+          description: `${result.samplesReceived} amostras inerciais validadas. Aparelho pronto!`,
+        })
+      }
+      return true
     } else {
       if (result.reason === 'unsupported') {
         setValidationStatus('unsupported')
       } else {
         setValidationStatus('blocked')
       }
-      setValidationError(
+      const errorMsg =
         result.errorMessage ||
-          'Nenhum evento de sensor chegou em 2 segundos. Siga as instruções de desbloqueio abaixo.',
-      )
+        'Nenhum evento inercial detectado em 2s. Sensores podem estar silenciados pelo sistema ou sem permissão.'
+      setValidationError(errorMsg)
+      // Se falhou, aí sim mostramos a tela/instrução de desbloqueio
+      setShowUnlockScreen(true)
+      return false
     }
   }, [])
 
-  // Auto-iniciar validação na Tela 1 se não estiver validado e for a primeira visita
+  // Efeito de inicialização:
+  // Se aparelho liberado -> validação silenciosa em segundo plano (~2s)
+  // Se primeira vez (não liberado) -> validação interativa imediata
   useEffect(() => {
-    if (currentScreen === 1 && validationStatus === 'idle') {
-      handleValidateSensors()
+    if (deviceAuthorized) {
+      executeSensorValidation(true)
+    } else {
+      executeSensorValidation(false)
     }
-  }, [currentScreen, validationStatus, handleValidateSensors])
+  }, [deviceAuthorized, executeSensorValidation])
 
-  // Atualizar fila manualmente
+  // Troca rápida de categoria de agente em 1 toque
+  const handleSelectAgent = (code: AgentTaxonomyCode) => {
+    setSelectedAgentCode(code)
+    saveCollectorPreferences({ lastAgentCode: code })
+    setIsAgentSelectorOpen(false)
+    setStartCollectionError(null)
+    toast({
+      title: 'Agente Atualizado',
+      description: `Categoria definida como ${AGENT_OPTIONS.find((a) => a.code === code)?.label}.`,
+    })
+  }
+
+  // Alteração e memorização definitiva da posição do aparelho
+  const handleUpdatePosition = (pos: PhoneMountPosition) => {
+    setPhonePosition(pos)
+    saveCollectorPreferences({ phonePosition: pos })
+    toast({
+      title: 'Posição memorizada',
+      description:
+        pos === 'painel'
+          ? 'Posição definida: Suporte do Painel (Acoplamento Direto).'
+          : 'Posição definida: Bolso / Mochila (Filtro Biomecânico Ativo).',
+    })
+  }
+
+  // Sincronizar fila offline manualmente
   const handleDrainQueue = async () => {
     if (!isOnline) {
       toast({
@@ -370,6 +405,64 @@ export default function ModoCampo() {
     }
   }
 
+  // Iniciar Coleta em 1 Toque (Botão Gigante)
+  const handleStartCollection = async () => {
+    setStartCollectionError(null)
+    setIsStartingCollection(true)
+
+    // Se estiver em estado blocked ou unsupported, tentar revalidar
+    if (validationStatus === 'blocked' || validationStatus === 'unsupported') {
+      const ok = await executeSensorValidation(false)
+      if (!ok) {
+        setIsStartingCollection(false)
+        return
+      }
+    }
+
+    try {
+      // Se no iOS precisa de permissão e ainda não passou
+      if (typeof (window as any).DeviceMotionEvent?.requestPermission === 'function') {
+        try {
+          const resp = await (window as any).DeviceMotionEvent.requestPermission()
+          if (resp !== 'granted') {
+            setStartCollectionError('Acesso aos sensores negado no iOS. Abra Ajustes > Safari.')
+            setShowUnlockScreen(true)
+            setIsStartingCollection(false)
+            return
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // Salvar preferências mais recentes antes de rodar
+      saveCollectorPreferences({
+        lastAgentCode: selectedAgentCode,
+        phonePosition,
+      })
+      saveDeviceAuthorized(true)
+      setDeviceAuthorized(true)
+
+      const started = await startSession()
+      if (!started) {
+        const errorDetail =
+          permissionError ||
+          'O navegador não conseguiu acessar os sensores de movimento. Siga o passo a passo de desbloqueio.'
+        setStartCollectionError(errorDetail)
+        setShowUnlockScreen(true)
+      } else {
+        setStartCollectionError(null)
+        setShowUnlockScreen(false)
+      }
+    } catch (err: any) {
+      const msg = err?.message || 'Erro inesperado ao iniciar captura inercial.'
+      setStartCollectionError(msg)
+      setShowUnlockScreen(true)
+    } finally {
+      setIsStartingCollection(false)
+    }
+  }
+
   // Formatação de tempo mm:ss
   const formatTime = (ms: number) => {
     const totalSecs = Math.floor(ms / 1000)
@@ -386,77 +479,121 @@ export default function ModoCampo() {
     return Math.round(durationSecs * spd)
   }, [sessionSummary, elapsedMs, speedKmh])
 
-  // Iniciar coleta na Tela 2 com tratamento rigoroso de falhas e mensagem explícita
-  const handleStartCollection = async () => {
-    setStartCollectionError(null)
-
-    if (!selectedAgentCode) {
-      setStartCollectionError('Selecione uma categoria de agente antes de iniciar a coleta.')
-      toast({
-        title: 'Categoria obrigatória',
-        description:
-          'Selecione o tipo de agente (ex: Veículo Institucional, Ônibus ou Motociclista).',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    // Persistir a escolha consciente do agente e preferências
-    saveCollectorPreferences({
-      lastAgentCode: selectedAgentCode,
-      via,
-      bairro,
-      linhaFrota,
-      phonePosition,
-    })
-
-    setIsStartingCollection(true)
-    try {
-      const started = await startSession()
-      if (!started) {
-        const errorDetail =
-          permissionError ||
-          'O navegador não conseguiu acessar o acelerômetro. Sensores podem estar silenciados pelo sistema ou sem permissão.'
-        setStartCollectionError(errorDetail)
-        toast({
-          title: 'Falha ao iniciar sensores',
-          description: errorDetail,
-          variant: 'destructive',
-        })
-      } else {
-        setStartCollectionError(null)
-      }
-    } catch (err: any) {
-      const msg = err?.message || 'Erro inesperado ao iniciar captura inercial.'
-      setStartCollectionError(msg)
-      toast({
-        title: 'Erro na ativação',
-        description: msg,
-        variant: 'destructive',
-      })
-    } finally {
-      setIsStartingCollection(false)
-    }
-  }
-
-  // Voltar e reliberar sensores
-  const handleResetAuthorization = () => {
-    saveDeviceAuthorized(false)
-    setStartCollectionError(null)
-    setValidationStatus('idle')
-    setCurrentScreen(1)
-  }
-
   const isCollecting = status === 'collecting'
   const isCalibrating = status === 'calibrating'
   const isPaused = status === 'paused'
   const isSessionActive = isCollecting || isCalibrating || isPaused || status === 'stopped'
 
+  // Componente de Instruções de Desbloqueio (Chrome Android caminho real descoberto pelo usuário)
+  const renderUnlockInstructions = () => (
+    <div className="p-4 rounded-2xl bg-[#EF4444]/10 border-2 border-[#EF4444]/60 text-xs space-y-3 animate-in fade-in">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 font-bold text-white">
+          <AlertTriangle className="w-4 h-4 text-[#EF4444] shrink-0" />
+          <span>Desbloquear Sensores no Google Chrome Android</span>
+        </div>
+        {deviceAuthorized && (
+          <button
+            type="button"
+            onClick={() => setShowUnlockScreen(false)}
+            className="p-1 rounded-lg text-[#94A3B8] hover:text-white hover:bg-black/20"
+            title="Fechar instruções"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-2 text-[#CBD5E1] text-[11px] leading-relaxed">
+        <div className="flex items-start gap-2 bg-[#0A1128] p-2.5 rounded-lg border border-[#1A2A5A]">
+          <span className="font-bold text-[#38BDF8] shrink-0">1.</span>
+          <span>
+            Abra diretamente no <strong>Google Chrome</strong> (fora do WhatsApp/Instagram).
+          </span>
+        </div>
+
+        <div className="flex items-start gap-2 bg-[#0A1128] p-2.5 rounded-lg border border-[#1A2A5A]">
+          <span className="font-bold text-[#38BDF8] shrink-0">2.</span>
+          <div>
+            <span>No canto superior direito do Chrome, toque nos </span>
+            <strong className="text-white bg-[#101B3A] px-1.5 py-0.5 rounded border border-[#3B82F6]/40 font-mono">
+              três pontos (⋮)
+            </strong>
+            <span> → </span>
+            <strong className="text-white">Configurações</strong>.
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 bg-[#0A1128] p-2.5 rounded-lg border border-[#1A2A5A]">
+          <span className="font-bold text-[#38BDF8] shrink-0">3.</span>
+          <div>
+            <span>Toque em </span>
+            <strong className="text-white">Configurações do site</strong>
+            <span> → </span>
+            <strong className="text-[#10B981]">Sensores de movimento</strong>
+            <span> e marque </span>
+            <strong className="text-[#10B981]">Permitir</strong>.
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 bg-[#0A1128] p-2.5 rounded-lg border border-[#1A2A5A]">
+          <span className="font-bold text-[#38BDF8] shrink-0">4.</span>
+          <span>
+            Desative a <strong>Economia de Bateria</strong> do Android para evitar suspensão do
+            acelerômetro.
+          </span>
+        </div>
+      </div>
+
+      {/* Safari / iPhone alternativa secundária colapsável */}
+      <div className="pt-2 border-t border-[#1A2A5A]">
+        <button
+          type="button"
+          onClick={() => setShowIosAlternative(!showIosAlternative)}
+          className="text-[11px] text-[#94A3B8] hover:text-white flex items-center justify-between w-full font-medium"
+        >
+          <span>Instruções para iPhone (iOS / Safari)</span>
+          {showIosAlternative ? (
+            <ChevronUp className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
+        </button>
+
+        {showIosAlternative && (
+          <div className="mt-2 p-2.5 rounded-lg bg-[#0A1128] text-[11px] text-[#CBD5E1] space-y-1">
+            <p className="font-bold text-white">No Safari iOS:</p>
+            <p>
+              Abra <strong>Ajustes &gt; Safari &gt; Movimento e Orientação</strong> e ative a opção.
+              Recarregue a página e toque no botão abaixo para testar.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => executeSensorValidation(false)}
+          disabled={validationStatus === 'validating'}
+          className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#10B981]/20"
+        >
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${validationStatus === 'validating' ? 'animate-spin' : ''}`}
+          />
+          <span>
+            {validationStatus === 'validating' ? 'Testando sensores...' : 'Testar Sensores Agora'}
+          </span>
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] flex flex-col justify-between selection:bg-[#3B82F6]/30">
       {/* Top Bar Minimalista Mobile */}
       <header className="sticky top-0 z-40 bg-[#0A1128]/95 backdrop-blur-md border-b border-[#1A2A5A] px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Link
             to="/cockpit"
             className="p-1.5 -ml-1 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors"
@@ -466,22 +603,21 @@ export default function ModoCampo() {
           </Link>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm tracking-tight text-white">ORBIS Modo Campo</span>
-              <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40">
-                PWA
+              <span className="font-black text-sm tracking-tight text-white">ORBIS Campo</span>
+              <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 flex items-center gap-0.5">
+                <Sparkles className="w-2.5 h-2.5" />
+                Expresso
               </span>
             </div>
             <p className="text-[11px] text-[#94A3B8] line-clamp-1">
               {isSessionActive
                 ? 'Coleta inercial em andamento'
-                : currentScreen === 1
-                  ? 'Etapa 1/2: Validação de Sensores'
-                  : 'Etapa 2/2: Seleção de Agente & Coleta'}
+                : 'Tela única • Zero-touch do condutor'}
             </p>
           </div>
         </div>
 
-        {/* Status de Rede & Fila */}
+        {/* Status de Rede, Fila e Configurações */}
         <div className="flex items-center gap-2">
           {queueStats.totalPending > 0 && (
             <button
@@ -492,7 +628,7 @@ export default function ModoCampo() {
               title="Fila offline com dados pendentes"
             >
               <CloudUpload className={`w-3 h-3 ${isDraining ? 'animate-bounce' : ''}`} />
-              <span>{queueStats.totalPending} pend.</span>
+              <span>{queueStats.totalPending}</span>
             </button>
           )}
 
@@ -515,93 +651,43 @@ export default function ModoCampo() {
               </>
             )}
           </div>
+
+          {!isSessionActive && (
+            <button
+              type="button"
+              onClick={() => setShowConfigDrawer(!showConfigDrawer)}
+              className="p-1.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors"
+              title="Preferências do Aparelho"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </header>
 
-      {/* Stepper Enxuto de 2 Telas (visível antes de iniciar a sessão ativa) */}
-      {!isSessionActive && (
-        <div className="bg-[#0A1128] border-b border-[#1A2A5A] px-4 py-2.5">
-          <div className="max-w-md mx-auto flex items-center justify-between text-xs">
-            {/* Tela 1: Sensores & Liberação */}
-            <button
-              type="button"
-              onClick={() => setCurrentScreen(1)}
-              className={`flex items-center gap-2 transition-colors ${
-                currentScreen === 1
-                  ? 'text-[#3B82F6] font-bold'
-                  : validationStatus === 'passed'
-                    ? 'text-[#10B981]'
-                    : 'text-[#94A3B8]'
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                  currentScreen === 1
-                    ? 'bg-[#3B82F6] text-white ring-2 ring-[#3B82F6]/30'
-                    : validationStatus === 'passed'
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-[#1E293B] text-[#94A3B8]'
-                }`}
-              >
-                {validationStatus === 'passed' ? '✓' : '1'}
-              </span>
-              <span>1. Sensores & LGPD</span>
-            </button>
-
-            <div className="h-0.5 flex-1 mx-3 bg-[#1A2A5A] relative">
-              <div
-                className={`h-full transition-all duration-300 ${
-                  currentScreen === 2 || validationStatus === 'passed'
-                    ? 'bg-[#10B981] w-full'
-                    : 'bg-transparent w-0'
-                }`}
-              />
-            </div>
-
-            {/* Tela 2: Agente & Coleta */}
-            <button
-              type="button"
-              onClick={() => {
-                if (validationStatus === 'passed') {
-                  setCurrentScreen(2)
-                } else {
-                  toast({
-                    title: 'Valide os sensores primeiro',
-                    description: 'Aguarde a verificação de movimento para prosseguir.',
-                  })
-                }
-              }}
-              className={`flex items-center gap-2 transition-colors ${
-                currentScreen === 2
-                  ? 'text-[#3B82F6] font-bold'
-                  : validationStatus === 'passed'
-                    ? 'text-[#94A3B8] hover:text-white'
-                    : 'text-[#475569] cursor-not-allowed'
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                  currentScreen === 2
-                    ? 'bg-[#3B82F6] text-white ring-2 ring-[#3B82F6]/30'
-                    : 'bg-[#1E293B] text-[#94A3B8]'
-                }`}
-              >
-                2
-              </span>
-              <span>2. Agente & Coleta</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Conteúdo Principal — Mobile First */}
+      {/* Conteúdo Principal — Mobile First Tela Única */}
       <main className="flex-1 max-w-lg w-full mx-auto p-4 sm:p-5 flex flex-col justify-center">
+        {/* Aviso de WebView / In-App browser (WhatsApp / Instagram) */}
+        {isAppBrowser && !isSessionActive && (
+          <div className="mb-3 p-3 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/50 text-xs text-[#FDE68A] flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#F59E0B] mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-white">Navegador interno detectado</p>
+              <p className="text-[11px] text-[#CBD5E1]">
+                Navegadores de redes sociais bloqueiam sensores. Toque em <strong>⋮</strong> e
+                selecione <strong>"Abrir no Chrome"</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* =========================================================================
-            TELA 1: LIBERAÇÃO & VALIDAÇÃO REAL DE SENSORES (Android primário, iOS secundário)
+            CENÁRIO A: APARELHO NÃO LIBERADO (PRIMEIRA VEZ)
+            Mantém o fluxo explicativo inicial até salvar como liberado
            ========================================================================= */}
-        {currentScreen === 1 && !isSessionActive && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {/* Header com ícone e contexto LGPD enxuto */}
+        {!isExpressoMode && !isSessionActive && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+            {/* Header de Primeiro Acesso */}
             <div className="text-center space-y-1.5">
               <div
                 className={`w-14 h-14 mx-auto rounded-2xl border flex items-center justify-center transition-all ${
@@ -621,50 +707,32 @@ export default function ModoCampo() {
                 ) : validationStatus === 'blocked' ? (
                   <AlertTriangle className="w-7 h-7" />
                 ) : (
-                  <Smartphone className="w-7 h-7" />
+                  <Gauge className="w-7 h-7" />
                 )}
               </div>
 
               <h1 className="text-xl font-black text-white">
                 {validationStatus === 'passed'
-                  ? 'Sensores Validados com Sucesso'
+                  ? 'Aparelho Pronto para Campo'
                   : validationStatus === 'validating'
                     ? 'Verificando sensores inerciais...'
                     : validationStatus === 'blocked'
-                      ? 'Acesso aos Sensores Bloqueado'
-                      : 'Liberação de Sensores de Campo'}
+                      ? 'Sensores de Movimento Bloqueados'
+                      : 'Primeira Configuração do Aparelho'}
               </h1>
 
               <p className="text-xs text-[#94A3B8] max-w-sm mx-auto leading-relaxed">
-                {validationStatus === 'validating'
-                  ? 'Movimente levemente o aparelho por ~2 segundos para confirmar a chegada de amostras reais.'
-                  : 'Sonda inercial veicular acoplada ao Motor ORBIS DSP para auditoria do pavimento.'}
+                Após esta liberação inicial, as próximas coletas abrirão diretamente no{' '}
+                <strong className="text-white">Modo Expresso de 1 toque</strong>.
               </p>
             </div>
 
-            {/* Aviso especial de WebView / In-App browser (WhatsApp / Instagram) */}
-            {isAppBrowser && (
-              <div className="p-3 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/50 text-xs text-[#FDE68A] flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0 text-[#F59E0B] mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold text-white">Navegador interno detectado</p>
-                  <p className="text-[11px] text-[#CBD5E1]">
-                    Navegadores de redes sociais (WhatsApp/Instagram) bloqueiam os sensores de
-                    movimento. Toque nos <strong>três pontos (⋮)</strong> e selecione{' '}
-                    <strong>"Abrir no Chrome"</strong>.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Card de Status da Verificação em Tempo Real */}
+            {/* Verificação ativa de sensores */}
             <div className="p-4 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-[#3B82F6]" />
-                  <span className="text-xs font-bold text-white">
-                    Verificação Ativa de Movimento
-                  </span>
+                  <span className="text-xs font-bold text-white">Validação de Sensores</span>
                 </div>
                 <span
                   className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded flex items-center gap-1 ${
@@ -681,23 +749,22 @@ export default function ModoCampo() {
                   {validationStatus === 'passed'
                     ? 'Sensores ativos ✓'
                     : validationStatus === 'validating'
-                      ? 'Verificando...'
+                      ? 'Validando...'
                       : validationStatus === 'blocked'
-                        ? 'Sensores bloqueados'
-                        : 'Aguardando teste'}
+                        ? 'Bloqueado'
+                        : 'Aguardando'}
                 </span>
               </div>
 
-              {/* Métricas da validação em tempo real */}
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-2.5 rounded-xl bg-[#101B3A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Amostras de Movimento</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Amostras</span>
                   <span className="font-mono font-bold text-sm text-white">
                     {validationProgress.motionSamplesCount} recebidas
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-[#101B3A]">
-                  <span className="text-[10px] text-[#94A3B8] block">Leitura Dinâmica Z</span>
+                  <span className="text-[10px] text-[#94A3B8] block">Aceleração Z</span>
                   <span className="font-mono font-bold text-sm text-[#10B981]">
                     {validationProgress.lastZValue !== null
                       ? `${validationProgress.lastZValue.toFixed(2)} m/s²`
@@ -705,190 +772,147 @@ export default function ModoCampo() {
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Botão de Repetir Verificação */}
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] text-[#94A3B8]">
-                  Validação contínua com amostras reais
-                </span>
+            {/* Instruções de desbloqueio quando bloqueado */}
+            {validationStatus === 'blocked' && renderUnlockInstructions()}
+
+            {/* Seleção do Agente Inicial */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white flex items-center justify-between">
+                <span>Categoria de Agente Padrão deste Aparelho:</span>
+                <span className="text-[10px] text-[#94A3B8] font-normal">Fator K auditável</span>
+              </label>
+
+              <div className="grid grid-cols-1 gap-2 max-h-[32vh] overflow-y-auto pr-1">
+                {AGENT_OPTIONS.map((opt) => {
+                  const Icon = opt.icon
+                  const isSelected = selectedAgentCode === opt.code
+                  return (
+                    <button
+                      key={opt.code}
+                      type="button"
+                      onClick={() => setSelectedAgentCode(opt.code)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                        isSelected
+                          ? 'bg-[#101B3A] border-2 shadow-lg'
+                          : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#3B82F6]/50'
+                      }`}
+                      style={{
+                        borderColor: isSelected ? opt.color : undefined,
+                      }}
+                    >
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                        style={{
+                          backgroundColor: `${opt.color}20`,
+                          borderColor: `${opt.color}60`,
+                          color: opt.color,
+                        }}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-xs text-white truncate block">
+                          {opt.label}
+                        </span>
+                        <p className="text-[10px] text-[#94A3B8] leading-tight line-clamp-1 mt-0.5">
+                          {opt.description}
+                        </p>
+                      </div>
+                      {isSelected && (
+                        <div
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-white shrink-0 self-center"
+                          style={{ backgroundColor: opt.color }}
+                        >
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Posição do Aparelho Inicial */}
+            <div className="p-3 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-1.5">
+              <label className="text-xs font-bold text-white block">
+                Posição habitual do aparelho no veículo:
+              </label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
-                  onClick={handleValidateSensors}
-                  disabled={validationStatus === 'validating'}
-                  className="text-xs text-[#38BDF8] hover:text-white flex items-center gap-1 font-semibold px-2 py-1 rounded bg-[#101B3A] border border-[#1A2A5A] disabled:opacity-50"
+                  onClick={() => handleUpdatePosition('painel')}
+                  className={`py-2 px-2.5 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    phonePosition === 'painel'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
+                      : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                  }`}
                 >
-                  <RefreshCw
-                    className={`w-3 h-3 ${validationStatus === 'validating' ? 'animate-spin' : ''}`}
-                  />
-                  <span>Testar novamente</span>
+                  <span>Suporte do Painel</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUpdatePosition('bolso_outro')}
+                  className={`py-2 px-2.5 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    phonePosition === 'bolso_outro'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
+                      : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                  }`}
+                >
+                  <span>Bolso / Mochila</span>
                 </button>
               </div>
             </div>
 
-            {/* Contexto LGPD Enxuto */}
-            <div className="p-3 rounded-xl bg-[#0A1128]/70 border border-[#1A2A5A] text-[11px] text-[#94A3B8] space-y-1">
-              <div className="flex items-center gap-1.5 text-white font-bold">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
-                <span>Privacidade & LGPD</span>
-              </div>
-              <p className="leading-relaxed">
-                Coleta exclusivamente aceleração vertical Z e giroscópio acoplado. Câmeras
-                desligadas, sem registro de placas ou condutores.
-              </p>
-            </div>
-
-            {/* =========================================================================
-                INSTRUÇÕES DE DESBLOQUEIO ANDROID EM DESTAQUE (usuário principal Android)
-               ========================================================================= */}
-            {validationStatus === 'blocked' && (
-              <div className="p-4 rounded-2xl bg-[#EF4444]/10 border-2 border-[#EF4444]/60 text-xs space-y-3 animate-in fade-in">
-                <div className="flex items-center gap-2 font-bold text-white">
-                  <AlertTriangle className="w-4 h-4 text-[#EF4444] shrink-0" />
-                  <span>Como desbloquear no Android / Chrome:</span>
-                </div>
-
-                <div className="space-y-2 text-[#CBD5E1] text-[11px] leading-relaxed">
-                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
-                    <span className="font-bold text-[#38BDF8] shrink-0">1.</span>
-                    <span>
-                      Abra diretamente no <strong>Google Chrome</strong> (evite navegadores internos
-                      de WhatsApp ou e-mail).
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
-                    <span className="font-bold text-[#38BDF8] shrink-0">2.</span>
-                    <span>
-                      Toque no <strong>ícone de cadeado / configurações</strong> na barra de
-                      endereço (ao lado de <em>orbis-uos.com.br</em>).
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
-                    <span className="font-bold text-[#38BDF8] shrink-0">3.</span>
-                    <span>
-                      Acesse <strong>Permissões &gt; Movimento / Sensores</strong> e selecione{' '}
-                      <strong className="text-[#10B981]">Permitir</strong>.
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-2 bg-[#0A1128] p-2 rounded-lg border border-[#1A2A5A]">
-                    <span className="font-bold text-[#38BDF8] shrink-0">4.</span>
-                    <span>
-                      Desative o modo <strong>Economia de Bateria</strong> do Android, que pode
-                      suspender o acelerômetro em segundo plano.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Instruções iOS como alternativa secundária colapsável */}
-                <div className="pt-2 border-t border-[#1A2A5A]">
-                  <button
-                    type="button"
-                    onClick={() => setShowIosAlternative(!showIosAlternative)}
-                    className="text-[11px] text-[#94A3B8] hover:text-white flex items-center justify-between w-full font-medium"
-                  >
-                    <span>Está usando iPhone (iOS / Safari)?</span>
-                    {showIosAlternative ? (
-                      <ChevronUp className="w-3.5 h-3.5" />
-                    ) : (
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-
-                  {showIosAlternative && (
-                    <div className="mt-2 p-2.5 rounded-lg bg-[#0A1128] text-[11px] text-[#CBD5E1] space-y-1">
-                      <p className="font-bold text-white">No Safari iOS:</p>
-                      <p>
-                        Abra <strong>Ajustes &gt; Safari &gt; Movimento e Orientação</strong> e
-                        ative a opção. Em seguida, recarregue esta página e toque em "Testar
-                        novamente".
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Aviso quando sensores não são detectados (desktop/ambiente incompatível) */}
-            {validationStatus === 'unsupported' && (
-              <div className="p-3.5 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-xs text-[#FDE68A] space-y-1">
-                <span className="font-bold block">Dispositivo sem sensores inerciais físicos:</span>
-                <p className="text-[11px] text-[#CBD5E1]">
-                  Para coleta real, acesse esta rota diretamente pelo smartphone institucional
-                  (Android/Chrome).
-                </p>
-              </div>
-            )}
-
-            {/* Botão de Avanço: Habilitado apenas quando a validação ativa passar */}
-            <div className="pt-2">
-              <button
-                type="button"
-                disabled={validationStatus !== 'passed'}
-                onClick={() => {
-                  saveDeviceAuthorized(true)
-                  setCurrentScreen(2)
-                }}
-                className="w-full py-4 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-lg shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span>Avançar para Seleção de Agente & Coleta</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {validationStatus !== 'passed' && (
-                <p className="text-[11px] text-[#94A3B8] text-center mt-2">
-                  O avanço só é liberado após a validação real de eventos inerciais por ~2s.
-                </p>
-              )}
-            </div>
+            {/* Botão de Finalização da Primeira Configuração */}
+            <button
+              type="button"
+              disabled={validationStatus !== 'passed'}
+              onClick={() => {
+                saveCollectorPreferences({
+                  lastAgentCode: selectedAgentCode,
+                  phonePosition,
+                })
+                saveDeviceAuthorized(true)
+                setDeviceAuthorized(true)
+                toast({
+                  title: 'Modo Expresso Ativado!',
+                  description:
+                    'Este aparelho foi memorizado. A partir de agora você abre direto na tela única.',
+                })
+              }}
+              className="w-full py-4 px-4 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-lg shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span>Ativar Modo Expresso & Salvar Aparelho</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         )}
 
         {/* =========================================================================
-            TELA 2: COLETA & MONITORAMENTO ATIVO
-            (Seleção consciente do agente + Iniciar Coleta + Monitoramento)
+            CENÁRIO B: MODO EXPRESSO — TELA ÚNICA (APARELHO JÁ LIBERADO)
+            Aparelho liberado abre DIRETO aqui sem stepper e sem tela LGPD.
+            Botão Gigante "Iniciar", Chip do Agente Memorizado (1 toque),
+            Validação de sensores em segundo plano.
            ========================================================================= */}
-        {currentScreen === 2 && !isSessionActive && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {/* Header da Tela 2 */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-lg font-black text-white flex items-center gap-2">
-                  <span>Categoria do Agente de Campo</span>
-                </h1>
-                <p className="text-xs text-[#94A3B8] mt-0.5">
-                  Identificação técnica institucional para calibração do Motor ORBIS DSP.
-                </p>
-              </div>
-
-              {/* Botão para rever autorização de sensores se necessário */}
-              <button
-                type="button"
-                onClick={handleResetAuthorization}
-                className="text-[10px] text-[#94A3B8] hover:text-white px-2 py-1 rounded bg-[#101B3A] border border-[#1A2A5A] flex items-center gap-1 font-mono shrink-0"
-                title="Rever liberação dos sensores"
-              >
-                <Check className="w-3 h-3 text-[#10B981]" />
-                <span>Sensores ✓</span>
-              </button>
-            </div>
-
-            {/* MENSAGEM CLARA DE ERRO SE "INICIAR COLETA" FALHAR */}
+        {isExpressoMode && !isSessionActive && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+            {/* Banner de Erro Explícito se "Iniciar Coleta" Falhar */}
             {startCollectionError && (
               <div className="p-3.5 rounded-2xl bg-[#EF4444]/15 border-2 border-[#EF4444] text-xs text-[#EF4444] space-y-2 animate-in fade-in">
                 <div className="flex items-center gap-2 font-bold text-white">
                   <AlertTriangle className="w-4 h-4 text-[#EF4444] shrink-0" />
-                  <span>Falha ao Iniciar Coleta</span>
+                  <span>Falha ao Acessar Sensores</span>
                 </div>
                 <p className="text-[#CBD5E1] text-[11px] leading-relaxed">{startCollectionError}</p>
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     type="button"
-                    onClick={handleResetAuthorization}
+                    onClick={() => setShowUnlockScreen(true)}
                     className="py-1.5 px-3 rounded-lg bg-[#EF4444] hover:bg-[#DC2626] text-white text-xs font-bold transition-colors"
                   >
-                    Voltar e liberar sensores
+                    Ver instruções de desbloqueio
                   </button>
                   <button
                     type="button"
@@ -901,228 +925,129 @@ export default function ModoCampo() {
               </div>
             )}
 
-            {/* Card com a categoria memorizada (atalho de 1 toque para quem já tem preferência) */}
-            {selectedAgentOption && (
-              <div className="p-3 rounded-xl bg-[#101B3A] border border-[#3B82F6]/50 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
+            {/* Tela de Desbloqueio como Exceção (só exibida se a validação de sensores falhar) */}
+            {showUnlockScreen && renderUnlockInstructions()}
+
+            {/* CHIP DO AGENTE MEMORIZADO (Trocável em 1 toque) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] px-1">
+                <span className="uppercase font-mono tracking-wider font-semibold">
+                  Agente Memorizado (Fator K)
+                </span>
+                <span className="text-[#38BDF8]">Troque em 1 toque</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAgentSelectorOpen(true)}
+                className="w-full p-3.5 rounded-2xl bg-[#0A1128] border-2 hover:border-[#3B82F6] transition-all flex items-center justify-between gap-3 text-left shadow-lg active:scale-[0.99]"
+                style={{
+                  borderColor: `${selectedAgentOption.color}80`,
+                  boxShadow: `0 8px 24px -6px ${selectedAgentOption.color}33`,
+                }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border"
                     style={{
                       backgroundColor: `${selectedAgentOption.color}20`,
+                      borderColor: `${selectedAgentOption.color}60`,
                       color: selectedAgentOption.color,
                     }}
                   >
-                    <selectedAgentOption.icon className="w-4 h-4" />
+                    <selectedAgentOption.icon className="w-5 h-5" />
                   </div>
+
                   <div className="min-w-0">
-                    <span className="text-[10px] text-[#94A3B8] block uppercase font-mono">
-                      Selecionado (memorizado no aparelho)
-                    </span>
-                    <span className="text-xs font-bold text-white truncate block">
-                      {selectedAgentOption.label}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-[#10B981] font-bold bg-[#10B981]/15 px-2 py-0.5 rounded border border-[#10B981]/30">
-                  Pronto
-                </span>
-              </div>
-            )}
-
-            {/* Grid de Cards de Seleção Consciente (Requisito de Proveniência do Produto) */}
-            <div className="space-y-2 max-h-[38vh] overflow-y-auto pr-1">
-              {AGENT_OPTIONS.map((opt) => {
-                const Icon = opt.icon
-                const isSelected = selectedAgentCode === opt.code
-                return (
-                  <button
-                    key={opt.code}
-                    type="button"
-                    onClick={() => {
-                      setSelectedAgentCode(opt.code)
-                      setStartCollectionError(null)
-                      if (!linhaFrota) {
-                        setLinhaFrota(opt.label)
-                      }
-                      saveCollectorPreferences({ lastAgentCode: opt.code })
-                    }}
-                    className={`w-full p-3 rounded-xl border text-left transition-all flex items-start gap-3 active:scale-[0.99] ${
-                      isSelected
-                        ? 'bg-[#101B3A] border-2 shadow-lg'
-                        : 'bg-[#0A1128] border-[#1A2A5A] hover:border-[#3B82F6]/50'
-                    }`}
-                    style={{
-                      borderColor: isSelected ? opt.color : undefined,
-                      boxShadow: isSelected ? `0 8px 20px -4px ${opt.color}33` : undefined,
-                    }}
-                  >
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
-                      style={{
-                        backgroundColor: `${opt.color}20`,
-                        borderColor: `${opt.color}60`,
-                        color: opt.color,
-                      }}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="font-bold text-xs sm:text-sm text-white truncate">
-                          {opt.label}
-                        </span>
-                        <span
-                          className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded border font-semibold shrink-0"
-                          style={{
-                            backgroundColor: `${opt.color}15`,
-                            color: opt.color,
-                            borderColor: `${opt.color}40`,
-                          }}
-                        >
-                          {opt.badgeText}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-[#CBD5E1] font-medium leading-tight mt-0.5">
-                        {opt.sublabel}
-                      </p>
-                      <p className="text-[10px] text-[#94A3B8] leading-relaxed mt-1 line-clamp-1">
-                        {opt.description}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0 self-center">
-                      <div
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? 'border-white' : 'border-[#475569]'
-                        }`}
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black text-sm sm:text-base text-white truncate">
+                        {selectedAgentOption.label}
+                      </span>
+                      <span
+                        className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded font-bold border shrink-0"
                         style={{
-                          backgroundColor: isSelected ? opt.color : 'transparent',
+                          backgroundColor: `${selectedAgentOption.color}15`,
+                          color: selectedAgentOption.color,
+                          borderColor: `${selectedAgentOption.color}40`,
                         }}
                       >
-                        {isSelected && <Check className="w-3 h-3 text-white" />}
-                      </div>
+                        {selectedAgentOption.badgeText}
+                      </span>
                     </div>
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Campos Opcionais Discretos (Via, Bairro, Acoplamento Mecânico) */}
-            <div className="rounded-xl border border-[#1A2A5A] bg-[#0A1128]/80 overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setShowAdvancedFields(!showAdvancedFields)}
-                className="w-full p-2.5 text-xs text-[#94A3B8] hover:text-white flex items-center justify-between transition-colors font-medium"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-[#3B82F6]" />
-                  <span>Campos Opcionais do Trecho (Via, Bairro e Posição)</span>
+                    <p className="text-[11px] text-[#94A3B8] truncate mt-0.5">
+                      {selectedAgentOption.sublabel}
+                    </p>
+                  </div>
                 </div>
-                {showAdvancedFields ? (
-                  <ChevronUp className="w-3.5 h-3.5" />
-                ) : (
-                  <ChevronDown className="w-3.5 h-3.5" />
-                )}
+
+                <div className="shrink-0 flex items-center gap-1.5 text-xs text-[#38BDF8] font-bold bg-[#101B3A] px-2.5 py-1.5 rounded-xl border border-[#1A2A5A]">
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Trocar</span>
+                </div>
               </button>
-
-              {showAdvancedFields && (
-                <div className="p-3 border-t border-[#1A2A5A] space-y-2.5 animate-in fade-in-0 duration-150">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <label className="text-[10px] text-[#94A3B8] block mb-1">
-                        Via / Logradouro (Opcional)
-                      </label>
-                      <input
-                        type="text"
-                        value={via}
-                        onChange={(e) => setVia(e.target.value)}
-                        placeholder="Ex: Av. Sete de Setembro"
-                        className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-[#94A3B8] block mb-1">
-                        Bairro / Região
-                      </label>
-                      <input
-                        type="text"
-                        value={bairro}
-                        onChange={(e) => setBairro(e.target.value)}
-                        placeholder="Ex: Batel, Centro"
-                        className="w-full bg-[#101B3A] border border-[#1A2A5A] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder:text-[#64748B] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] text-[#94A3B8] block mb-1">
-                      Posição do Aparelho (Acoplamento Mecânico)
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setPhonePosition('painel')}
-                        className={`py-1.5 px-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                          phonePosition === 'painel'
-                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
-                            : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
-                        }`}
-                      >
-                        <span>Suporte do Painel</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPhonePosition('bolso_outro')}
-                        className={`py-1.5 px-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-                          phonePosition === 'bolso_outro'
-                            ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white'
-                            : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
-                        }`}
-                      >
-                        <span>Bolso / Mochila</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* BOTÃO PRINCIPAL DE INÍCIO — 1 TOQUE PARA QUEM JÁ TEM O AGENTE SELECIONADO */}
-            <div className="pt-2 space-y-2">
+            {/* BOTÃO GIGANTE INICIAR — ÁREA DE TOQUE DOMINANTE (Modo Campo Dark) */}
+            <div className="pt-2">
               <button
                 type="button"
-                disabled={!selectedAgentCode || isStartingCollection}
+                disabled={isStartingCollection}
                 onClick={handleStartCollection}
-                className="w-full py-4 px-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-xl shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full py-7 sm:py-8 px-6 rounded-3xl text-xl sm:text-2xl font-black text-white bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] hover:from-[#059669] hover:to-[#047857] shadow-2xl shadow-[#10B981]/40 active:scale-[0.97] transition-all flex flex-col items-center justify-center gap-2 group border border-[#10B981]/60"
               >
-                <Play className="w-5 h-5 fill-white" />
-                <span>
-                  {isStartingCollection
-                    ? 'Iniciando sensores...'
-                    : selectedAgentCode
-                      ? 'Iniciar Coleta em Campo'
-                      : 'Selecione uma Categoria'}
-                </span>
+                <div className="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play className="w-7 h-7 fill-white translate-x-0.5" />
+                </div>
+                <div className="text-center">
+                  <span className="tracking-tight block">
+                    {isStartingCollection ? 'Iniciando Sensores...' : 'Iniciar Coleta'}
+                  </span>
+                  <span className="text-[11px] font-normal text-white/80 block mt-0.5 font-sans">
+                    Zero-touch • Aceleração vertical Z e Motor DSP
+                  </span>
+                </div>
               </button>
+            </div>
 
-              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] px-1">
-                <span>Wake Lock automático (tela acesa)</span>
+            {/* Informações de Apoio Discretas (Posição Memorizada + Wake Lock) */}
+            <div className="p-3 rounded-2xl bg-[#0A1128]/70 border border-[#1A2A5A] flex items-center justify-between text-xs text-[#94A3B8]">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                <span>
+                  Posição:{' '}
+                  <strong className="text-white">
+                    {phonePosition === 'painel' ? 'Suporte do Painel' : 'Bolso / Mochila'}
+                  </strong>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-[#10B981] font-mono">
+                  {validationStatus === 'validating' ? 'Sensores: verificando...' : 'Sensores ✓'}
+                </span>
                 <button
                   type="button"
-                  onClick={handleResetAuthorization}
-                  className="hover:text-white underline underline-offset-2"
+                  onClick={() => setShowConfigDrawer(true)}
+                  className="text-[#38BDF8] hover:text-white underline underline-offset-2 text-[11px]"
                 >
-                  Voltar para tela 1
+                  Ajustar
                 </button>
               </div>
+            </div>
+
+            {/* Contexto LGPD em Uma Linha */}
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#64748B] text-center pt-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+              <span>
+                LGPD: Sonda estritamente inercial. Sem fotos, placas ou dados de condutores.
+              </span>
             </div>
           </div>
         )}
 
         {/* =========================================================================
-            TELA ATIVA DE COLETA MINIMALISTA (Operação em movimento)
+            CENÁRIO C: MONITORAMENTO EM MOVIMENTO / COLETA ATIVA
+            Cronômetro Gigante, Wake Lock Ativo, Resumo Curto ao Encerrar
            ========================================================================= */}
         {isSessionActive && (
           <div className="space-y-4 animate-in fade-in duration-200">
@@ -1139,8 +1064,8 @@ export default function ModoCampo() {
                   </span>
                 </div>
                 <p className="text-[11px] text-[#CBD5E1]">
-                  Navegadores suspendem sensores inerciais fora do foco. A fila offline mantém 100%
-                  dos registros seguros.
+                  Navegadores suspendem sensores fora de foco. A fila offline mantém 100% dos dados
+                  preservados.
                 </p>
                 <button
                   type="button"
@@ -1160,27 +1085,23 @@ export default function ModoCampo() {
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                   style={{
-                    backgroundColor: `${selectedAgentOption?.color ?? '#3B82F6'}20`,
-                    color: selectedAgentOption?.color ?? '#3B82F6',
+                    backgroundColor: `${selectedAgentOption.color}20`,
+                    color: selectedAgentOption.color,
                   }}
                 >
-                  {selectedAgentOption ? (
-                    <selectedAgentOption.icon className="w-4 h-4" />
-                  ) : (
-                    <Car className="w-4 h-4" />
-                  )}
+                  <selectedAgentOption.icon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <span className="text-[9px] text-[#94A3B8] uppercase block font-semibold">
-                    Agente
+                    Agente Ativo
                   </span>
                   <span className="font-bold text-[11px] text-white truncate block">
-                    {selectedAgentOption?.label ?? 'Veículo Leve'}
+                    {selectedAgentOption.label}
                   </span>
                 </div>
               </div>
 
-              {/* Wake Lock Controller */}
+              {/* Travar Tela Acesa (Wake Lock) */}
               <button
                 type="button"
                 onClick={toggleWakeLock}
@@ -1204,9 +1125,8 @@ export default function ModoCampo() {
               </button>
             </div>
 
-            {/* Mostrador Principal Minimalista (Grandes Números de Relance) */}
+            {/* Mostrador Principal: Cronômetro Central Gigante */}
             <div className="p-6 rounded-3xl bg-[#0A1128] border-2 border-[#1A2A5A] text-center space-y-4 shadow-2xl">
-              {/* Status Header */}
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5">
                   <span
@@ -1227,16 +1147,15 @@ export default function ModoCampo() {
                         ? 'Coletando em Movimento'
                         : isPaused
                           ? 'Sessão Pausada'
-                          : 'Sessão Finalizada'}
+                          : 'Sessão Concluída'}
                   </span>
                 </div>
 
                 <span className="font-mono text-[11px] text-[#94A3B8]">
-                  {samplingRateHz} Hz • Motor ORBIS DSP
+                  {samplingRateHz} Hz • Motor DSP
                 </span>
               </div>
 
-              {/* Cronômetro Central Gigante */}
               <div>
                 <span className="text-[10px] uppercase font-mono tracking-wider text-[#94A3B8] block mb-1">
                   Tempo Decorrido
@@ -1246,7 +1165,7 @@ export default function ModoCampo() {
                 </div>
               </div>
 
-              {/* 3 Métricas Críticas: Distância, Anomalias e Aceleração Z */}
+              {/* 3 Métricas Críticas de Campo */}
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1A2A5A]">
                 <div className="p-2.5 rounded-xl bg-[#101B3A]">
                   <span className="text-[10px] text-[#94A3B8] block">Distância Est.</span>
@@ -1272,7 +1191,7 @@ export default function ModoCampo() {
                 </div>
               </div>
 
-              {/* Barra de Status Compacta: Janelas Agregadas + Fila Offline */}
+              {/* Barra de Status Compacta: Janelas Agregadas + Fila */}
               <div className="flex items-center justify-between text-[11px] font-mono text-[#94A3B8] pt-1">
                 <span className="flex items-center gap-1">
                   <Activity className="w-3.5 h-3.5 text-[#3B82F6]" />
@@ -1294,7 +1213,7 @@ export default function ModoCampo() {
                 <div className="flex items-center justify-between pb-2 border-b border-[#1A2A5A]">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
-                    <h3 className="font-bold text-sm text-white">Sessão Concluída e Gravada</h3>
+                    <h3 className="font-bold text-sm text-white">Turno de Campo Concluído</h3>
                   </div>
                   <span className="text-[10px] font-mono uppercase bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded border border-[#10B981]/40 font-bold">
                     {sessionSummary.indiceAlvo}
@@ -1309,7 +1228,7 @@ export default function ModoCampo() {
                     </span>
                   </div>
                   <div className="p-2 rounded-lg bg-[#0A1128]">
-                    <span className="text-[10px] text-[#94A3B8] block">Pico Vertical</span>
+                    <span className="text-[10px] text-[#94A3B8] block">Pico Vertical Z</span>
                     <span className="font-mono font-bold text-sm text-[#EF4444]">
                       {sessionSummary.peakG.toFixed(2)}g
                     </span>
@@ -1320,17 +1239,18 @@ export default function ModoCampo() {
                   <button
                     type="button"
                     onClick={() => {
-                      setCurrentScreen(2)
+                      // Reiniciar estado pronto para nova coleta imediata
+                      handleStartCollection()
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-[#0A1128] border border-[#1A2A5A] text-xs font-semibold text-white flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-xs font-bold text-white flex items-center justify-center gap-1.5 shadow-md"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Nova Coleta</span>
+                    <span>Iniciar Novo Trecho</span>
                   </button>
 
                   <Link
                     to="/cockpit"
-                    className="flex-1 py-2.5 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-xs font-bold text-white flex items-center justify-center gap-1.5 shadow-md shadow-[#3B82F6]/20"
+                    className="flex-1 py-2.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] hover:bg-[#1E293B] text-xs font-bold text-white flex items-center justify-center gap-1.5"
                   >
                     <span>Ver no Cockpit</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -1339,7 +1259,7 @@ export default function ModoCampo() {
               </div>
             )}
 
-            {/* BOTÕES DE CONTROLE GIGANTES (VERDE / VERMELHO / PAUSAR) */}
+            {/* BOTÕES DE CONTROLE GIGANTES (Pausar / Encerrar) */}
             <div className="pt-2 space-y-2">
               {isCollecting && (
                 <div className="grid grid-cols-2 gap-2">
@@ -1384,30 +1304,202 @@ export default function ModoCampo() {
                   </button>
                 </div>
               )}
-
-              {status === 'stopped' && (
-                <button
-                  type="button"
-                  onClick={handleStartCollection}
-                  className="w-full py-4 px-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-xl shadow-[#10B981]/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                >
-                  <Play className="w-5 h-5 fill-white" />
-                  <span>Iniciar Nova Coleta</span>
-                </button>
-              )}
             </div>
           </div>
         )}
       </main>
 
+      {/* =========================================================================
+          DRAWER / MODAL: SELETOR RÁPIDO DE AGENTE EM 1 TOQUE
+         ========================================================================= */}
+      {isAgentSelectorOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-[#0A1128] border-t sm:border border-[#1A2A5A] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
+              <div>
+                <h3 className="font-black text-base text-white">Trocar Categoria do Agente</h3>
+                <p className="text-xs text-[#94A3B8]">Toque em 1 categoria para definir e salvar</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAgentSelectorOpen(false)}
+                className="p-1.5 rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1">
+              {AGENT_OPTIONS.map((opt) => {
+                const Icon = opt.icon
+                const isSelected = selectedAgentCode === opt.code
+                return (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => handleSelectAgent(opt.code)}
+                    className={`w-full p-3 rounded-2xl border text-left transition-all flex items-start gap-3 active:scale-[0.98] ${
+                      isSelected
+                        ? 'bg-[#101B3A] border-2 shadow-lg'
+                        : 'bg-[#070D1F] border-[#1A2A5A] hover:border-[#3B82F6]/50'
+                    }`}
+                    style={{
+                      borderColor: isSelected ? opt.color : undefined,
+                      boxShadow: isSelected ? `0 8px 20px -4px ${opt.color}33` : undefined,
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                      style={{
+                        backgroundColor: `${opt.color}20`,
+                        borderColor: `${opt.color}60`,
+                        color: opt.color,
+                      }}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-bold text-sm text-white truncate">{opt.label}</span>
+                        <span
+                          className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded border font-semibold shrink-0"
+                          style={{
+                            backgroundColor: `${opt.color}15`,
+                            color: opt.color,
+                            borderColor: `${opt.color}40`,
+                          }}
+                        >
+                          {opt.badgeText}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#CBD5E1] font-medium leading-tight mt-0.5">
+                        {opt.sublabel}
+                      </p>
+                      <p className="text-[10px] text-[#94A3B8] leading-relaxed mt-1 line-clamp-2">
+                        {opt.description}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 self-center">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? 'border-white' : 'border-[#475569]'
+                        }`}
+                        style={{
+                          backgroundColor: isSelected ? opt.color : 'transparent',
+                        }}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          DRAWER / MODAL: CONFIGURAÇÃO RÁPIDA (POSIÇÃO DO APARELHO E SENSORES)
+         ========================================================================= */}
+      {showConfigDrawer && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-[#0A1128] border-t sm:border border-[#1A2A5A] rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1A2A5A]">
+              <div>
+                <h3 className="font-black text-base text-white">Preferências do Aparelho</h3>
+                <p className="text-xs text-[#94A3B8]">
+                  Configurado uma vez, memorizado para sempre
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowConfigDrawer(false)}
+                className="p-1.5 rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Posição do Aparelho */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white block">
+                Acoplamento Mecânico do Smartphone:
+              </label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => handleUpdatePosition('painel')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    phonePosition === 'painel'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md'
+                      : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                  }`}
+                >
+                  <span className="font-bold text-white block">Suporte do Painel</span>
+                  <span className="text-[10px] text-[#CBD5E1] block mt-0.5">
+                    Acoplamento direto ao chassi (ideal)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleUpdatePosition('bolso_outro')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    phonePosition === 'bolso_outro'
+                      ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md'
+                      : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
+                  }`}
+                >
+                  <span className="font-bold text-white block">Bolso / Mochila</span>
+                  <span className="text-[10px] text-[#CBD5E1] block mt-0.5">
+                    Filtro biomecânico de atenuação
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sensores e Verificação */}
+            <div className="p-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex items-center justify-between text-xs">
+              <div>
+                <span className="font-bold text-white block">Liberação de Sensores</span>
+                <span className="text-[11px] text-[#94A3B8]">
+                  {deviceAuthorized ? 'Aparelho liberado ✓' : 'Aguardando validação'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfigDrawer(false)
+                  setShowUnlockScreen(true)
+                }}
+                className="py-1.5 px-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] text-[#38BDF8] hover:text-white font-semibold text-xs"
+              >
+                Instruções ⋮
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowConfigDrawer(false)}
+              className="w-full py-3 rounded-xl bg-[#3B82F6] text-white text-xs font-bold"
+            >
+              Concluir
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Footer Fixo com Informações Institucionais e LGPD */}
       <footer className="bg-[#0A1128]/95 border-t border-[#1A2A5A] px-4 py-2.5 text-center text-[10px] text-[#94A3B8] flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
-          <span>Classificação por categoria • Sem identificação de veículos ou condutores</span>
+          <span>Fator K auditável • Sem rastreio nominal ou de placas</span>
         </div>
         <Link to="/cockpit" className="text-[#3B82F6] hover:underline font-semibold">
-          Abrir Cockpit
+          Cockpit
         </Link>
       </footer>
     </div>

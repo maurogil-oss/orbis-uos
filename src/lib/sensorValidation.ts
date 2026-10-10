@@ -28,7 +28,7 @@ export interface SensorValidationResult {
  * como ativo se amostras reais chegarem com dados inerciais mensuráveis.
  */
 export function validateRealMotionSensors(
-  timeoutMs: number = 2200,
+  timeoutMs: number = 2000,
   minSamples: number = 3,
   onProgress?: (progress: SensorValidationProgress) => void,
 ): Promise<SensorValidationResult> {
@@ -96,10 +96,18 @@ export function validateRealMotionSensors(
       motionCount++
       notifyProgress()
 
-      // Se já coletamos amostras com dados reais, podemos antecipar a liberação
-      // após pelo menos minSamples e pelo menos 1.2s de verificação para garantir cadência contínua
-      if (hasAccelerationData && motionCount >= minSamples && orientationCount >= 1) {
-        // Deixa fluir até o timeout ou pelo menos 1.2s para garantir estabilidade
+      // Se já coletamos amostras com aceleração real consistente e pelo menos minSamples,
+      // podemos antecipar a liberação rápida para não travar o fluxo
+      if (
+        hasAccelerationData &&
+        motionCount >= minSamples &&
+        (motionCount >= 5 || orientationCount >= 1)
+      ) {
+        finish({
+          active: true,
+          samplesReceived: motionCount + orientationCount,
+        })
+        return
       }
     }
 

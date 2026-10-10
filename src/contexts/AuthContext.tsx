@@ -68,8 +68,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       syncAuthUser()
     })
 
+    // Persistência contínua para ponta de campo: renovação silenciosa de token
+    // Se o token estiver válido no authStore, renova automaticamente no boot e periodicamente
+    // sem exigir que o operador de campo faça novo login manual no início de cada turno
+    const silentRefreshAuth = async () => {
+      if (pb.authStore.isValid && pb.authStore.token) {
+        try {
+          await pb.collection('users').authRefresh()
+          syncAuthUser()
+        } catch {
+          // Se o refresh falhar offline, a sessão local salva continua ativa no authStore
+        }
+      }
+    }
+
+    // Refresh silencioso inicial
+    silentRefreshAuth()
+
+    // Intervalo de verificação a cada 4 horas para manter o token renovado por longo prazo
+    const refreshTimer = setInterval(silentRefreshAuth, 4 * 60 * 60 * 1000)
+
+    // Também renovar silenciosamente ao retomar a visibilidade da página ou reconectar à internet
+    const handleOnlineOrVisible = () => {
+      if (document.visibilityState === 'visible' && navigator.onLine) {
+        silentRefreshAuth()
+      }
+    }
+
+    window.addEventListener('online', handleOnlineOrVisible)
+    document.addEventListener('visibilitychange', handleOnlineOrVisible)
+
     return () => {
       unsubscribe()
+      clearInterval(refreshTimer)
+      window.removeEventListener('online', handleOnlineOrVisible)
+      document.removeEventListener('visibilitychange', handleOnlineOrVisible)
     }
   }, [])
 

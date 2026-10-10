@@ -16,7 +16,7 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react'
-import { pb } from '@/lib/pocketbase/client'
+import pb from '@/lib/pocketbase/client'
 import { SegmentReadingRecord, AgentTaxonomyCode } from '@/services/roadSegments'
 import { RoadEventRecord } from '@/services/roadEvents'
 import { FieldSessionRecord } from '@/services/fatorKCalibration'
