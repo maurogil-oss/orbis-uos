@@ -95,7 +95,6 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
             infraestrutura semafórica existente, ERPs municipais e frotas de transporte coletivo.
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {architectures.map((item) => {
             const Icon = item.icon
@@ -115,7 +114,7 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
                   </div>
 
                   <div>
-                    <span className="text-xs uppercase tracking-wider text-[#94A3B8] font-semibold block">
+                    <span className="text-xs font-semibold text-[#CBD5E1] block">
                       {item.category}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-[#F8FAFC] tracking-tight mt-0.5">
@@ -127,7 +126,7 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
                 </div>
 
                 <div className="pt-4 border-t border-[#1A2A5A]/60">
-                  <span className="text-xs uppercase font-semibold text-[#94A3B8] block mb-2">
+                  <span className="text-xs font-semibold text-[#CBD5E1] block mb-2">
                     Protocolos e Padrões Suportados:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
@@ -145,17 +144,16 @@ export function IntegrationArchitecture({ selectedTier }: IntegrationArchitectur
             )
           })}
         </div>
-
         {/* Nota Institucional de Posicionamento Arquitetural */}
-        <div className="p-4 rounded-xl bg-[#101B3A]/40 border border-[#1A2A5A] flex items-center gap-3 text-xs text-[#94A3B8]">
+        <div className="p-4 rounded-xl bg-[#101B3A]/60 border border-[#1A2A5A] flex items-center gap-3 text-xs text-[#CBD5E1]">
           <ShieldCheck className="w-5 h-5 text-[#10B981] shrink-0" />
           <span>
-            <b>Posicionamento de Engenharia:</b> O ORBIS.UOS produz insumos de decisão e não requer
-            a substituição de controladores de tráfego, softwares de zeladoria ou bilhetagem
-            eletrônica. A integração com controladores semafóricos opera mediante parceria técnica
-            com os fornecedores e barramentos seguros de dados.
+            <strong>Posicionamento de Engenharia:</strong> O ORBIS.UOS produz insumos de decisão e
+            não requer a substituição de controladores de tráfego, softwares de zeladoria ou
+            bilhetagem eletrônica. A integração com controladores semafóricos opera mediante
+            parceria técnica com os fornecedores e barramentos seguros de dados.
           </span>
-        </div>
+        </div>{' '}
       </div>
     </section>
   )

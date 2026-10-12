@@ -25,7 +25,7 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 224 45% 18%;
-    --muted-foreground: 215 20% 65%; /* #94A3B8 */
+    --muted-foreground: 215 25% 75%; /* #A8B8CC - elevado para WCAG AA sobre navy #0A1128 */
 
     --accent: 217 91% 60%;
     --accent-foreground: 210 40% 98%;
@@ -75,10 +75,15 @@
     scroll-margin-top: var(--scroll-offset);
   }
 
-  /* Custom focus states */
+  /* Custom focus states com contraste nítido e consistente */
   *:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 4px;
+    outline: 2px solid #60a5fa;
+    outline-offset: 3px;
+  }
+
+  /* Melhoria de contraste para textos muted em elementos gerais */
+  .text-muted-contrast {
+    color: #cbd5e1;
   }
 
   /* NEVER REMOVE THIS */

@@ -62,7 +62,7 @@ export function Benefits() {
   ]
 
   const scrollToPilot = () => {
-    const el = document.getElementById('piloto')
+    const el = document.getElementById('manifesto') || document.getElementById('piloto')
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' })
     }
@@ -140,25 +140,25 @@ export function Benefits() {
           })}
         </div>
 
-        {/* CTA banner below cards */}
+        {/* Banner de Direcionamento por Intenção */}
         <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-[#101B3A] via-[#1A2A5A] to-[#101B3A] border border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div className="space-y-1">
             <h4 className="text-lg font-bold text-[#F8FAFC] flex items-center justify-center sm:justify-start gap-2">
               <TrendingDown className="w-5 h-5 text-[#10B981]" />
               Validação Institucional: Piloto CPSI (LC 182/2021)
             </h4>
-            <p className="text-xs sm:text-sm text-[#94A3B8]">
-              Implante em corredores prioritários do seu município sem obra, sem custo de entrada e
-              comprove a eficiência fiscal antes de qualquer expansão contratual.
+            <p className="text-xs sm:text-sm text-[#CBD5E1]">
+              Valide a telemetria em corredores prioritários do município sem obras ou aquisição de
+              hardware.
             </p>
           </div>
           <button
             type="button"
             onClick={scrollToPilot}
-            className="shrink-0 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all flex items-center gap-2"
+            className="shrink-0 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
           >
             <Clock className="w-4 h-4" />
-            Avaliar a sua cidade
+            <span>Solicitar Piloto CPSI</span>
           </button>
         </div>
       </div>

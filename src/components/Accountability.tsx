@@ -247,7 +247,7 @@ export function Accountability() {
             })}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#94A3B8] relative z-10">
+          <div className="mt-8 pt-8 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#CBD5E1] relative z-10">
             <div className="flex items-center gap-2">
               <FileCheck2 className="w-4 h-4 text-[#10B981]" />
               <span>
@@ -258,9 +258,9 @@ export function Accountability() {
             <button
               type="button"
               onClick={scrollToManifesto}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#10B981] hover:text-[#34D399] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#10B981] hover:text-[#34D399] transition-colors focus-visible:ring-2 focus-visible:ring-[#10B981] rounded-md px-2 py-1"
             >
-              <span>Submeter Manifesto de Interesse Institucional</span>
+              <span>Submeter Manifesto de Interesse (Piloto)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

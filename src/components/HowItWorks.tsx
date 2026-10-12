@@ -50,7 +50,7 @@ export function HowItWorks() {
   ]
 
   const scrollToPilot = () => {
-    const el = document.getElementById('piloto')
+    const el = document.getElementById('manifesto') || document.getElementById('piloto')
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' })
     }
@@ -140,9 +140,9 @@ export function HowItWorks() {
           <button
             type="button"
             onClick={scrollToPilot}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#3B82F6] hover:text-[#60A5FA] transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#38BDF8] hover:text-[#60A5FA] transition-colors focus-visible:ring-2 focus-visible:ring-[#38BDF8] rounded-md px-3 py-1.5"
           >
-            <span>Deseja receber a minuta do Termo de Referência do CPSI para análise da PGM?</span>
+            <span>Solicitar minuta do Termo de Referência CPSI para a Procuradoria</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

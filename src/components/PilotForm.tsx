@@ -248,6 +248,7 @@ export function PilotForm() {
               {backendError && (
                 <div
                   role="alert"
+                  aria-live="polite"
                   className="mb-6 p-4 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-sm flex items-start justify-between gap-3 animate-fade-in"
                 >
                   <div className="flex items-start gap-2.5">
@@ -276,7 +277,10 @@ export function PilotForm() {
 
               {/* Form or Success State */}
               {isSuccess ? (
-                <div className="py-12 px-4 text-center space-y-6 animate-fade-in">
+                <div
+                  aria-live="polite"
+                  className="py-12 px-4 text-center space-y-6 animate-fade-in"
+                >
                   <div className="w-20 h-20 rounded-full bg-[#10B981]/15 border-2 border-[#10B981] mx-auto flex items-center justify-center text-[#10B981] shadow-lg shadow-[#10B981]/20">
                     <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
                   </div>

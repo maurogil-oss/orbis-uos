@@ -179,7 +179,11 @@ export function ExpressDiagnostic() {
         {/* Card do Formulário ou Resultado */}
         <div className="bg-[#101B3A] border border-[#1A2A5A] rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
           {backendError && (
-            <div className="mb-6 p-4 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-sm flex items-center gap-3">
+            <div
+              role="alert"
+              aria-live="polite"
+              className="mb-6 p-4 rounded-xl bg-[#EF4444]/15 border border-[#EF4444]/40 text-[#EF4444] text-sm flex items-center gap-3"
+            >
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{backendError}</span>
             </div>
@@ -187,7 +191,7 @@ export function ExpressDiagnostic() {
 
           {result ? (
             /* TELA DE RESULTADO DO PRÉ-DIAGNÓSTICO PROVISÓRIO */
-            <div className="space-y-8 animate-fade-in">
+            <div aria-live="polite" className="space-y-8 animate-fade-in">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#1A2A5A]">
                 <div>
                   <span className="text-xs uppercase bg-[#10B981]/20 text-[#10B981] px-2.5 py-0.5 rounded border border-[#10B981]/40 font-semibold">

@@ -151,9 +151,9 @@ export function Comparison() {
               <button
                 type="button"
                 onClick={scrollToPilot}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#3B82F6]/25"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#3B82F6]/25 focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
               >
-                Avaliar a sua cidade
+                Solicitar Piloto CPSI
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

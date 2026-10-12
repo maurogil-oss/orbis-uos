@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Hero, CityTier } from '@/components/Hero'
 import { TrustStrip } from '@/components/TrustStrip'
 import { Accountability } from '@/components/Accountability'
-import { TechnicalAssuranceSection } from '@/components/TechnicalAssuranceSection'
 import { Simulator } from '@/components/Simulator'
 import { Benefits } from '@/components/Benefits'
 import { IntegrationArchitecture } from '@/components/IntegrationArchitecture'
@@ -28,46 +27,43 @@ export default function Index() {
 
   return (
     <div className="w-full flex flex-col">
-      {/* 1. Hero Section com Narrativa de Gestão Pública, Responsabilidade e Dados Vivos */}
+      {/* 1. Hero Section com Narrativa Clara de Gestão Pública, Seletor de Porte e CTAs por Intenção */}
       <Hero selectedTier={selectedTier} onSelectTier={setSelectedTier} liveMetrics={liveMetrics} />
 
-      {/* 2. Trust Strip (Marquee com conformidade técnica, legal e padrões institucionais) */}
+      {/* 2. Trust Strip (Marquee enxuto de conformidade técnica, legal e padrões) */}
       <TrustStrip />
 
-      {/* 3. Nova Seção de Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}
-      <Accountability />
-
-      {/* 3.1. Garantia Técnica & Transição POC/Produção (Banners preservados do Hero) */}
-      <TechnicalAssuranceSection />
-
-      {/* 4. Simulator com Nova Moldura Institucional (Recursos Recuperados & Orçamento) */}
+      {/* 3. Simulador de Frota e Quilometragem (Produto real: telemetria por smartphone vs métodos tradicionais) */}
       <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 5. Onda 2 por Porte: Módulos Green Light Bridge e Meio-fio & Vagas para Cidade Média */}
+      {/* 4. Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}
+      <Accountability />
+
+      {/* 5. Onda 2 por Porte: Módulos Green Light Bridge e Meio-fio & Vagas */}
       <Onda2Modules selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 6. Benefits (4 pilares estendidos: Motor ORBIS DSP, Green Light, Art. 320 CTB, LGPD) */}
+      {/* 6. Benefícios & Pilares do Motor ORBIS DSP */}
       <Benefits />
 
-      {/* 7. Arquitetura de Integração Aberta (ERPs públicos, Green Light Bridge, GTFS, Semáforos) */}
-      <IntegrationArchitecture selectedTier={selectedTier} />
-
-      {/* 7. Comparativo (Modelo Convencional Reativo vs. ORBIS.UOS Governança Preditiva) */}
+      {/* 7. Comparativo: Modelo Convencional Reativo vs. Governança Preditiva ORBIS.UOS */}
       <Comparison />
 
-      {/* 8. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
+      {/* 8. Arquitetura de Integração Aberta (ERPs públicos, GTFS, semáforos) */}
+      <IntegrationArchitecture selectedTier={selectedTier} />
+
+      {/* 9. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
       <HowItWorks />
 
-      {/* 9. FAQ (Dúvidas dos Gestores, Secretários e Procuradorias) */}
+      {/* 10. FAQ (Dúvidas de Gestores e Procuradorias) */}
       <FAQ />
 
-      {/* 10. Diagnóstico Express (Pré-diagnóstico Provisório e dimensionamento CPSI) */}
+      {/* 11. Diagnóstico Express (Dimensionamento preliminar em 5 minutos) */}
       <ExpressDiagnostic />
 
-      {/* 11. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) — Conversão B2G */}
+      {/* 12. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) — Conversão B2G */}
       <PilotForm />
 
-      {/* 12. Fale Conosco — Canal Geral Institucional (Dúvidas, Imprensa, Parcerias) */}
+      {/* 13. Fale Conosco — Canal Geral Institucional (Dúvidas, Imprensa, Parcerias) */}
       <ContactSection />
     </div>
   )
