@@ -406,14 +406,25 @@ export function Simulator({ selectedTier, onSelectTier }: SimulatorProps) {
                       </span>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={scrollToPilot}
-                    className="shrink-0 px-4 py-2.5 rounded-lg font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-95 transition-all shadow-md shadow-[#3B82F6]/30 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
-                  >
-                    <span>Solicitar Piloto</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <Link
+                      to="/demo#diagnostico"
+                      className="px-3 py-2 rounded-lg font-bold text-xs text-[#CBD5E1] hover:text-white bg-[#0A1128] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#38BDF8] transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#38BDF8]"
+                      title="Abrir formulário de Diagnóstico Express preliminar (5 minutos)"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#38BDF8]" />
+                      <span>Diagnóstico Express</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={scrollToPilot}
+                      className="px-4 py-2.5 rounded-lg font-bold text-xs text-white bg-[#3B82F6] hover:bg-[#2563EB] active:scale-95 transition-all shadow-md shadow-[#3B82F6]/30 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
+                    >
+                      <span>Solicitar Piloto</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

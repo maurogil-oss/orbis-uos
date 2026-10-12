@@ -80,11 +80,18 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/#prestacao-contas"
-                  onClick={(e) => handleAnchorClick(e, '#prestacao-contas')}
-                  className="hover:text-[#F8FAFC] transition-colors inline-block"
+                  to="/plataforma"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#38BDF8] font-semibold"
                 >
-                  Accountability & Sociedade Atendida
+                  Plataforma & Arquitetura (/plataforma)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#CBD5E1] font-semibold"
+                >
+                  Perguntas Frequentes (/faq)
                 </Link>
               </li>
               <li>
@@ -293,6 +300,10 @@ export function Footer() {
             <span className="text-[#1A2A5A]">•</span>
             <Link to="/sandbox" className="hover:text-[#F8FAFC] transition-colors text-[#60A5FA]">
               Sandbox
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link to="/faq" className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]">
+              FAQ
             </Link>
           </div>
         </div>

@@ -1,17 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Hero, CityTier } from '@/components/Hero'
 import { TrustStrip } from '@/components/TrustStrip'
-import { Accountability } from '@/components/Accountability'
 import { Simulator } from '@/components/Simulator'
-import { Benefits } from '@/components/Benefits'
-import { IntegrationArchitecture } from '@/components/IntegrationArchitecture'
-import { Comparison } from '@/components/Comparison'
 import { HowItWorks } from '@/components/HowItWorks'
-import { FAQ } from '@/components/FAQ'
 import { PilotForm } from '@/components/PilotForm'
-import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
-import { Onda2Modules } from '@/components/Onda2Modules'
-import { ContactSection } from '@/components/ContactSection'
 import { getPlatformLiveMetrics, PlatformLiveMetrics } from '@/services/liveMetrics'
 
 export default function Index() {
@@ -26,45 +18,23 @@ export default function Index() {
   }, [])
 
   return (
-    <div className="w-full flex flex-col">
-      {/* 1. Hero Section com Narrativa Clara de Gestão Pública, Seletor de Porte e CTAs por Intenção */}
+    <main id="main-content" className="w-full flex flex-col">
+      {/* 1. Hero com seletor de porte (Pequena/Média/Grande) e legenda dinâmica de frota recomendada/escopo */}
       <Hero selectedTier={selectedTier} onSelectTier={setSelectedTier} liveMetrics={liveMetrics} />
 
-      {/* 2. Trust Strip (Marquee enxuto de conformidade técnica, legal e padrões) */}
+      {/* 2. TrustStrip (Conformidade legal, técnica e padrões de governança) */}
       <TrustStrip />
 
-      {/* 3. Simulador de Frota e Quilometragem (Produto real: telemetria por smartphone vs métodos tradicionais) */}
+      {/* 3. Simulador de Frota e Quilometragem (intocado em modelo e textos, com botão de Diagnóstico Express) */}
       <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
 
-      {/* 4. Accountability: Para Quem Prestamos Contas & Sociedade Atendida */}
-      <Accountability />
-
-      {/* 5. Onda 2 por Porte: Módulos Green Light Bridge e Meio-fio & Vagas */}
-      <Onda2Modules selectedTier={selectedTier} onSelectTier={setSelectedTier} />
-
-      {/* 6. Benefícios & Pilares do Motor ORBIS DSP */}
-      <Benefits />
-
-      {/* 7. Comparativo: Modelo Convencional Reativo vs. Governança Preditiva ORBIS.UOS */}
-      <Comparison />
-
-      {/* 8. Arquitetura de Integração Aberta (ERPs públicos, GTFS, semáforos) */}
-      <IntegrationArchitecture selectedTier={selectedTier} />
-
-      {/* 9. Como Contratar (Jornada CPSI LC 182/2021 em 3 passos) */}
+      {/* 4. Como Contratar (Jornada CPSI LC 182/2021 em passos para procuradorias e gestores) */}
       <HowItWorks />
 
-      {/* 10. FAQ (Dúvidas de Gestores e Procuradorias) */}
-      <FAQ />
-
-      {/* 11. Diagnóstico Express (Dimensionamento preliminar em 5 minutos) */}
-      <ExpressDiagnostic />
-
-      {/* 12. Manifesto de Interesse Institucional (Piloto CPSI LC 182/2021) — Conversão B2G */}
+      {/* 5. Manifesto de Interesse como ÚNICO formulário de conversão da home (com bloco de contato geral integrado) */}
       <PilotForm />
 
-      {/* 13. Fale Conosco — Canal Geral Institucional (Dúvidas, Imprensa, Parcerias) */}
-      <ContactSection />
-    </div>
+      {/* 6. Rodapé é renderizado no Layout padrão da aplicação (src/components/Layout.tsx) */}
+    </main>
   )
 }

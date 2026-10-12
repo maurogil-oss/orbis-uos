@@ -22,6 +22,7 @@ import {
   HelpCircle,
   MessageSquare,
   Terminal,
+  Layers,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { OrbisLogo } from '@/components/OrbisLogo'
@@ -73,15 +74,29 @@ export function Navbar() {
     }
   }
 
-  // Links reunidos no menu institucional "Soluções" (incluindo Calibração Fator K)
+  // Links de aprofundamento reunidos no dropdown institucional "Recursos"
   const baseInstitutionalLinks = [
+    {
+      label: 'Plataforma & Arquitetura',
+      desc: 'Benefícios, comparativo, integrações e Onda 2',
+      href: '/plataforma',
+      icon: BookOpen,
+      badge: 'Completo',
+      highlight: true,
+    },
+    {
+      label: 'Perguntas Frequentes (FAQ)',
+      desc: 'Dúvidas de gestores, procuradorias e controle',
+      href: '/faq',
+      icon: HelpCircle,
+      badge: 'Base B2G',
+    },
     {
       label: 'Calibração Fator K',
       desc: 'Ajuste fino de sensores e telemetria veicular',
       href: '/cockpit/calibracao-fator-k',
       icon: SlidersHorizontal,
       badge: 'Algoritmo',
-      highlight: true,
     },
     {
       label: 'Governança & Evidências',
@@ -98,8 +113,8 @@ export function Navbar() {
       badge: '99,9% SLA',
     },
     {
-      label: 'Metodologia',
-      desc: 'Ciência de dados, IRI, Motor ORBIS DSP e k-anonimato',
+      label: 'Metodologia Científica',
+      desc: 'Ciência de dados, IRI, Motor ORBIS DSP e H3',
       href: '/metodologia',
       icon: BookOpen,
       badge: 'Científico',
@@ -144,7 +159,7 @@ export function Navbar() {
   // Homologação Dry-Run é rota operacional — apenas para usuários autenticados
   const institutionalMoreLinks = isAuthenticated
     ? [
-        ...baseInstitutionalLinks.slice(0, 5),
+        ...baseInstitutionalLinks.slice(0, 6),
         {
           label: 'Homologação Dry-Run',
           desc: 'Laudo oficial B2G e critérios de auditoria',
@@ -152,17 +167,17 @@ export function Navbar() {
           icon: CheckCircle2,
           badge: 'Laudo Oficial',
         },
-        ...baseInstitutionalLinks.slice(5),
+        ...baseInstitutionalLinks.slice(6),
       ]
     : baseInstitutionalLinks
 
   const governanceAnchors = [
-    { label: 'Accountability & Gestão', href: '/#prestacao-contas' },
-    { label: 'Pilares de Governança', href: '/#beneficios' },
-    { label: 'Marco Legal CPSI', href: '/#como-funciona' },
-    { label: 'Diagnóstico Express', href: '/#diagnostico-express' },
-    { label: 'Perguntas Frequentes (FAQ)', href: '/#faq' },
-    { label: 'Fale Conosco (Geral)', href: '/#contato' },
+    { label: 'Como Contratar (CPSI Passo a Passo)', href: '/#como-funciona' },
+    { label: 'Simulador de Frota & Economia', href: '/#simulador' },
+    { label: 'Manifesto de Interesse (Piloto)', href: '/#manifesto' },
+    { label: 'Perguntas Frequentes (/faq)', href: '/faq' },
+    { label: 'Arquitetura da Plataforma (/plataforma)', href: '/plataforma' },
+    { label: 'Canal Fale Conosco', href: '/#contato' },
   ]
 
   return (
@@ -190,27 +205,72 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Coluna 2: Menu de Navegação Central (Soluções, Simulador, Cockpit, Ver Demonstração)
-            CENTRALIZADO no eixo horizontal da tela (largura total do viewport),
-            usando posicionamento absoluto independente das larguras das colunas laterais.
+        {/* Coluna 2: Menu de Navegação Central Revisado pela Lógica de Intenção
+            Entradas essenciais: Simulador → Plataforma → Como Contratar → Recursos (Dropdown)
         */}
         <nav
-          className="hidden md:flex items-center justify-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0 absolute left-1/2 -translate-x-1/2 pointer-events-auto z-20"
+          className="hidden md:flex items-center justify-center gap-1 lg:gap-2 shrink-0 absolute left-1/2 -translate-x-1/2 pointer-events-auto z-20"
           aria-label="Navegação principal"
         >
-          {/* 1. Soluções (Dropdown com Calibração Fator K + Instrumentos B2G) */}
+          {/* 1. Intenção: Simulação de Frota e Economia */}
+          <a
+            href="/#simulador"
+            onClick={(e) => handleLinkClick(e, '/#simulador')}
+            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors shrink-0"
+            title="Simulador de Frota e Quilometragem"
+          >
+            Simulador
+          </a>
+
+          {/* 2. Intenção: Conhecer a Plataforma / Como funciona */}
+          <Link
+            to="/plataforma"
+            className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors shrink-0 ${
+              location.pathname === '/plataforma' || location.pathname === '/como-funciona'
+                ? 'text-white bg-[#101B3A] border border-[#1A2A5A]'
+                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
+            }`}
+            title="Plataforma, Arquitetura de Integração, Benefícios e Onda 2"
+          >
+            Plataforma
+          </Link>
+
+          {/* 3. Intenção: Como Contratar via CPSI LC 182/2021 */}
+          <a
+            href="/#como-funciona"
+            onClick={(e) => handleLinkClick(e, '/#como-funciona')}
+            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors shrink-0"
+            title="Jornada de Contratação CPSI LC 182/2021"
+          >
+            Como Contratar
+          </a>
+
+          {/* 4. Intenção: Base de Dúvidas / FAQ */}
+          <Link
+            to="/faq"
+            className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors shrink-0 ${
+              location.pathname === '/faq'
+                ? 'text-white bg-[#101B3A] border border-[#1A2A5A]'
+                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
+            }`}
+            title="Perguntas Frequentes de Gestores e Procuradorias"
+          >
+            FAQ
+          </Link>
+
+          {/* 5. Dropdown de Recursos Institucionais & Acessos Operacionais */}
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className={`text-xs font-semibold px-2 lg:px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] shrink-0 ${
+                className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] shrink-0 ${
                   dropdownOpen
                     ? 'bg-[#101B3A] text-white border border-[#3B82F6]/50'
                     : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60 border border-transparent'
                 }`}
-                aria-label="Menu de Soluções e recursos institucionais"
+                aria-label="Menu de recursos e documentação institucional"
               >
-                <span>Soluções</span>
+                <span>Recursos</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
                     dropdownOpen ? 'rotate-180 text-[#3B82F6]' : 'text-[#94A3B8]'
@@ -225,7 +285,7 @@ export function Navbar() {
               className="w-80 p-2 bg-[#0A1128]/98 backdrop-blur-xl border border-[#1A2A5A] rounded-xl shadow-2xl text-[#F8FAFC] z-50 animate-in fade-in-0 zoom-in-95 max-h-[calc(100vh-5rem)] overflow-y-auto"
             >
               <DropdownMenuLabel className="px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#94A3B8] flex items-center justify-between">
-                <span>Soluções & Instrumentos B2G</span>
+                <span>Instrumentos & Documentação B2G</span>
                 <span className="text-xs text-[#3B82F6] font-semibold">ORBIS.UOS</span>
               </DropdownMenuLabel>
 
@@ -233,7 +293,6 @@ export function Navbar() {
                 {institutionalMoreLinks.map((item) => {
                   const Icon = item.icon
                   const isActive = location.pathname === item.href
-                  const isFatorK = item.href === '/cockpit/calibracao-fator-k'
                   return (
                     <DropdownMenuItem
                       key={item.href}
@@ -244,38 +303,18 @@ export function Navbar() {
                         to={item.href}
                         onClick={() => setDropdownOpen(false)}
                         className={`flex items-start gap-2.5 w-full ${
-                          isActive
-                            ? 'bg-[#101B3A] text-white'
-                            : isFatorK
-                              ? 'bg-[#38BDF8]/10 border border-[#38BDF8]/20'
-                              : ''
+                          isActive ? 'bg-[#101B3A] text-white' : ''
                         }`}
                       >
-                        <div
-                          className={`p-1.5 rounded-md border shrink-0 mt-0.5 ${
-                            isFatorK
-                              ? 'bg-[#38BDF8]/20 border-[#38BDF8]/40 text-[#38BDF8]'
-                              : 'bg-[#101B3A] border-[#1A2A5A] text-[#60A5FA]'
-                          }`}
-                        >
+                        <div className="p-1.5 rounded-md border shrink-0 mt-0.5 bg-[#101B3A] border-[#1A2A5A] text-[#60A5FA]">
                           <Icon className="w-3.5 h-3.5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <span
-                              className={`text-xs font-semibold truncate ${
-                                isFatorK ? 'text-[#38BDF8]' : 'text-[#F8FAFC]'
-                              }`}
-                            >
+                            <span className="text-xs font-semibold truncate text-[#F8FAFC]">
                               {item.label}
                             </span>
-                            <span
-                              className={`text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium ${
-                                isFatorK
-                                  ? 'text-[#38BDF8] bg-[#38BDF8]/15 border-[#38BDF8]/30 font-semibold'
-                                  : 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25'
-                              }`}
-                            >
+                            <span className="text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25">
                               {item.badge}
                             </span>
                           </div>
@@ -292,77 +331,34 @@ export function Navbar() {
               <DropdownMenuSeparator className="my-1.5 bg-[#1A2A5A]" />
 
               <DropdownMenuLabel className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">
-                Navegação na Página Principal
+                Acessos Rápidos
               </DropdownMenuLabel>
 
-              <div className="grid grid-cols-1 gap-0.5">
-                {governanceAnchors.map((anc) => (
-                  <DropdownMenuItem
-                    key={anc.href}
-                    asChild
-                    className="cursor-pointer focus:bg-[#101B3A] focus:text-white rounded-md px-2.5 py-1 text-xs text-[#CBD5E1]"
-                  >
-                    <a
-                      href={anc.href}
-                      onClick={(e) => handleLinkClick(e, anc.href)}
-                      className="block hover:text-white"
-                    >
-                      {anc.label}
-                    </a>
-                  </DropdownMenuItem>
-                ))}
-              </div>
-
-              <DropdownMenuSeparator className="my-1.5 bg-[#1A2A5A]" />
-
-              {/* Acesso rápido Cidadão & Termos */}
-              <div className="px-2 py-1 flex items-center justify-between text-xs">
+              <div className="grid grid-cols-2 gap-1 p-1">
                 <Link
                   to="/cidadao"
                   onClick={() => setDropdownOpen(false)}
-                  className="text-[#10B981] hover:underline flex items-center gap-1 font-semibold"
+                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#10B981] hover:bg-[#101B3A] font-semibold"
                 >
                   <Users className="w-3.5 h-3.5" />
                   <span>Portal Cidadão</span>
                 </Link>
                 <Link
-                  to="/termos"
+                  to="/campo"
                   onClick={() => setDropdownOpen(false)}
-                  className="text-[#94A3B8] hover:text-[#38BDF8] transition-colors font-medium"
+                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#38BDF8] hover:bg-[#101B3A] font-semibold"
                 >
-                  Termos B2G
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Modo Campo</span>
                 </Link>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 2. Simulador */}
-          <a
-            href="/#simulador"
-            onClick={(e) => handleLinkClick(e, '/#simulador')}
-            className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2 lg:px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors shrink-0"
-          >
-            Simulador
-          </a>
-
-          {/* 3. Cockpit */}
-          <Link
-            to="/cockpit"
-            className={`text-xs font-semibold px-2 lg:px-2.5 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shrink-0 ${
-              location.pathname === '/cockpit'
-                ? 'text-white bg-[#101B3A] border border-[#1A2A5A]'
-                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
-            }`}
-            title="Cockpit Municipal de Gestão Viária"
-          >
-            <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-            <span>Cockpit</span>
-          </Link>
-
-          {/* 4. Ver Demonstração */}
+          {/* 6. Ver Demonstração (CTA de tour autoguiado) */}
           <Link
             to="/demo"
-            className={`text-xs font-bold px-2 lg:px-2.5 xl:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm shrink-0 ${
+            className={`text-xs font-bold px-2.5 lg:px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm shrink-0 ${
               location.pathname === '/demo'
                 ? 'bg-[#3B82F6] text-white shadow-[#3B82F6]/30 ring-1 ring-[#60A5FA]'
                 : 'bg-[#3B82F6]/15 hover:bg-[#3B82F6]/25 border border-[#3B82F6]/40 text-[#60A5FA] hover:text-white shadow-[#3B82F6]/20'
@@ -370,27 +366,27 @@ export function Navbar() {
             title="Tour Autoguiado B2G — Modo Demonstração Orientada"
           >
             <Compass className="w-3.5 h-3.5 text-[#38BDF8]" />
-            <span className="whitespace-nowrap">Ver Demonstração</span>
+            <span className="whitespace-nowrap">Demonstração</span>
           </Link>
         </nav>
 
         {/* Coluna 3: Grupo de Ações Alinhado à Direita no fluxo normal
-            Itens: 5. Acesso -> 6. Solicitar Piloto (CTA) -> 7. Fale Conosco
-            Mobile: botão Hamburger
+            Itens: Acesso (Login/Cockpit) + Piloto (CTA Principal de Conversão)
+            Mobile: botão Hamburger (alvo mínimo 44x44px)
         */}
         <div className="flex items-center justify-end gap-1.5 lg:gap-2.5 shrink-0 z-10">
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-1.5 lg:gap-2 xl:gap-2.5 shrink-0">
-            {/* 5. Acesso (rótulo curto "Acesso", mesmo quando autenticado, conforme solicitado) */}
+            {/* Acesso (Cockpit / Login com rótulo curto e objetivo) */}
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5 shrink-0">
                 <Link
                   to="/cockpit"
-                  title={`Painel Institucional — ${user?.name || 'Acesso'}`}
+                  title={`Cockpit de Gestão Viária — ${user?.name || 'Acesso'}`}
                   className="inline-flex items-center gap-1 px-2 lg:px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all shrink-0"
                 >
                   <Lock className="w-3.5 h-3.5 text-[#10B981]" />
-                  <span>Acesso</span>
+                  <span>Cockpit</span>
                 </Link>
                 <button
                   type="button"
@@ -413,7 +409,7 @@ export function Navbar() {
               </Link>
             )}
 
-            {/* 6. Solicitar Piloto (Estilizado como BOTÃO DESTACADO / CTA Primário) */}
+            {/* Solicitar Piloto (CTA Primário de Conversão) */}
             <a
               href="/#manifesto"
               onClick={(e) => handleLinkClick(e, '/#manifesto')}
@@ -424,19 +420,9 @@ export function Navbar() {
               <span>Solicitar Piloto</span>
               <ArrowRight className="w-3 h-3 ml-1 text-white/70 shrink-0" />
             </a>
-
-            {/* 7. Fale Conosco (Item de menu ao lado do botão) */}
-            <a
-              href="/#contato"
-              onClick={(e) => handleLinkClick(e, '/#contato')}
-              className="text-xs font-semibold text-[#CBD5E1] hover:text-white px-2 lg:px-2.5 py-1.5 rounded-md hover:bg-[#101B3A]/60 transition-colors whitespace-nowrap shrink-0"
-              title="Fale Conosco — Contato Geral, Dúvidas e Imprensa"
-            >
-              Fale Conosco
-            </a>
           </div>
 
-          {/* Mobile Hamburger Toggle (exibido apenas em telas menores que md - alvo mínimo 44x44px) */}
+          {/* Mobile Hamburger Toggle (alvo de toque mínimo 44x44px garantido) */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -489,14 +475,83 @@ export function Navbar() {
               <ArrowRight className="w-4 h-4 text-white" />
             </Link>
 
-            {/* Seção 1: Menu Mobile na mesma hierarquia do cabeçalho */}
+            {/* Seção 1: Menu Mobile na mesma hierarquia de intenção */}
             <div className="space-y-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
-                Menu de Navegação
+                Navegação por Intenção
               </span>
 
-              {/* 1. Soluções com Dropdown / Acordeão expansível no mobile */}
-              <div className="rounded-xl border border-[#1A2A5A] bg-[#101B3A]/40 overflow-hidden">
+              {/* Grid 2x2 com as 4 intenções principais: Simulador, Plataforma, Como Contratar, FAQ */}
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href="/#simulador"
+                  onClick={(e) => handleLinkClick(e, '/#simulador')}
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#3B82F6]" />
+                  <span>Simulador</span>
+                </a>
+
+                <Link
+                  to="/plataforma"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-[#38BDF8]" />
+                  <span>Plataforma</span>
+                </Link>
+
+                <a
+                  href="/#como-funciona"
+                  onClick={(e) => handleLinkClick(e, '/#como-funciona')}
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>Como Contratar</span>
+                </a>
+
+                <Link
+                  to="/faq"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-[#F59E0B]" />
+                  <span>FAQ</span>
+                </Link>
+              </div>
+
+              {/* Acessos Operacionais: Cockpit, Modo Campo e Cidadão */}
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                <Link
+                  to="/cockpit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#10B981] transition-colors"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>Cockpit</span>
+                </Link>
+
+                <Link
+                  to="/campo"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#38BDF8] transition-colors"
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-[#38BDF8]" />
+                  <span>Campo</span>
+                </Link>
+
+                <Link
+                  to="/cidadao"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-[#10B981] hover:border-[#10B981] transition-colors"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Cidadão</span>
+                </Link>
+              </div>
+
+              {/* Recursos Expansíveis */}
+              <div className="rounded-xl border border-[#1A2A5A] bg-[#101B3A]/40 overflow-hidden mt-2">
                 <button
                   type="button"
                   onClick={() => setMobileSolucoesOpen(!mobileSolucoesOpen)}
@@ -504,8 +559,8 @@ export function Navbar() {
                   aria-expanded={mobileSolucoesOpen}
                 >
                   <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-[#3B82F6]" />
-                    <span>Soluções (inclui Fator K)</span>
+                    <Layers className="w-4 h-4 text-[#3B82F6]" />
+                    <span>Mais Recursos Institucionais</span>
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 text-[#94A3B8] transition-transform duration-200 ${
@@ -518,7 +573,6 @@ export function Navbar() {
                   <div className="p-2 border-t border-[#1A2A5A] bg-[#0A1128]/70 space-y-1 animate-in fade-in-0 duration-150">
                     {institutionalMoreLinks.map((item) => {
                       const Icon = item.icon
-                      const isFatorK = item.href === '/cockpit/calibracao-fator-k'
                       const isActive = location.pathname === item.href
                       return (
                         <Link
@@ -528,26 +582,14 @@ export function Navbar() {
                           className={`flex items-center justify-between min-h-[44px] text-xs font-medium p-2.5 rounded-lg transition-colors ${
                             isActive
                               ? 'bg-[#101B3A] text-white'
-                              : isFatorK
-                                ? 'bg-[#38BDF8]/10 text-[#38BDF8] hover:bg-[#38BDF8]/20 border border-[#38BDF8]/30'
-                                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]'
+                              : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <Icon
-                              className={`w-3.5 h-3.5 shrink-0 ${
-                                isFatorK ? 'text-[#38BDF8]' : 'text-[#60A5FA]'
-                              }`}
-                            />
+                            <Icon className="w-3.5 h-3.5 shrink-0 text-[#60A5FA]" />
                             <span className="truncate">{item.label}</span>
                           </div>
-                          <span
-                            className={`text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium ${
-                              isFatorK
-                                ? 'text-[#38BDF8] bg-[#38BDF8]/15 border-[#38BDF8]/30 font-semibold'
-                                : 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25'
-                            }`}
-                          >
+                          <span className="text-xs px-1.5 py-0.5 rounded border shrink-0 font-medium text-[#10B981] bg-[#10B981]/10 border-[#10B981]/25">
                             {item.badge}
                           </span>
                         </Link>
@@ -556,79 +598,10 @@ export function Navbar() {
                   </div>
                 )}
               </div>
-
-              {/* 2. Simulador, Cockpit e Modo Campo em grid */}
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/campo"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-gradient-to-r from-[#3B82F6]/20 to-[#2563EB]/20 border border-[#3B82F6]/50 text-xs font-bold text-white hover:border-[#3B82F6] transition-colors col-span-2 sm:col-span-1"
-                >
-                  <Smartphone className="w-4 h-4 text-[#38BDF8]" />
-                  <span>Modo Campo (Mobile)</span>
-                </Link>
-
-                <a
-                  href="/#simulador"
-                  onClick={(e) => handleLinkClick(e, '/#simulador')}
-                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#3B82F6]" />
-                  <span>Simulador</span>
-                </a>
-
-                <Link
-                  to="/cockpit"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
-                >
-                  <Activity className="w-3.5 h-3.5 text-[#10B981]" />
-                  <span>Cockpit</span>
-                </Link>
-              </div>
-
-              {/* Links adicionais Cidadão & Enquadramento */}
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/cidadao"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#10B981] hover:border-[#10B981] transition-colors"
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Portal Cidadão</span>
-                </Link>
-                <Link
-                  to="/enquadramento"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#60A5FA] hover:border-[#3B82F6] transition-colors"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Enquadramento</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Seção 3: Seções da Landing Page */}
-            <div className="space-y-1 pt-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8] px-2 block">
-                Página Inicial & Transparência
-              </span>
-              <div className="flex flex-wrap gap-1.5 px-2">
-                {governanceAnchors.map((anc) => (
-                  <a
-                    key={anc.href}
-                    href={anc.href}
-                    onClick={(e) => handleLinkClick(e, anc.href)}
-                    className="text-xs text-[#94A3B8] hover:text-white min-h-[44px] inline-flex items-center py-2 px-3 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] transition-colors"
-                  >
-                    {anc.label}
-                  </a>
-                ))}
-              </div>
             </div>
           </div>
 
-          {/* Rodapé do Menu Mobile: Login, Solicitar Piloto, Fale Conosco e Logout */}
+          {/* Rodapé do Menu Mobile: Login, Solicitar Piloto e Fale Conosco */}
           <div className="pt-4 mt-4 space-y-2.5 border-t border-[#1A2A5A]/80 shrink-0">
             {/* CTA Principal de Conversão B2G: Solicitar Piloto */}
             <a

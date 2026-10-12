@@ -26,6 +26,8 @@ import PortalCidadao from './pages/PortalCidadao'
 import Interoperabilidade from './pages/Interoperabilidade'
 import Sandbox from './pages/Sandbox'
 import Demo from './pages/Demo'
+import Plataforma from './pages/Plataforma'
+import FaqPage from './pages/Faq'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -43,6 +45,11 @@ const App = () => (
           <Route element={<Layout />}>
             {/* Rotas Públicas */}
             <Route path="/" element={<Index />} />
+            <Route path="/plataforma" element={<Plataforma />} />
+            <Route path="/como-funciona" element={<Plataforma />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/duvidas" element={<FaqPage />} />
+            <Route path="/perguntas-frequentes" element={<FaqPage />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/demonstracao" element={<Demo />} />
             <Route path="/metodologia" element={<Metodologia />} />

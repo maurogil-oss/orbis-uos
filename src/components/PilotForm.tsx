@@ -10,6 +10,12 @@ import {
   Lock,
   Headphones,
   RotateCcw,
+  Mail,
+  Copy,
+  Check,
+  Clock,
+  MapPin,
+  Info,
 } from 'lucide-react'
 import { createLead, CreateLeadPayload } from '@/services/leads'
 
@@ -37,6 +43,13 @@ export function PilotForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [backendError, setBackendError] = useState<string | null>(null)
+  const [copiedEmail, setCopiedEmail] = useState(false)
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText('contato@orbis-uos.com.br')
+    setCopiedEmail(true)
+    setTimeout(() => setCopiedEmail(false), 2500)
+  }
 
   // Brazilian phone mask helper
   const formatBRPhone = (value: string): string => {
@@ -239,8 +252,55 @@ export function PilotForm() {
                 licitação ordinária de longo prazo.
               </span>
             </div>
-          </div>
 
+            {/* Bloco Integrado de Contato Institucional / Fale Conosco Geral */}
+            <div
+              id="contato"
+              className="p-5 rounded-2xl bg-[#0A1128] border border-[#1A2A5A] space-y-3.5 scroll-mt-24"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#60A5FA] flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-[#3B82F6]" />
+                  <span>Dúvidas Gerais ou Imprensa?</span>
+                </span>
+                <span className="text-[11px] font-mono text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30">
+                  SLA 2 dias
+                </span>
+              </div>
+
+              <p className="text-xs text-[#94A3B8] leading-relaxed">
+                Para pautas gerais, convênios acadêmicos ou assessoria de imprensa fora da
+                formalização de piloto, utilize o canal oficial unificado:
+              </p>
+
+              <div className="p-2.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex items-center justify-between gap-2">
+                <a
+                  href="mailto:contato@orbis-uos.com.br"
+                  className="font-mono text-xs font-bold text-[#38BDF8] hover:underline break-all"
+                >
+                  contato@orbis-uos.com.br
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="p-1.5 rounded-lg bg-[#0A1128] hover:bg-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors shrink-0"
+                  title="Copiar e-mail institucional"
+                  aria-label="Copiar e-mail institucional"
+                >
+                  {copiedEmail ? (
+                    <Check className="w-3.5 h-3.5 text-[#10B981]" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] text-[#94A3B8]">
+                <Clock className="w-3 h-3 text-[#F59E0B] shrink-0" />
+                <span>Atendimento oficial: Seg a Sex, 08h às 18h (BRT)</span>
+              </div>
+            </div>
+          </div>
           {/* Right Column: Pilot Form Card */}
           <div className="lg:col-span-7">
             <div className="bg-[#101B3A] border border-[#1A2A5A] rounded-2xl p-6 sm:p-10 shadow-2xl shadow-black/40 relative">
