@@ -96,6 +96,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/acessibilidade"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#10B981] font-semibold"
+                >
+                  <span>Acessibilidade Digital (e-MAG + WCAG 2.2 AA)</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/metodologia"
                   className="hover:text-[#F8FAFC] transition-colors inline-block text-[#CBD5E1]"
                 >
@@ -304,6 +312,13 @@ export function Footer() {
             <span className="text-[#1A2A5A]">•</span>
             <Link to="/faq" className="hover:text-[#F8FAFC] transition-colors text-[#38BDF8]">
               FAQ
+            </Link>
+            <span className="text-[#1A2A5A]">•</span>
+            <Link
+              to="/acessibilidade"
+              className="hover:text-[#F8FAFC] transition-colors text-[#10B981] font-medium"
+            >
+              Acessibilidade
             </Link>
           </div>
         </div>

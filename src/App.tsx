@@ -28,6 +28,7 @@ import Sandbox from './pages/Sandbox'
 import Demo from './pages/Demo'
 import Plataforma from './pages/Plataforma'
 import FaqPage from './pages/Faq'
+import Acessibilidade from './pages/Acessibilidade'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -72,6 +73,10 @@ const App = () => (
             <Route path="/governanca" element={<Governanca />} />
             <Route path="/status" element={<Status />} />
             <Route path="/disponibilidade" element={<Status />} />
+            <Route path="/acessibilidade" element={<Acessibilidade />} />
+            <Route path="/conformidade-acessibilidade" element={<Acessibilidade />} />
+            <Route path="/e-mag" element={<Acessibilidade />} />
+            <Route path="/wcag" element={<Acessibilidade />} />
 
             {/* Rotas Protegidas Institucionais (Exigem autenticação institucional) */}
             <Route

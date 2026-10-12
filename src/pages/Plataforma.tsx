@@ -111,6 +111,14 @@ export default function Plataforma() {
                 <span>Ver FAQ Institucional</span>
               </Link>
               <Link
+                to="/acessibilidade"
+                className="px-3 py-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] hover:border-[#10B981] text-xs font-semibold text-[#10B981] transition-all flex items-center gap-1.5"
+                title="Declaração de Acessibilidade (e-MAG + WCAG 2.2 AA) integrada ao dossiê"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Acessibilidade (e-MAG/AA)</span>
+              </Link>
+              <Link
                 to="/#manifesto"
                 className="px-3.5 py-2 rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-xs font-bold text-white transition-all shadow-md shadow-[#3B82F6]/30 flex items-center gap-1.5"
               >

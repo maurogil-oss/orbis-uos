@@ -92,6 +92,13 @@ export function Navbar() {
       badge: 'Base B2G',
     },
     {
+      label: 'Acessibilidade Digital',
+      desc: 'Declaração e-MAG + WCAG 2.2 AA e NBR 17225',
+      href: '/acessibilidade',
+      icon: Shield,
+      badge: 'e-MAG / AA',
+    },
+    {
       label: 'Calibração Fator K',
       desc: 'Ajuste fino de sensores e telemetria veicular',
       href: '/cockpit/calibracao-fator-k',
