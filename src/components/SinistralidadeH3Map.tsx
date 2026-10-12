@@ -365,10 +365,37 @@ export function SinistralidadeH3Map({
         </div>
       </div>
 
+      {/* WCAG 2.2: Frase interpretativa da matriz de risco e sinistralidade */}
+      <div
+        id="sinistralidade-map-summary"
+        className="bg-[#0A1128] border border-[#1A2A5A] rounded-xl px-4 py-2.5 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0" />
+          <span className="font-semibold text-white">Interpretação da Matriz de Risco:</span>
+          <span>
+            {activeMode === 'sinistros'
+              ? sinistroCells.length > 0
+                ? `Análise espacial: ${sinistroCells.length} trechos geocodificados. Corredores de maior sinistralidade concentram ocorrências nos eixos de maior fluxo, com ênfase na proteção de usuários vulneráveis.`
+                : 'Sem coleta real ainda — dados de demonstração da grade de sinistros geocodificados.'
+              : matrizCells.length > 0
+                ? `Cruzamento Matriz Zero: ${matrizCells.filter((c) => c.criticidade_geral === 'prioridade_maxima').length} trechos em prioridade máxima de engenharia preventiva e acalmamento de tráfego.`
+                : 'Sem coleta real ainda — dados de demonstração da Matriz Zero de intervenção viária.'}{' '}
+          </span>
+        </div>
+        <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+          WCAG 2.2 • Matriz Acessível
+        </span>
+      </div>
+
       {/* Canvas do Mapa */}
       <div
         className="relative w-full rounded-2xl overflow-hidden border border-[#1A2A5A] bg-[#070D1F] shadow-2xl"
         style={{ height }}
+        role="region"
+        aria-label="Mapa territorial de sinistralidade viária e Matriz Zero"
+        aria-describedby="sinistralidade-map-summary"
       >
         <div ref={mapContainerRef} className="w-full h-full z-10" />
 

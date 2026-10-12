@@ -496,10 +496,11 @@ export default function ModoCampo() {
           <button
             type="button"
             onClick={() => setShowUnlockScreen(false)}
-            className="p-1 rounded-lg text-[#94A3B8] hover:text-white hover:bg-black/20"
+            className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-2 rounded-xl text-[#94A3B8] hover:text-white hover:bg-black/20 transition-colors"
             title="Fechar instruções"
+            aria-label="Fechar instruções de desbloqueio"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         )}
       </div>
@@ -550,13 +551,14 @@ export default function ModoCampo() {
         <button
           type="button"
           onClick={() => setShowIosAlternative(!showIosAlternative)}
-          className="text-[11px] text-[#94A3B8] hover:text-white flex items-center justify-between w-full font-medium"
+          className="min-h-[44px] py-2.5 px-2 text-[11px] text-[#94A3B8] hover:text-white flex items-center justify-between w-full font-medium rounded-lg hover:bg-black/20 transition-colors"
+          aria-expanded={showIosAlternative}
         >
           <span>Instruções para iPhone (iOS / Safari)</span>
           {showIosAlternative ? (
-            <ChevronUp className="w-3.5 h-3.5" />
+            <ChevronUp className="w-4 h-4" />
           ) : (
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-4 h-4" />
           )}
         </button>
 
@@ -576,10 +578,10 @@ export default function ModoCampo() {
           type="button"
           onClick={() => executeSensorValidation(false)}
           disabled={validationStatus === 'validating'}
-          className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#10B981]/20"
+          className="flex-1 min-h-[44px] py-3 px-4 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-[#10B981]/20 active:scale-[0.98]"
         >
           <RefreshCw
-            className={`w-3.5 h-3.5 ${validationStatus === 'validating' ? 'animate-spin' : ''}`}
+            className={`w-4 h-4 ${validationStatus === 'validating' ? 'animate-spin' : ''}`}
           />
           <span>
             {validationStatus === 'validating' ? 'Testando sensores...' : 'Testar Sensores Agora'}
@@ -596,7 +598,7 @@ export default function ModoCampo() {
         <div className="flex items-center gap-2.5">
           <Link
             to="/cockpit"
-            className="p-1.5 -ml-1 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors"
+            className="min-w-[44px] min-h-[44px] -ml-2 inline-flex items-center justify-center rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors"
             aria-label="Voltar ao Cockpit"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -624,16 +626,17 @@ export default function ModoCampo() {
               type="button"
               onClick={handleDrainQueue}
               disabled={isDraining}
-              className="px-2 py-1 rounded-lg bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-[#F59E0B] text-[11px] font-mono font-bold flex items-center gap-1 active:scale-95 transition-transform"
-              title="Fila offline com dados pendentes"
+              className="min-h-[44px] px-3 py-2 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-[#F59E0B] text-xs font-mono font-bold flex items-center gap-1.5 active:scale-95 transition-transform"
+              title="Fila offline com dados pendentes (toque para sincronizar)"
+              aria-label={`Sincronizar fila offline com ${queueStats.totalPending} itens pendentes`}
             >
-              <CloudUpload className={`w-3 h-3 ${isDraining ? 'animate-bounce' : ''}`} />
+              <CloudUpload className={`w-4 h-4 ${isDraining ? 'animate-bounce' : ''}`} />
               <span>{queueStats.totalPending}</span>
             </button>
           )}
 
           <div
-            className={`px-2 py-1 rounded-lg text-[11px] font-mono flex items-center gap-1 border ${
+            className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-mono flex items-center gap-1.5 border ${
               isOnline
                 ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/40'
                 : 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/40'
@@ -641,12 +644,12 @@ export default function ModoCampo() {
           >
             {isOnline ? (
               <>
-                <Wifi className="w-3 h-3" />
+                <Wifi className="w-4 h-4" />
                 <span className="hidden sm:inline">Online</span>
               </>
             ) : (
               <>
-                <WifiOff className="w-3 h-3" />
+                <WifiOff className="w-4 h-4" />
                 <span>Offline</span>
               </>
             )}
@@ -656,8 +659,9 @@ export default function ModoCampo() {
             <button
               type="button"
               onClick={() => setShowConfigDrawer(!showConfigDrawer)}
-              className="p-1.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors"
+              className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-2 rounded-xl bg-[#101B3A] border border-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors"
               title="Preferências do Aparelho"
+              aria-label="Abrir preferências do aparelho"
             >
               <Settings className="w-4 h-4" />
             </button>
@@ -906,18 +910,18 @@ export default function ModoCampo() {
                   <span>Falha ao Acessar Sensores</span>
                 </div>
                 <p className="text-[#CBD5E1] text-[11px] leading-relaxed">{startCollectionError}</p>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => setShowUnlockScreen(true)}
-                    className="py-1.5 px-3 rounded-lg bg-[#EF4444] hover:bg-[#DC2626] text-white text-xs font-bold transition-colors"
+                    className="min-h-[44px] py-2.5 px-4 rounded-xl bg-[#EF4444] hover:bg-[#DC2626] text-white text-xs font-bold transition-colors flex items-center justify-center"
                   >
                     Ver instruções de desbloqueio
                   </button>
                   <button
                     type="button"
                     onClick={handleStartCollection}
-                    className="py-1.5 px-3 rounded-lg bg-[#0A1128] border border-[#EF4444]/60 text-white text-xs font-semibold hover:bg-[#101B3A]"
+                    className="min-h-[44px] py-2.5 px-4 rounded-xl bg-[#0A1128] border border-[#EF4444]/60 text-white text-xs font-semibold hover:bg-[#101B3A] flex items-center justify-center"
                   >
                     Tentar novamente
                   </button>
@@ -940,9 +944,10 @@ export default function ModoCampo() {
               <button
                 type="button"
                 onClick={() => setIsAgentSelectorOpen(true)}
-                className="w-full p-3.5 rounded-2xl bg-[#0A1128] border-2 hover:border-[#3B82F6] transition-all flex items-center justify-between gap-3 text-left shadow-lg active:scale-[0.99]"
+                className="w-full min-h-[56px] p-4 rounded-2xl bg-[#0A1128] border-2 hover:border-[#3B82F6] transition-all flex items-center justify-between gap-3 text-left shadow-lg active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
+                aria-label={`Trocar categoria de agente. Atual: ${selectedAgentOption.label}`}
                 style={{
-                  borderColor: `${selectedAgentOption.color}80`,
+                  borderColor: `${selectedAgentOption.color}90`,
                   boxShadow: `0 8px 24px -6px ${selectedAgentOption.color}33`,
                 }}
               >
@@ -964,7 +969,7 @@ export default function ModoCampo() {
                         {selectedAgentOption.label}
                       </span>
                       <span
-                        className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded font-bold border shrink-0"
+                        className="text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold border shrink-0"
                         style={{
                           backgroundColor: `${selectedAgentOption.color}15`,
                           color: selectedAgentOption.color,
@@ -974,14 +979,14 @@ export default function ModoCampo() {
                         {selectedAgentOption.badgeText}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#94A3B8] truncate mt-0.5">
+                    <p className="text-xs text-[#94A3B8] truncate mt-0.5">
                       {selectedAgentOption.sublabel}
                     </p>
                   </div>
                 </div>
 
-                <div className="shrink-0 flex items-center gap-1.5 text-xs text-[#38BDF8] font-bold bg-[#101B3A] px-2.5 py-1.5 rounded-xl border border-[#1A2A5A]">
-                  <Sliders className="w-3.5 h-3.5" />
+                <div className="shrink-0 min-h-[44px] flex items-center gap-1.5 text-xs text-[#38BDF8] font-bold bg-[#101B3A] px-3.5 py-2.5 rounded-xl border border-[#1A2A5A]">
+                  <Sliders className="w-4 h-4" />
                   <span>Trocar</span>
                 </div>
               </button>
@@ -1028,7 +1033,8 @@ export default function ModoCampo() {
                 <button
                   type="button"
                   onClick={() => setShowConfigDrawer(true)}
-                  className="text-[#38BDF8] hover:text-white underline underline-offset-2 text-[11px]"
+                  className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-[#38BDF8] hover:text-white underline underline-offset-2 text-xs font-semibold px-2"
+                  aria-label="Ajustar posição e preferências do aparelho"
                 >
                   Ajustar
                 </button>
@@ -1070,9 +1076,9 @@ export default function ModoCampo() {
                 <button
                   type="button"
                   onClick={resumeSession}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md flex items-center justify-center gap-2"
+                  className="w-full min-h-[48px] py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] shadow-md flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
-                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <Play className="w-4 h-4 fill-white" />
                   <span>Retomar Coleta Agora</span>
                 </button>
               </div>
@@ -1101,24 +1107,29 @@ export default function ModoCampo() {
                 </div>
               </div>
 
-              {/* Travar Tela Acesa (Wake Lock) */}
+              {/* Travar Tela Acesa (Wake Lock) — Alvo mínimo 48px com conforto para luvas */}
               <button
                 type="button"
                 onClick={toggleWakeLock}
-                className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all ${
+                className={`min-h-[52px] p-3 rounded-xl border flex items-center gap-2.5 text-left transition-all focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
                   isWakeLocked
                     ? 'bg-[#10B981]/15 border-[#10B981]/60 text-[#10B981]'
                     : 'bg-[#EF4444]/15 border-[#EF4444]/40 text-[#EF4444]'
                 }`}
+                aria-label={
+                  isWakeLocked
+                    ? 'Tela travada acesa (WakeLock ativo). Toque para desativar.'
+                    : 'Travar tela acesa (WakeLock). Toque para ativar.'
+                }
               >
-                <div className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-black/20 flex items-center justify-center shrink-0">
                   {isWakeLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] uppercase block font-semibold">
+                  <span className="text-[10px] uppercase block font-semibold">
                     {isWakeLocked ? 'Tela Acesa' : 'Tela Destravada'}
                   </span>
-                  <span className="font-mono text-[11px] font-bold truncate block">
+                  <span className="font-mono text-xs font-bold truncate block">
                     {isWakeLocked ? 'WakeLock Ativo' : 'Toque p/ Travar'}
                   </span>
                 </div>
@@ -1239,34 +1250,34 @@ export default function ModoCampo() {
                   <button
                     type="button"
                     onClick={() => {
-                      // Reiniciar estado pronto para nova coleta imediata
                       handleStartCollection()
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-xs font-bold text-white flex items-center justify-center gap-1.5 shadow-md"
+                    className="flex-1 min-h-[48px] py-3 px-3 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-xs font-bold text-white flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
                   >
-                    <RotateCcw className="w-3.5 h-3.5" />
+                    <RotateCcw className="w-4 h-4" />
                     <span>Iniciar Novo Trecho</span>
                   </button>
 
                   <Link
                     to="/cockpit"
-                    className="flex-1 py-2.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] hover:bg-[#1E293B] text-xs font-bold text-white flex items-center justify-center gap-1.5"
+                    className="flex-1 min-h-[48px] py-3 px-3 rounded-xl bg-[#101B3A] border border-[#1A2A5A] hover:bg-[#1E293B] text-xs font-bold text-white flex items-center justify-center gap-2"
                   >
                     <span>Ver no Cockpit</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
             )}
 
-            {/* BOTÕES DE CONTROLE GIGANTES (Pausar / Encerrar) */}
+            {/* BOTÕES DE CONTROLE GIGANTES (Pausar / Encerrar) — Conforto ergonômico 56px+ */}
             <div className="pt-2 space-y-2">
               {isCollecting && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={pauseSession}
-                    className="py-4 px-4 rounded-2xl text-sm font-bold text-white bg-[#F59E0B] hover:bg-[#D97706] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#F59E0B]/20"
+                    className="min-h-[56px] py-4 px-4 rounded-2xl text-sm font-bold text-white bg-[#F59E0B] hover:bg-[#D97706] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-[#F59E0B]/20"
+                    aria-label="Pausar coleta inercial de campo"
                   >
                     <Pause className="w-5 h-5 fill-white" />
                     <span>Pausar</span>
@@ -1275,7 +1286,8 @@ export default function ModoCampo() {
                   <button
                     type="button"
                     onClick={stopSession}
-                    className="py-4 px-4 rounded-2xl text-sm font-black text-white bg-[#EF4444] hover:bg-[#DC2626] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#EF4444]/30"
+                    className="min-h-[56px] py-4 px-4 rounded-2xl text-sm font-black text-white bg-[#EF4444] hover:bg-[#DC2626] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-[#EF4444]/30"
+                    aria-label="Encerrar sessão de coleta"
                   >
                     <Square className="w-5 h-5 fill-white" />
                     <span>Encerrar Coleta</span>
@@ -1284,11 +1296,12 @@ export default function ModoCampo() {
               )}
 
               {isPaused && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={resumeSession}
-                    className="py-4 px-4 rounded-2xl text-sm font-bold text-white bg-[#10B981] hover:bg-[#059669] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#10B981]/20"
+                    className="min-h-[56px] py-4 px-4 rounded-2xl text-sm font-bold text-white bg-[#10B981] hover:bg-[#059669] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-[#10B981]/20"
+                    aria-label="Retomar coleta inercial"
                   >
                     <Play className="w-5 h-5 fill-white" />
                     <span>Retomar</span>
@@ -1297,7 +1310,8 @@ export default function ModoCampo() {
                   <button
                     type="button"
                     onClick={stopSession}
-                    className="py-4 px-4 rounded-2xl text-sm font-black text-white bg-[#EF4444] hover:bg-[#DC2626] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#EF4444]/30"
+                    className="min-h-[56px] py-4 px-4 rounded-2xl text-sm font-black text-white bg-[#EF4444] hover:bg-[#DC2626] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-[#EF4444]/30"
+                    aria-label="Encerrar sessão de coleta"
                   >
                     <Square className="w-5 h-5 fill-white" />
                     <span>Encerrar</span>
@@ -1323,7 +1337,8 @@ export default function ModoCampo() {
               <button
                 type="button"
                 onClick={() => setIsAgentSelectorOpen(false)}
-                className="p-1.5 rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white"
+                className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white transition-colors"
+                aria-label="Fechar seletor de agente"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1338,7 +1353,7 @@ export default function ModoCampo() {
                     key={opt.code}
                     type="button"
                     onClick={() => handleSelectAgent(opt.code)}
-                    className={`w-full p-3 rounded-2xl border text-left transition-all flex items-start gap-3 active:scale-[0.98] ${
+                    className={`w-full min-h-[52px] p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
                       isSelected
                         ? 'bg-[#101B3A] border-2 shadow-lg'
                         : 'bg-[#070D1F] border-[#1A2A5A] hover:border-[#3B82F6]/50'
@@ -1417,7 +1432,8 @@ export default function ModoCampo() {
               <button
                 type="button"
                 onClick={() => setShowConfigDrawer(false)}
-                className="p-1.5 rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white"
+                className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl bg-[#101B3A] text-[#94A3B8] hover:text-white transition-colors"
+                aria-label="Fechar painel de preferências"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1432,7 +1448,7 @@ export default function ModoCampo() {
                 <button
                   type="button"
                   onClick={() => handleUpdatePosition('painel')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`min-h-[48px] p-3 rounded-xl border text-left transition-all ${
                     phonePosition === 'painel'
                       ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md'
                       : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
@@ -1447,7 +1463,7 @@ export default function ModoCampo() {
                 <button
                   type="button"
                   onClick={() => handleUpdatePosition('bolso_outro')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`min-h-[48px] p-3 rounded-xl border text-left transition-all ${
                     phonePosition === 'bolso_outro'
                       ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-white shadow-md'
                       : 'bg-[#101B3A] border-[#1A2A5A] text-[#94A3B8]'
@@ -1475,7 +1491,7 @@ export default function ModoCampo() {
                   setShowConfigDrawer(false)
                   setShowUnlockScreen(true)
                 }}
-                className="py-1.5 px-3 rounded-lg bg-[#0A1128] border border-[#1A2A5A] text-[#38BDF8] hover:text-white font-semibold text-xs"
+                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#0A1128] border border-[#1A2A5A] text-[#38BDF8] hover:text-white font-semibold text-xs flex items-center justify-center"
               >
                 Instruções ⋮
               </button>
@@ -1484,7 +1500,7 @@ export default function ModoCampo() {
             <button
               type="button"
               onClick={() => setShowConfigDrawer(false)}
-              className="w-full py-3 rounded-xl bg-[#3B82F6] text-white text-xs font-bold"
+              className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-bold transition-colors"
             >
               Concluir
             </button>
@@ -1492,13 +1508,16 @@ export default function ModoCampo() {
         </div>
       )}
 
-      {/* Footer Fixo com Informações Institucionais e LGPD */}
-      <footer className="bg-[#0A1128]/95 border-t border-[#1A2A5A] px-4 py-2.5 text-center text-[10px] text-[#94A3B8] flex items-center justify-between">
+      {/* Footer Fixo com Informações Institucionais e LGPD — Link com min 44px de toque */}
+      <footer className="bg-[#0A1128]/95 border-t border-[#1A2A5A] px-4 py-2 text-center text-[10px] text-[#94A3B8] flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
           <span>Fator K auditável • Sem rastreio nominal ou de placas</span>
         </div>
-        <Link to="/cockpit" className="text-[#3B82F6] hover:underline font-semibold">
+        <Link
+          to="/cockpit"
+          className="min-h-[44px] inline-flex items-center px-2 text-[#3B82F6] hover:underline font-semibold"
+        >
           Cockpit
         </Link>
       </footer>

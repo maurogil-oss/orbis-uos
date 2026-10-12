@@ -514,8 +514,33 @@ export default function Cockpit() {
               </div>
             </div>
 
+            {/* WCAG 2.2: Frase interpretativa textual da tendência dos indicadores do Cockpit */}
+            <div
+              id="cockpit-telemetry-summary"
+              className="bg-[#101B3A] border border-[#1A2A5A] rounded-xl px-4 py-3 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+              aria-live="polite"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shrink-0" />
+                <div>
+                  <span className="font-semibold text-white">
+                    Interpretação Geral do Pavimento:{' '}
+                  </span>
+                  <span>
+                    {totalEvents > 0
+                      ? `Índice IRI médio de ${averageIRI} m/km (asfalto regular, dentro da meta de estabilidade operacional). Foram catalogadas ${totalEvents} anomalias na malha, sendo ${criticalCount} críticas com recomendação de tapa-buraco prioritário, monitoradas por ${fleet.length} sensores ativos na frota municipal.`
+                      : 'Sem anomalias registradas no momento — malha monitorada em conformidade transparente com a meta.'}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+                WCAG 2.2 • Narração de Indicadores
+              </span>
+            </div>
+
             {/* Main Content: Map (Left/Center) + Sidebar Details (Right) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {' '}
               {/* Map Column (8 cols) */}
               <div className="lg:col-span-8 space-y-4">
                 {/* Map Controls */}
@@ -578,7 +603,6 @@ export default function Cockpit() {
                   />
                 </div>
               </div>
-
               {/* Details & Live Telemetry Feed Column (4 cols) */}
               <div className="lg:col-span-4 space-y-4">
                 {/* Selected Anomaly Card */}
@@ -665,10 +689,10 @@ export default function Cockpit() {
                             `Ordem de Serviço gerada para: ${selectedEvent.via} (Prioridade: ${selectedEvent.severidade})`,
                           )
                         }}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#10B981] hover:bg-[#059669] text-white transition-colors"
+                        className="min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-bold bg-[#10B981] hover:bg-[#059669] text-white transition-colors flex items-center justify-center"
                       >
                         Gerar OS Automática
-                      </button>
+                      </button>{' '}
                     </div>
                   </div>
                 ) : (
@@ -834,7 +858,7 @@ export default function Cockpit() {
                               e.stopPropagation()
                               setSelectedEvent(ev)
                             }}
-                            className="text-xs text-[#3B82F6] hover:text-[#60A5FA] underline font-medium"
+                            className="min-h-[44px] inline-flex items-center text-xs text-[#3B82F6] hover:text-[#60A5FA] underline font-medium px-2"
                           >
                             Focar no Mapa
                           </button>

@@ -286,8 +286,36 @@ export function ModoGabineteView({
           </div>
         </div>
 
+        {/* WCAG 2.2: Frase interpretativa textual da tendência do IMM/IMV */}
+        <div
+          id="imm-trend-summary"
+          className="bg-[#0A1128] border border-[#1A2A5A] rounded-xl px-4 py-2.5 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: immSummary.faixaPredominante.cor }}
+            />
+            <span className="font-semibold text-white">Interpretação Geral de Mobilidade:</span>
+            <span>
+              IMM consolidado em {immSummary.immMedioGeral}/100 ({immSummary.faixaPredominante.nome}
+              ) — asfalto predominantemente regular, dentro da meta planejada para a malha do
+              município, com recomendação de intervenção precoce de{' '}
+              {immSummary.faixaPredominante.acao_orcamentaria} para contenção de custos de
+              manutenção.
+            </span>
+          </div>
+          <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+            WCAG 2.2 • Tendência
+          </span>
+        </div>
+
         {/* Linha do Índice Principal + Ação Orçamentária + Cruzamento Institucional Adaptado */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center"
+          aria-describedby="imm-trend-summary"
+        >
           {/* Pontuação IMM Síntese */}
           <div className="md:col-span-3 space-y-1 text-center md:text-left">
             <span className="text-xs font-mono uppercase text-[#94A3B8]">

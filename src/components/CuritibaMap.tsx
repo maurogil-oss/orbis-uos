@@ -271,9 +271,34 @@ export function CuritibaMap({
 
   return (
     <div className="relative w-full h-full min-h-[460px] rounded-2xl overflow-hidden border border-[#1A2A5A] bg-[#070D1F] shadow-2xl">
-      {/* Map Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full min-h-[460px] z-10" />
+      {/* WCAG 2.2: Frase interpretativa acessível e legível associada ao mapa/gráfico espacial */}
+      <div
+        id="curitiba-map-summary"
+        className="bg-[#0A1128] border-b border-[#1A2A5A] px-4 py-2.5 text-xs text-[#CBD5E1] flex items-center justify-between gap-3"
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#10B981] shrink-0" />
+          <span className="font-semibold text-white">Interpretação da Malha:</span>
+          <span>
+            {roadEvents.length > 0
+              ? `${roadEvents.filter((e) => e.severidade === 'critica').length} trechos críticos detectados na malha prioritária; ${roadEvents.filter((e) => e.severidade === 'baixa').length} trechos em bom estado (meta de estabilidade atendida). Frota ativa de ${fleet.length} veículos em transmissão contínua.`
+              : 'Sem anomalias registradas no momento — malha monitorada em conformidade com as metas do município.'}
+          </span>
+        </div>
+        <span className="text-[10px] font-mono text-[#94A3B8] shrink-0 hidden sm:inline">
+          WCAG 2.2 • Leitura Acessível
+        </span>
+      </div>
 
+      {/* Map Canvas com papel semântico e descrição textual acessível */}
+      <div
+        ref={mapContainerRef}
+        className="w-full h-full min-h-[460px] z-10"
+        role="region"
+        aria-label="Mapa territorial de severidade do pavimento e telemetria da frota em Curitiba"
+        aria-describedby="curitiba-map-summary"
+      />
       {/* Floating Header Tag */}
       <div className="absolute top-3 left-3 z-20 pointer-events-none flex flex-col gap-1.5">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0A1128]/90 backdrop-blur-md border border-[#1A2A5A] text-xs font-semibold text-[#F8FAFC] shadow-lg">

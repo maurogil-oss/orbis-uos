@@ -681,8 +681,37 @@ export default function Demo() {
                   </div>
                 </div>
 
+                {/* WCAG 2.2: Frase interpretativa textual da tendência dos índices algorítmicos */}
+                <div
+                  id="demo-imv-ima-summary"
+                  className="bg-[#0A1128] border border-[#1A2A5A] rounded-xl px-4 py-3 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                  aria-live="polite"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0" />
+                    <div>
+                      <span className="font-semibold text-white">
+                        Interpretação da Tendência Algorítmica:{' '}
+                      </span>
+                      <span>
+                        Índice IMV estruturado em 70% da ponderação com limiar de confiabilidade
+                        Fator F ≥ 3 (evitando falsos-positivos na emissão de OS); Sub-índice IMA com
+                        30% cobrindo mobilidade ativa e calçadas. Pavimento com regularidade
+                        satisfatória nas vias arteriais e monitoramento direcionado para áreas
+                        escolares e de tráfego pesado.
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+                    WCAG 2.2 • Leitura Acessível
+                  </span>
+                </div>
+
                 {/* Grid comparativo dos 2 pilares: IMV e IMA */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  aria-describedby="demo-imv-ima-summary"
+                >
                   {/* IMV */}
                   <div className="p-5 rounded-2xl bg-[#0A1128] border border-[#3B82F6]/40 space-y-3">
                     <div className="flex items-center justify-between">

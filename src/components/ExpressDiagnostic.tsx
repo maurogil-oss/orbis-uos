@@ -225,8 +225,38 @@ export function ExpressDiagnostic() {
                 </div>
               </div>
 
+              {/* WCAG 2.2: Frase interpretativa textual da tendência do diagnóstico */}
+              <div
+                id="diagnostic-trend-summary"
+                className="bg-[#0A1128] border border-[#1A2A5A] rounded-xl px-4 py-2.5 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                aria-live="polite"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shrink-0" />
+                  <span className="font-semibold text-white">
+                    Interpretação da Capacidade Operacional:
+                  </span>
+                  <span>
+                    Score provisório de {result.scoreProvisorio} pts ({result.faixaProvisoria}) com
+                    projeção de{' '}
+                    {frotaTerceirizadaSemPrevisao
+                      ? `${projecaoCobertura.percentualCoberturaDia30FrotaPropria}%`
+                      : `${projecaoCobertura.percentualCoberturaDia30FrotaTotal}%`}{' '}
+                    de auditoria da malha em 30 dias — cobertura ampla assegurada com a frota
+                    pública alocada, sem necessidade de aquisição de novos veículos ou sensores
+                    dedicados.
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+                  WCAG 2.2 • Síntese Acessível
+                </span>
+              </div>
+
               {/* Grid dos Cards de Síntese Express */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                aria-describedby="diagnostic-trend-summary"
+              >
                 {/* 1. O Rótulo Correto: Pré-diagnóstico Provisório */}
                 <div className="p-6 rounded-2xl bg-[#0A1128] border border-[#3B82F6]/50 space-y-3">
                   <span className="text-xs font-mono uppercase font-bold text-[#94A3B8] block">

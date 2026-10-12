@@ -436,11 +436,11 @@ export function Navbar() {
             </a>
           </div>
 
-          {/* Mobile Hamburger Toggle (exibido apenas em telas menores que md) */}
+          {/* Mobile Hamburger Toggle (exibido apenas em telas menores que md - alvo mínimo 44x44px) */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
+            className="md:hidden inline-flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
           >
@@ -453,20 +453,30 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-x-0 top-14 bottom-0 bg-[#0A1128]/98 backdrop-blur-xl border-b border-[#1A2A5A] px-4 py-4 flex flex-col justify-between overflow-y-auto animate-fade-in z-40">
           <div className="space-y-4">
-            {/* Header Mobile */}
+            {/* Header Mobile com botão explícito de fechar de 44x44px */}
             <div className="pb-3 border-b border-[#1A2A5A] flex items-center justify-between">
               <OrbisLogo height={28} colorMode="dark" variant="full" />
-              <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
-                Navegação B2G
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded bg-[#101B3A] text-[#94A3B8] border border-[#1A2A5A]">
+                  Navegação B2G
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#101B3A] transition-colors"
+                  aria-label="Fechar menu de navegação"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-
             {/* Destaque Principal Mobile: Ver Demonstração */}
             <Link
               to="/demo"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#1A2A5A] via-[#1E3A8A] to-[#3B82F6] border border-[#3B82F6]/50 shadow-md shadow-[#3B82F6]/30 transition-all"
+              className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#1A2A5A] via-[#1E3A8A] to-[#3B82F6] border border-[#3B82F6]/50 shadow-md shadow-[#3B82F6]/30 transition-all"
             >
+              {' '}
               <div className="flex items-center gap-2">
                 <Compass className="w-4 h-4 text-[#38BDF8]" />
                 <div className="text-left">
@@ -490,7 +500,7 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => setMobileSolucoesOpen(!mobileSolucoesOpen)}
-                  className="w-full flex items-center justify-between p-3 text-xs font-bold text-white hover:bg-[#101B3A] transition-colors"
+                  className="w-full flex items-center justify-between min-h-[44px] p-3 text-xs font-bold text-white hover:bg-[#101B3A] transition-colors"
                   aria-expanded={mobileSolucoesOpen}
                 >
                   <div className="flex items-center gap-2">
@@ -515,7 +525,7 @@ export function Navbar() {
                           key={item.href}
                           to={item.href}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center justify-between text-xs font-medium p-2 rounded-lg transition-colors ${
+                          className={`flex items-center justify-between min-h-[44px] text-xs font-medium p-2.5 rounded-lg transition-colors ${
                             isActive
                               ? 'bg-[#101B3A] text-white'
                               : isFatorK
@@ -552,7 +562,7 @@ export function Navbar() {
                 <Link
                   to="/campo"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-gradient-to-r from-[#3B82F6]/20 to-[#2563EB]/20 border border-[#3B82F6]/50 text-xs font-bold text-white hover:border-[#3B82F6] transition-colors col-span-2 sm:col-span-1"
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-gradient-to-r from-[#3B82F6]/20 to-[#2563EB]/20 border border-[#3B82F6]/50 text-xs font-bold text-white hover:border-[#3B82F6] transition-colors col-span-2 sm:col-span-1"
                 >
                   <Smartphone className="w-4 h-4 text-[#38BDF8]" />
                   <span>Modo Campo (Mobile)</span>
@@ -561,7 +571,7 @@ export function Navbar() {
                 <a
                   href="/#simulador"
                   onClick={(e) => handleLinkClick(e, '/#simulador')}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5 text-[#3B82F6]" />
                   <span>Simulador</span>
@@ -570,7 +580,7 @@ export function Navbar() {
                 <Link
                   to="/cockpit"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
+                  className="flex items-center gap-2 min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#3B82F6] transition-colors"
                 >
                   <Activity className="w-3.5 h-3.5 text-[#10B981]" />
                   <span>Cockpit</span>
@@ -582,7 +592,7 @@ export function Navbar() {
                 <Link
                   to="/cidadao"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#10B981] hover:border-[#10B981] transition-colors"
+                  className="flex items-center gap-2 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#10B981] hover:border-[#10B981] transition-colors"
                 >
                   <Users className="w-3.5 h-3.5" />
                   <span>Portal Cidadão</span>
@@ -590,7 +600,7 @@ export function Navbar() {
                 <Link
                   to="/enquadramento"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#60A5FA] hover:border-[#3B82F6] transition-colors"
+                  className="flex items-center gap-2 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] text-xs font-medium text-[#60A5FA] hover:border-[#3B82F6] transition-colors"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>Enquadramento</span>
@@ -609,7 +619,7 @@ export function Navbar() {
                     key={anc.href}
                     href={anc.href}
                     onClick={(e) => handleLinkClick(e, anc.href)}
-                    className="text-xs text-[#94A3B8] hover:text-white py-1 px-2.5 rounded bg-[#101B3A]/60 border border-[#1A2A5A] transition-colors"
+                    className="text-xs text-[#94A3B8] hover:text-white min-h-[44px] inline-flex items-center py-2 px-3 rounded-lg bg-[#101B3A]/60 border border-[#1A2A5A] transition-colors"
                   >
                     {anc.label}
                   </a>
@@ -624,7 +634,7 @@ export function Navbar() {
             <a
               href="/#manifesto"
               onClick={(e) => handleLinkClick(e, '/#manifesto')}
-              className="w-full flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all gap-1.5"
+              className="w-full flex items-center justify-center min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-md shadow-[#3B82F6]/30 active:scale-95 transition-all gap-1.5"
             >
               <Rocket className="w-3.5 h-3.5" />
               <span>Solicitar Piloto — Manifesto CPSI</span>
@@ -635,7 +645,7 @@ export function Navbar() {
             <a
               href="/#contato"
               onClick={(e) => handleLinkClick(e, '/#contato')}
-              className="w-full flex items-center justify-center px-4 py-2 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all gap-1.5"
+              className="w-full flex items-center justify-center min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-semibold text-[#CBD5E1] hover:text-white bg-[#101B3A] border border-[#1A2A5A] hover:border-[#3B82F6] transition-all gap-1.5"
             >
               <MessageSquare className="w-3.5 h-3.5 text-[#60A5FA]" />
               <span>Fale Conosco (Dúvidas & Contato Geral)</span>
@@ -646,7 +656,7 @@ export function Navbar() {
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] border border-[#1A2A5A] transition-all gap-1.5"
+                className="w-full flex items-center justify-center min-h-[44px] px-3 py-2.5 rounded-lg text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] border border-[#1A2A5A] transition-all gap-1.5"
               >
                 <Lock className="w-3.5 h-3.5 text-[#3B82F6]" />
                 <span>Acesso Institucional</span>
@@ -656,7 +666,7 @@ export function Navbar() {
                 <Link
                   to="/cockpit"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] border border-[#1A2A5A]"
+                  className="flex-1 flex items-center justify-center min-h-[44px] px-3 py-2.5 rounded-lg text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] border border-[#1A2A5A]"
                 >
                   <span>Painel ({user?.name})</span>
                 </Link>
@@ -666,9 +676,10 @@ export function Navbar() {
                     logout()
                     setMobileMenuOpen(false)
                   }}
-                  className="flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold text-[#EF4444] bg-[#0A1128] border border-[#EF4444]/30"
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] px-3 py-2.5 rounded-lg text-xs font-semibold text-[#EF4444] bg-[#0A1128] border border-[#EF4444]/30"
+                  aria-label="Sair da conta"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-4 h-4" />
                 </button>
               </div>
             )}

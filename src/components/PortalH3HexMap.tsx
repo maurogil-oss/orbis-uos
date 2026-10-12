@@ -280,13 +280,37 @@ export function PortalH3HexMap({
         </div>
       </div>
 
+      {/* WCAG 2.2: Frase interpretativa de tendência acessível para leitores de tela e visível para todos */}
+      <div
+        id="portal-h3-summary"
+        className="bg-[#0A1128] border border-[#1A2A5A] rounded-xl px-4 py-2.5 text-xs text-[#CBD5E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#3B82F6] shrink-0" />
+          <span className="font-semibold text-white">Interpretação Territorial H3:</span>
+          <span>
+            {cells.length > 0
+              ? totalAuditadas > 0
+                ? `${totalAuditadas} células atingiram k ≥ 3 sessões independentes com pavimento predominantemente regular/sadio; ${totalNaoAuditadas} células em amostragem inicial honestamente sinalizadas como "Não Auditado" para preservação do k-anonimato.`
+                : 'Células em amostragem inicial honestamente sinalizadas como "Não Auditado" (LGPD Art. 12 — aguardando 3 passagens independentes).'
+              : 'Sem coleta real ainda — dados demonstrativos em conformidade transparente.'}
+          </span>
+        </div>
+        <span className="text-[10px] font-mono text-[#94A3B8] shrink-0">
+          WCAG 2.2 • Dado Acessível
+        </span>
+      </div>
+
       {/* Canvas do Mapa */}
       <div
         className="relative w-full rounded-2xl overflow-hidden border border-[#1A2A5A] bg-[#070D1F] shadow-2xl"
         style={{ height }}
+        role="region"
+        aria-label="Grade territorial hexagonal H3 com k-anonimato para auditoria de mobilidade urbana"
+        aria-describedby="portal-h3-summary"
       >
         <div ref={mapContainerRef} className="w-full h-full z-10" />
-
         {/* Tag Flutuante de Governança H3 & k-anonimato */}
         <div className="absolute top-3 left-3 z-20 pointer-events-none flex flex-col gap-1.5">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0A1128]/95 backdrop-blur-md border border-[#10B981]/50 text-xs font-semibold text-[#F8FAFC] shadow-lg">

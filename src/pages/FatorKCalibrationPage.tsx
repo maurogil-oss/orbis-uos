@@ -790,7 +790,14 @@ export default function FatorKCalibrationPage() {
                     </p>
 
                     {/* Barra de progresso para a meta */}
-                    <div className="w-full bg-[#0A1128] rounded-full h-2 overflow-hidden border border-[#1A2A5A] mt-2">
+                    <div
+                      className="w-full bg-[#0A1128] rounded-full h-2 overflow-hidden border border-[#1A2A5A] mt-2"
+                      role="progressbar"
+                      aria-valuenow={tipoSelecionadoData.confiabilidade.percentualProgresso}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`Progresso da amostragem para calibração do Fator K: ${tipoSelecionadoData.confiabilidade.percentualProgresso}%`}
+                    >
                       <div
                         className={`h-full transition-all duration-300 ${
                           tipoSelecionadoData.confiabilidade.status === 'alta'
@@ -804,6 +811,12 @@ export default function FatorKCalibrationPage() {
                         }}
                       />
                     </div>
+                    {/* WCAG 2.2: Frase interpretativa da meta e amostragem */}
+                    <p className="text-[11px] text-[#CBD5E1] mt-2 leading-relaxed">
+                      {tipoSelecionadoData.confiabilidade.percentualProgresso >= 100
+                        ? `Meta de calibração atingida (100%) — Fator K ajustado com alta confiabilidade estatística para ${tipoSelecionadoData.config.label}.`
+                        : `Amostragem em andamento (${tipoSelecionadoData.confiabilidade.percentualProgresso}% da meta) — ${tipoSelecionadoData.amostras.sessoes} sessões registradas (${tipoSelecionadoData.amostras.segmentosValidados} trechos com F ≥ 3); amostragem empírica honesta em convergência.`}
+                    </p>
                   </div>
                 </div>
 

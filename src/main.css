@@ -56,29 +56,66 @@
 
   html {
     scroll-behavior: smooth;
-    /* Variáveis de compensação de altura do cabeçalho fixo */
+    /* Variáveis de compensação de altura do cabeçalho fixo (WCAG 2.2 - 2.4.11 Focus Not Obscured) */
     --header-height: 3.5rem; /* 56px no mobile */
-    --scroll-offset: 4.5rem; /* 72px no mobile (56px + 16px de folga de respiro) */
+    --scroll-offset: 5rem; /* 80px no mobile (56px + 24px de folga segura contra sobreposição) */
     scroll-padding-top: var(--scroll-offset);
   }
 
   @media (min-width: 640px) {
     html {
       --header-height: 4rem; /* 64px no desktop (sm+) */
-      --scroll-offset: 5rem; /* 80px no desktop (64px + 16px de folga) */
+      --scroll-offset: 5.5rem; /* 88px no desktop (64px + 24px de respiro visível) */
       scroll-padding-top: var(--scroll-offset);
     }
   }
 
-  /* Garantir que qualquer elemento com ID como destino de âncora/scroll inicie abaixo do cabeçalho */
-  [id] {
+  /* WCAG 2.2 Critério 2.4.11 (Focus Not Obscured):
+     Garante que qualquer destino de âncora, elemento com id e qualquer elemento focável
+     (links, botões, campos de formulário, acordeões) mantenha margem superior de scroll
+     suficiente para NUNCA ficar oculto sob o cabeçalho fixo da aplicação */
+  [id],
+  :target,
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus,
+  [tabindex]:focus,
+  *:focus-visible {
     scroll-margin-top: var(--scroll-offset);
   }
 
-  /* Custom focus states com contraste nítido e consistente */
+  /* Custom focus states com contraste nítido e consistente (WCAG 2.2 AA/AAA) */
   *:focus-visible {
     outline: 2px solid #60a5fa;
     outline-offset: 3px;
+  }
+
+  /* Piso interno de acessibilidade para alvos de toque (WCAG 2.2 2.5.8 estendido para 44x44px)
+     Especialmente útil em operações móveis em campo com luvas/deslocamento */
+  .touch-target-44 {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Extensor de área de clique invisível caso o tamanho visual do botão/ícone seja menor que 44px */
+  .touch-target-expand-44 {
+    position: relative;
+  }
+  .touch-target-expand-44::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+    width: 100%;
+    height: 100%;
   }
 
   /* Melhoria de contraste para textos muted em elementos gerais */
