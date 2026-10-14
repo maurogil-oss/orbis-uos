@@ -24,8 +24,17 @@ import {
   Layers,
   Database,
   Check,
+  Printer,
+  FileDown,
+  FileText,
+  Loader2,
 } from 'lucide-react'
 import { registerDemoStart } from '@/services/institucionalSettings'
+import {
+  generateDemoPresentationPdf,
+  downloadDemoTextFile,
+  DemoStepExportData,
+} from '@/lib/diagnostics/exportDemoPresentation'
 import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
 import { Simulator } from '@/components/Simulator'
 import { CityTier } from '@/components/Hero'
@@ -229,6 +238,14 @@ export default function Demo() {
   const [h3Cells, setH3Cells] = useState<H3AggregatedCell[]>([])
   const [isLoadingPreview, setIsLoadingPreview] = useState<boolean>(true)
 
+  // Estados de exportação da apresentação
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false)
+  const [isExportingText, setIsExportingText] = useState<boolean>(false)
+  const [exportNotice, setExportNotice] = useState<{
+    type: 'success' | 'error'
+    message: string
+  } | null>(null)
+
   // 1. Trilha de Auditoria: Registrar o início da demonstração pública (DEMO_STARTED)
   useEffect(() => {
     let isMounted = true
@@ -312,14 +329,97 @@ export default function Demo() {
   const currentStep = DEMO_STEPS[currentStepIndex]
   const progressPercent = Math.round(((currentStepIndex + 1) / DEMO_STEPS.length) * 100)
 
+  // Handler de exportação como PDF / Apresentação de slides A4 Paisagem
+  const handleExportPresentationPdf = async () => {
+    try {
+      setIsExportingPdf(true)
+      setExportNotice(null)
+
+      const exportSteps: DemoStepExportData[] = DEMO_STEPS.map((s) => ({
+        id: s.id,
+        title: s.title,
+        shortTitle: s.shortTitle,
+        institutionalTitle: s.institutionalTitle,
+        legalBadge: s.legalBadge,
+        institutionalSentences: s.institutionalSentences,
+        keyMetrics: s.keyMetrics,
+      }))
+
+      const result = await generateDemoPresentationPdf({
+        steps: exportSteps,
+        municipio: 'Curitiba/PR (Malha de Referência & Piloto)',
+        destinatario: 'Gestores Públicos, Secretarias Municipais & Cliente-Piloto',
+        responsavelNome: 'Acesso Institucional GovTech',
+      })
+
+      setExportNotice({
+        type: 'success',
+        message: `Apresentação exportada com sucesso (Protocolo ${result.protocolo}). Janela de impressão aberta.`,
+      })
+    } catch (err: unknown) {
+      console.error('Erro ao exportar apresentação:', err)
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : 'Não foi possível gerar a apresentação. Verifique permissões de pop-up.'
+      setExportNotice({
+        type: 'error',
+        message: errorMsg,
+      })
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
+
+  // Handler de exportação em texto estruturado (.md / roteiro para ofício)
+  const handleExportStructuredText = () => {
+    try {
+      setIsExportingText(true)
+      setExportNotice(null)
+
+      const exportSteps: DemoStepExportData[] = DEMO_STEPS.map((s) => ({
+        id: s.id,
+        title: s.title,
+        shortTitle: s.shortTitle,
+        institutionalTitle: s.institutionalTitle,
+        legalBadge: s.legalBadge,
+        institutionalSentences: s.institutionalSentences,
+        keyMetrics: s.keyMetrics,
+      }))
+
+      downloadDemoTextFile(
+        {
+          steps: exportSteps,
+          municipio: 'Curitiba/PR (Malha de Referência & Piloto)',
+          destinatario: 'Gestores Públicos, Secretarias Municipais & Cliente-Piloto',
+          responsavelNome: 'Acesso Institucional GovTech',
+        },
+        `roteiro-demonstracao-orbis-uos-${new Date().toISOString().slice(0, 10)}.md`,
+      )
+
+      setExportNotice({
+        type: 'success',
+        message: 'Roteiro em texto estruturado baixado com sucesso (.md para ofício/e-mail).',
+      })
+    } catch (err: unknown) {
+      console.error('Erro ao baixar texto estruturado:', err)
+      setExportNotice({
+        type: 'error',
+        message: 'Erro ao gerar arquivo de texto estruturado da demonstração.',
+      })
+    } finally {
+      setIsExportingText(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#070D1F] text-[#F8FAFC] flex flex-col selection:bg-[#3B82F6]/30">
       {/* 1. BARRA DE PROGRESSO FIXA DO TOUR (Abaixo da Navbar principal do app) */}
       <div className="sticky top-14 sm:top-16 z-40 bg-[#0A1128]/95 backdrop-blur-md border-b border-[#1A2A5A] shadow-lg shadow-black/30">
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 py-2.5 sm:py-3">
-          {/* Top row: Etapa X de 6 + Titulo + Trilha Status */}
+          {/* Top row: Etapa X de 6 + Titulo + Trilha Status + Botões de Exportação da Demonstração */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#3B82F6]/15 border border-[#3B82F6]/40 text-xs font-mono font-bold text-[#60A5FA]">
                 <Compass className="w-3.5 h-3.5 text-[#3B82F6] animate-spin-slow" />
                 <span>Modo Demonstração Orientada</span>
@@ -333,15 +433,52 @@ export default function Demo() {
               </span>
             </div>
 
-            {/* Trilha de Auditoria Tag */}
-            <div className="flex items-center gap-2 text-[11px] font-mono">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
-              <span className="text-[#10B981] font-semibold hidden sm:inline">
-                {auditMessage || 'DEMO_STARTED auditado (SISTEMA)'}
-              </span>
-              <span className="text-[#94A3B8] text-[10px] bg-[#101B3A] border border-[#1A2A5A] px-2 py-0.5 rounded">
-                v0.0.29 Hardened
-              </span>
+            {/* Ações de Exportação e Trilha de Auditoria */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Botão 1: Exportar Apresentação / PDF (A4 Paisagem Dark Navy) */}
+              <button
+                type="button"
+                onClick={handleExportPresentationPdf}
+                disabled={isExportingPdf}
+                aria-label="Exportar apresentação em PDF com todos os slides da demonstração"
+                className="touch-target-44 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1E3A8A] hover:bg-[#2563EB] border border-[#3B82F6]/40 shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
+              >
+                {isExportingPdf ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#93C5FD]" />
+                ) : (
+                  <Printer className="w-3.5 h-3.5 text-[#93C5FD]" />
+                )}
+                <span className="hidden sm:inline">Exportar apresentação</span>
+                <span className="sm:hidden">Apresentação</span>
+              </button>
+
+              {/* Botão 2: Exportar em Texto Estruturado (.md) */}
+              <button
+                type="button"
+                onClick={handleExportStructuredText}
+                disabled={isExportingText}
+                aria-label="Exportar roteiro da demonstração em texto estruturado markdown"
+                className="touch-target-44 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] hover:text-white border border-[#1A2A5A] transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
+              >
+                {isExportingText ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#60A5FA]" />
+                ) : (
+                  <FileText className="w-3.5 h-3.5 text-[#60A5FA]" />
+                )}
+                <span className="hidden sm:inline">Exportar em texto</span>
+                <span className="sm:hidden">Texto (.md)</span>
+              </button>
+
+              {/* Trilha de Auditoria Tag */}
+              <div className="flex items-center gap-1.5 text-[11px] font-mono pl-1">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
+                <span className="text-[#10B981] font-semibold hidden xl:inline">
+                  {auditMessage || 'DEMO_STARTED auditado'}
+                </span>
+                <span className="text-[#94A3B8] text-[10px] bg-[#101B3A] border border-[#1A2A5A] px-2 py-0.5 rounded">
+                  v0.0.41
+                </span>
+              </div>
             </div>
           </div>
 
@@ -397,6 +534,36 @@ export default function Demo() {
       <main className="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Âncora de rolagem para saltos entre etapas */}
         <div id="demo-content-anchor" className="scroll-mt-40" />
+
+        {/* Notificação WCAG 2.2 AA com aria-live para Sucesso/Erro das Exportações */}
+        {exportNotice && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 text-xs font-medium transition-all ${
+              exportNotice.type === 'success'
+                ? 'bg-[#10B981]/15 border-[#10B981]/40 text-[#A7F3D0]'
+                : 'bg-[#EF4444]/15 border-[#EF4444]/40 text-[#FCA5A5]'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {exportNotice.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
+              ) : (
+                <Info className="w-4 h-4 text-[#EF4444] shrink-0" />
+              )}
+              <span>{exportNotice.message}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setExportNotice(null)}
+              aria-label="Fechar notificação de exportação"
+              className="touch-target-44 text-[11px] px-2 py-1 rounded bg-[#0A1128]/60 hover:bg-[#0A1128] text-white/80 hover:text-white transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
 
         {/* HERO CARD DE CONTEXTO INSTITUCIONAL DA ETAPA */}
         <section className="bg-gradient-to-br from-[#101B3A] via-[#0A1330] to-[#0A1128] border-2 border-[#1A2A5A] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
@@ -1069,13 +1236,40 @@ export default function Demo() {
           )}
         </section>
 
-        {/* 4. BARRA DE NAVEGAÇÃO INFERIOR ENTRE ETAPAS */}
+        {/* 4. BARRA DE NAVEGAÇÃO INFERIOR ENTRE ETAPAS COM EXPORTAÇÕES */}
         <div className="pt-6 border-t border-[#1A2A5A] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-[#94A3B8] flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
-            <span>
-              Você está na etapa <b>{currentStep.id}</b> de <b>6</b> ({currentStep.title})
-            </span>
+          <div className="text-xs text-[#94A3B8] flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+              <span>
+                Você está na etapa <b>{currentStep.id}</b> de <b>6</b> ({currentStep.title})
+              </span>
+            </div>
+            <span className="text-[#334155] hidden sm:inline">|</span>
+            {/* Atalhos rápidos de exportação também no rodapé da página */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportPresentationPdf}
+                disabled={isExportingPdf}
+                aria-label="Exportar apresentação em PDF a partir do rodapé"
+                className="touch-target-44 text-[11px] font-semibold text-[#60A5FA] hover:text-white transition-colors flex items-center gap-1 disabled:opacity-50"
+              >
+                <Printer className="w-3 h-3" />
+                <span>Exportar Apresentação</span>
+              </button>
+              <span className="text-[#334155]">·</span>
+              <button
+                type="button"
+                onClick={handleExportStructuredText}
+                disabled={isExportingText}
+                aria-label="Exportar roteiro em texto estruturado a partir do rodapé"
+                className="touch-target-44 text-[11px] font-semibold text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1 disabled:opacity-50"
+              >
+                <FileDown className="w-3 h-3" />
+                <span>Baixar Roteiro (.md)</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1083,7 +1277,7 @@ export default function Demo() {
               type="button"
               onClick={() => goToStep(currentStepIndex - 1)}
               disabled={currentStepIndex === 0}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1.5"
+              className="touch-target-44 px-4 py-2 rounded-xl text-xs font-semibold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Etapa Anterior</span>
