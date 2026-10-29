@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { RoadEventRecord } from '@/services/roadEvents'
 import { FleetTelemetryRecord } from '@/services/fleet'
+import { NearMissEvent } from '@/services/nearMisses'
+import { TrafficCorridorSegment } from '@/services/trafficSpeed'
 
 // Leaflet types without installing external unneeded dependencies
 declare global {
@@ -12,20 +14,30 @@ declare global {
 interface CuritibaMapProps {
   roadEvents: RoadEventRecord[]
   fleet: FleetTelemetryRecord[]
+  nearMisses?: NearMissEvent[]
+  trafficCorridors?: TrafficCorridorSegment[]
   selectedEventId?: string | null
   onSelectEvent?: (event: RoadEventRecord) => void
+  onSelectNearMiss?: (event: NearMissEvent) => void
   showHeatmap?: boolean
   showFleet?: boolean
+  showNearMisses?: boolean
+  showTrafficLayer?: boolean
   severityFilter?: string
 }
 
 export function CuritibaMap({
   roadEvents,
   fleet,
+  nearMisses = [],
+  trafficCorridors = [],
   selectedEventId,
   onSelectEvent,
+  onSelectNearMiss,
   showHeatmap = true,
   showFleet = true,
+  showNearMisses = true,
+  showTrafficLayer = false,
   severityFilter = 'all',
 }: CuritibaMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -33,6 +45,8 @@ export function CuritibaMap({
   const markersLayerRef = useRef<any>(null)
   const fleetLayerRef = useRef<any>(null)
   const heatLayerRef = useRef<any>(null)
+  const nearMissLayerRef = useRef<any>(null)
+  const trafficLayerRef = useRef<any>(null)
 
   // 1. Load Leaflet script & CSS dynamically if not present
   useEffect(() => {
@@ -63,6 +77,8 @@ export function CuritibaMap({
       markersLayerRef.current = L.layerGroup().addTo(map)
       fleetLayerRef.current = L.layerGroup().addTo(map)
       heatLayerRef.current = L.layerGroup().addTo(map)
+      nearMissLayerRef.current = L.layerGroup().addTo(map)
+      trafficLayerRef.current = L.layerGroup().addTo(map)
 
       mapInstanceRef.current = map
     }
@@ -108,6 +124,8 @@ export function CuritibaMap({
     if (markersLayerRef.current) markersLayerRef.current.clearLayers()
     if (fleetLayerRef.current) fleetLayerRef.current.clearLayers()
     if (heatLayerRef.current) heatLayerRef.current.clearLayers()
+    if (nearMissLayerRef.current) nearMissLayerRef.current.clearLayers()
+    if (trafficLayerRef.current) trafficLayerRef.current.clearLayers()
 
     // Filter events
     const filteredEvents = roadEvents.filter((ev) => {
@@ -256,7 +274,123 @@ export function CuritibaMap({
         fleetMarker.addTo(fleetLayerRef.current)
       })
     }
-  }, [roadEvents, fleet, selectedEventId, onSelectEvent, showHeatmap, showFleet, severityFilter])
+
+    // D. Camada de Quase-Acidentes e Conflitos Viários (Desacelerações Abruptas)
+    if (showNearMisses && nearMisses.length > 0) {
+      nearMisses.forEach((nm) => {
+        const nmColor =
+          nm.severidade === 'critica' ? '#EF4444' : nm.severidade === 'alta' ? '#F97316' : '#FBBF24'
+
+        const nmHtml = `
+          <div style="
+            width: 24px;
+            height: 24px;
+            background: #0A1128;
+            border: 2px solid ${nmColor};
+            border-radius: 6px;
+            box-shadow: 0 0 12px ${nmColor}80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: ${nmColor};
+            font-weight: 900;
+            cursor: pointer;
+          ">
+            ⚠️
+          </div>
+        `
+
+        const nmIcon = L.divIcon({
+          className: 'custom-nearmiss-marker',
+          html: nmHtml,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+        })
+
+        const nmMarker = L.marker([nm.latitude, nm.longitude], { icon: nmIcon })
+        const nmPopup = `
+          <div style="font-family: Inter, sans-serif; font-size: 12px; color: #0A1128; min-width: 200px;">
+            <div style="font-weight: 800; font-size: 13px; color: #DC2626; margin-bottom: 2px;">
+              ⚠️ Quase-Acidente / Conflito
+            </div>
+            <div style="font-weight: 700; color: #0F172A; margin-bottom: 2px;">${nm.via}</div>
+            <div style="color: #64748B; font-size: 11px; margin-bottom: 6px;">${nm.corredor}</div>
+            <div style="background: #FEE2E2; color: #991B1B; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 6px;">
+              Pico Desaceleração: <b>${nm.decelMaxG.toFixed(2)}g</b> (${nm.velocidadeInicialKmh} → ${nm.velocidadeFinalKmh} km/h)
+            </div>
+            <div style="font-size: 11px; color: #334155; line-height: 1.3;">
+              ${nm.tendenciaDescricao}
+            </div>
+          </div>
+        `
+        nmMarker.bindPopup(nmPopup)
+        nmMarker.on('click', () => {
+          if (onSelectNearMiss) onSelectNearMiss(nm)
+        })
+        nmMarker.addTo(nearMissLayerRef.current)
+      })
+    }
+
+    // E. Camada de Tráfego em Tempo Real (Linhas Coloridas por Fluidez)
+    if (showTrafficLayer && trafficCorridors.length > 0) {
+      trafficCorridors.forEach((tc) => {
+        const trafficColor =
+          tc.status === 'congestionado'
+            ? '#EF4444' // Vermelho
+            : tc.status === 'atencao'
+              ? '#FBBF24' // Âmbar
+              : '#10B981' // Verde
+
+        // Linha polilinha sobre a via
+        const polyline = L.polyline(tc.coordenadasLinha, {
+          color: trafficColor,
+          weight: 6,
+          opacity: 0.85,
+          lineCap: 'round',
+          lineJoin: 'round',
+        })
+
+        const trafficPopup = `
+          <div style="font-family: Inter, sans-serif; font-size: 12px; color: #0A1128; min-width: 220px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-weight: 800; font-size: 13px; color: #0F172A;">${tc.corredor}</span>
+              <span style="background: ${trafficColor}; color: #FFF; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                ${tc.status}
+              </span>
+            </div>
+            <div style="color: #64748B; font-size: 11px; margin-bottom: 6px;">${tc.via}</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; font-size: 11px;">
+              <div style="background: #F1F5F9; padding: 4px; border-radius: 4px;">
+                Vel. Atual: <b>${tc.velocidadeObservadaKmh} km/h</b>
+              </div>
+              <div style="background: #F1F5F9; padding: 4px; border-radius: 4px;">
+                Vel. Nominal: <b>${tc.velocidadeNominalKmh} km/h</b>
+              </div>
+            </div>
+            <div style="font-size: 10px; color: #475569; line-height: 1.3;">
+              ${tc.narrativaEstado}
+            </div>
+          </div>
+        `
+        polyline.bindPopup(trafficPopup)
+        polyline.addTo(trafficLayerRef.current)
+      })
+    }
+  }, [
+    roadEvents,
+    fleet,
+    nearMisses,
+    trafficCorridors,
+    selectedEventId,
+    onSelectEvent,
+    onSelectNearMiss,
+    showHeatmap,
+    showFleet,
+    showNearMisses,
+    showTrafficLayer,
+    severityFilter,
+  ])
 
   // 3. Pan to selected event if changed
   useEffect(() => {
@@ -336,6 +470,18 @@ export function CuritibaMap({
           <span className="text-xs">🚌</span>
           <span className="text-[#60A5FA]">Veículo Frota Ativa ({fleet.length} rastreados)</span>
         </div>
+        {showNearMisses && nearMisses.length > 0 && (
+          <div className="flex items-center gap-2 pt-1 border-t border-[#1A2A5A]/60">
+            <span className="text-xs">⚠️</span>
+            <span className="text-[#F87171]">Quase-Acidentes ({nearMisses.length} conflitos)</span>
+          </div>
+        )}
+        {showTrafficLayer && trafficCorridors.length > 0 && (
+          <div className="flex items-center gap-2 pt-1 border-t border-[#1A2A5A]/60">
+            <span className="w-2.5 h-1 bg-[#10B981] rounded inline-block" />
+            <span className="text-[#38BDF8]">Tráfego em Tempo Real (Fluidez da Frota)</span>
+          </div>
+        )}
       </div>
     </div>
   )

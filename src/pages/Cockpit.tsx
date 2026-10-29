@@ -40,6 +40,12 @@ import {
 } from 'lucide-react'
 import { CamadasDadosExternosTab } from '@/components/CamadasDadosExternosTab'
 import { IngestionTransmissionTab } from '@/components/IngestionTransmissionTab'
+import { NearMissesPanel } from '@/components/NearMissesPanel'
+import { NearMissReplayModal } from '@/components/NearMissReplayModal'
+import { TrafficSpeedPanel } from '@/components/TrafficSpeedPanel'
+import { NearMissEvent, listNearMissEvents } from '@/services/nearMisses'
+import { TrafficCorridorSegment, listTrafficCorridors } from '@/services/trafficSpeed'
+import { AlertTriangle, Gauge } from 'lucide-react'
 import {
   listSinistros,
   listCamadasExposicao,
@@ -63,9 +69,26 @@ export default function Cockpit() {
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedEvent, setSelectedEvent] = useState<RoadEventRecord | null>(null)
 
-  // View Mode: 'gabinete' | 'tecnico' | 'dados_externos' | 'ingestao'
+  // Quase-Acidentes e Tráfego / Velocidade Média
+  const [nearMisses, setNearMisses] = useState<NearMissEvent[]>([])
+  const [trafficCorridors, setTrafficCorridors] = useState<TrafficCorridorSegment[]>([])
+  const [selectedNearMissForReplay, setSelectedNearMissForReplay] = useState<NearMissEvent | null>(
+    null,
+  )
+  const [showNearMissReplayModal, setShowNearMissReplayModal] = useState<boolean>(false)
+
+  // Map layer toggles
+  const [showNearMissesMapLayer, setShowNearMissesMapLayer] = useState<boolean>(true)
+  const [showTrafficMapLayer, setShowTrafficMapLayer] = useState<boolean>(false)
+
+  // View Mode: 'gabinete' | 'tecnico' | 'quase_acidentes' | 'trafego_velocidade' | 'dados_externos' | 'ingestao'
   const [activeTab, setActiveTab] = useState<
-    'gabinete' | 'tecnico' | 'dados_externos' | 'ingestao'
+    | 'gabinete'
+    | 'tecnico'
+    | 'quase_acidentes'
+    | 'trafego_velocidade'
+    | 'dados_externos'
+    | 'ingestao'
   >('gabinete')
   const [showTceDossierModal, setShowTceDossierModal] = useState<boolean>(false)
 
@@ -96,16 +119,19 @@ export default function Cockpit() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [eventsData, fleetData, settingsData, sinistrosData, exposicoesData] =
+      const [eventsData, fleetData, settingsData, sinistrosData, exposicoesData, nearMissData] =
         await Promise.all([
           listRoadEvents(),
           listFleetTelemetry(),
           getInstitucionalSettings('4106902'),
           listSinistros('4106902'),
           listCamadasExposicao('4106902'),
+          listNearMissEvents('4106902'),
         ])
       setEvents(eventsData)
       setFleet(fleetData)
+      setNearMisses(nearMissData)
+      setTrafficCorridors(listTrafficCorridors())
       setInstitucionalSettings(settingsData)
       setSinistros(sinistrosData)
       setExposicoes(exposicoesData)
@@ -337,7 +363,7 @@ export default function Cockpit() {
               <button
                 type="button"
                 onClick={() => setActiveTab('tecnico')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeTab === 'tecnico'
                     ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/30'
                     : 'text-[#94A3B8] hover:text-white'
@@ -347,15 +373,42 @@ export default function Cockpit() {
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('quase_acidentes')}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'quase_acidentes'
+                    ? 'bg-gradient-to-r from-[#EF4444] to-[#B91C1C] text-white shadow-md shadow-[#EF4444]/30'
+                    : 'text-[#F87171] hover:text-white hover:bg-[#EF4444]/20'
+                }`}
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Quase-Acidentes</span>
+                <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full font-mono">
+                  {nearMisses.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('trafego_velocidade')}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'trafego_velocidade'
+                    ? 'bg-gradient-to-r from-[#10B981] to-[#047857] text-white shadow-md shadow-[#10B981]/30'
+                    : 'text-[#34D399] hover:text-white hover:bg-[#10B981]/20'
+                }`}
+              >
+                <Gauge className="w-3.5 h-3.5" />
+                <span>Tráfego & Velocidade</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('dados_externos')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'dados_externos'
-                    ? 'bg-gradient-to-r from-[#EF4444] to-[#DC2626] text-white shadow-md shadow-[#EF4444]/30'
-                    : 'text-[#EF4444] hover:text-white hover:bg-[#EF4444]/20'
+                    ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md shadow-[#F59E0B]/30'
+                    : 'text-[#FBBF24] hover:text-white hover:bg-[#F59E0B]/20'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>Dados Externos & Sinistros</span>
+                <span>Dados Externos</span>
                 <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full font-mono">
                   {sinistros.length}
                 </span>
@@ -442,9 +495,29 @@ export default function Cockpit() {
           </div>
         </div>
 
-        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS DADOS EXTERNOS VS INGESTÃO */}
+        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS QUASE-ACIDENTES VS TRÁFEGO/VELOCIDADE VS DADOS EXTERNOS VS INGESTÃO */}
         {activeTab === 'ingestao' ? (
           <IngestionTransmissionTab />
+        ) : activeTab === 'quase_acidentes' ? (
+          <NearMissesPanel
+            events={nearMisses}
+            selectedEventId={selectedNearMissForReplay?.id}
+            onSelectEvent={(nm) => {
+              setSelectedNearMissForReplay(nm)
+              setShowNearMissReplayModal(true)
+            }}
+            onOpenReplay={(nm) => {
+              setSelectedNearMissForReplay(nm)
+              setShowNearMissReplayModal(true)
+            }}
+          />
+        ) : activeTab === 'trafego_velocidade' ? (
+          <TrafficSpeedPanel
+            onFocusCorridor={(corridor) => {
+              setActiveTab('tecnico')
+              setShowTrafficMapLayer(true)
+            }}
+          />
         ) : activeTab === 'dados_externos' ? (
           <CamadasDadosExternosTab
             sinistros={sinistros}
@@ -562,7 +635,7 @@ export default function Cockpit() {
                     <button
                       type="button"
                       onClick={() => setShowFleet(!showFleet)}
-                      className={`px-3 py-1.5 rounded-lg border transition-all ${
+                      className={`min-h-[44px] px-3 py-1.5 rounded-lg border transition-all ${
                         showFleet
                           ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold'
                           : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
@@ -570,6 +643,30 @@ export default function Cockpit() {
                     >
                       <Bus className="w-3.5 h-3.5 inline mr-1" />
                       Frota de Ônibus & Coleta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNearMissesMapLayer(!showNearMissesMapLayer)}
+                      className={`min-h-[44px] px-3 py-1.5 rounded-lg border transition-all ${
+                        showNearMissesMapLayer
+                          ? 'bg-[#EF4444]/20 border-[#EF4444] text-[#F87171] font-bold'
+                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                      }`}
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
+                      Quase-Acidentes ({nearMisses.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowTrafficMapLayer(!showTrafficMapLayer)}
+                      className={`min-h-[44px] px-3 py-1.5 rounded-lg border transition-all ${
+                        showTrafficMapLayer
+                          ? 'bg-[#38BDF8]/20 border-[#38BDF8] text-[#38BDF8] font-bold'
+                          : 'bg-[#0A1128] border-[#1A2A5A] text-[#94A3B8]'
+                      }`}
+                    >
+                      <Gauge className="w-3.5 h-3.5 inline mr-1" />
+                      Tráfego Tempo Real (Fluidez)
                     </button>
                   </div>
 
@@ -595,10 +692,18 @@ export default function Cockpit() {
                   <CuritibaMap
                     roadEvents={events}
                     fleet={fleet}
+                    nearMisses={nearMisses}
+                    trafficCorridors={trafficCorridors}
                     selectedEventId={selectedEvent?.id}
                     onSelectEvent={(ev) => setSelectedEvent(ev)}
+                    onSelectNearMiss={(nm) => {
+                      setSelectedNearMissForReplay(nm)
+                      setShowNearMissReplayModal(true)
+                    }}
                     showHeatmap={showHeatmap}
                     showFleet={showFleet}
+                    showNearMisses={showNearMissesMapLayer}
+                    showTrafficLayer={showTrafficMapLayer}
                     severityFilter={severityFilter}
                   />
                 </div>
@@ -1014,6 +1119,16 @@ export default function Cockpit() {
       <ChangePasswordModal
         isOpen={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
+      />
+
+      {/* Modal: Replay Físico Quadro a Quadro de Quase-Acidente */}
+      <NearMissReplayModal
+        isOpen={showNearMissReplayModal}
+        onClose={() => {
+          setShowNearMissReplayModal(false)
+          setSelectedNearMissForReplay(null)
+        }}
+        event={selectedNearMissForReplay}
       />
     </div>
   )
