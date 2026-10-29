@@ -219,9 +219,12 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
           </div>
 
           {/* MÉTRICAS DE COBERTURA REAL & VIABILIDADE */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-2xl text-left">
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#10B981] font-mono">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-3xl text-left">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-col justify-between overflow-hidden">
+              <div
+                title={current.liveKmMention}
+                className="text-base sm:text-lg md:text-xl font-black text-[#10B981] font-sans tracking-tight leading-snug break-words hyphens-auto"
+              >
                 {current.liveKmMention}
               </div>
               <div className="text-xs text-[#CBD5E1] leading-tight mt-1">
@@ -229,8 +232,8 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#38BDF8] font-mono">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-col justify-between overflow-hidden">
+              <div className="text-xl sm:text-2xl font-black text-[#38BDF8] font-mono leading-none">
                 {liveMetrics ? `${liveMetrics.totalEventsDetected}` : '14'}
               </div>
               <div className="text-xs text-[#CBD5E1] leading-tight mt-1">
@@ -238,8 +241,8 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#F8FAFC] font-mono">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-col justify-between overflow-hidden">
+              <div className="text-xl sm:text-2xl font-black text-[#F8FAFC] font-mono leading-none">
                 {liveMetrics ? `${liveMetrics.activeSensors}` : '6'}
               </div>
               <div className="text-xs text-[#CBD5E1] leading-tight mt-1">
@@ -247,8 +250,8 @@ export function Hero({ selectedTier, onSelectTier, liveMetrics }: HeroProps) {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A]">
-              <div className="text-xl sm:text-2xl font-black text-[#60A5FA] font-mono">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-[#101B3A]/80 border border-[#1A2A5A] flex flex-col justify-between overflow-hidden">
+              <div className="text-xl sm:text-2xl font-black text-[#60A5FA] font-mono leading-none">
                 Zero CAPEX
               </div>
               <div className="text-xs text-[#CBD5E1] leading-tight mt-1">
