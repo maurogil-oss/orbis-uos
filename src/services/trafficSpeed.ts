@@ -299,7 +299,7 @@ export const DEMO_TRAFFIC_CORRIDORS: TrafficCorridorSegment[] = [
   },
 ]
 
-export function getCityTrafficOverview(): CityTrafficOverview {
+export function getCityTrafficOverview(fonteCustom?: string): CityTrafficOverview {
   return {
     codigoIbge: '4106902',
     municipio: 'Curitiba / PR',
@@ -313,6 +313,7 @@ export function getCityTrafficOverview(): CityTrafficOverview {
     narrativaGeral:
       'Tráfego livre e estável na maior parte da malha viária (48%), com retenções concentradas nos eixos radiais Linha Verde e Marechal Floriano na janela vespertina. Velocidade média global de 33,2 km/h.',
     fonteDeclarada:
+      fonteCustom ||
       'Derivado da Coleta ORBIS DSP • Velocidades Observadas por Frota Municipal (Dados de Demonstração Calibrados)',
     comparativoJanelas: [
       {

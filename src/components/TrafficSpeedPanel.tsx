@@ -21,6 +21,11 @@ import {
   listTrafficCorridors,
   getCityTrafficOverview,
 } from '@/services/trafficSpeed'
+import {
+  trafficAdapterRegistry,
+  TrafficSourceProviderId,
+  TRAFFIC_SOURCES,
+} from '@/services/trafficAdapters'
 
 interface TrafficSpeedPanelProps {
   onFocusCorridor?: (corridor: TrafficCorridorSegment) => void
@@ -29,6 +34,13 @@ interface TrafficSpeedPanelProps {
 export function TrafficSpeedPanel({ onFocusCorridor }: TrafficSpeedPanelProps) {
   const [selectedWindow, setSelectedWindow] = useState<TimeWindowId>('geral_24h')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [activeSourceId, setActiveSourceId] = useState<TrafficSourceProviderId>(
+    trafficAdapterRegistry.getActiveSourceId(),
+  )
+
+  const activeAdapter = trafficAdapterRegistry.getAdapter(activeSourceId)
+  const isExternalAdapter = activeSourceId === 'waze_for_cities'
+  const isAvailable = activeAdapter.isAvailable()
 
   const corridors = listTrafficCorridors()
   const overview = getCityTrafficOverview()
@@ -80,6 +92,102 @@ export function TrafficSpeedPanel({ onFocusCorridor }: TrafficSpeedPanelProps) {
               28,9 km Monitorados
             </span>
           </div>
+        </div>
+
+        {/* SELETOR DE FONTE DECLARADA (ORBIS DSP vs FEED EXTERNO GRATUITO WAZE FOR CITIES) */}
+        <div className="p-4 rounded-xl bg-[#0A1128] border border-[#1A2A5A] space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-[11px] font-mono text-[#94A3B8] uppercase font-bold block">
+                Camada de Integração de Tráfego: Fonte Ativa
+              </span>
+              <span className="text-xs text-[#CBD5E1]">
+                Alterne entre a telemetria passiva da frota e feeds governamentais gratuitos de
+                convênio
+              </span>
+            </div>
+
+            {/* Toggle de Fonte */}
+            <div className="flex items-center gap-1.5 bg-[#101B3A] p-1 rounded-xl border border-[#1A2A5A]">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSourceId('orbis_dsp')
+                  trafficAdapterRegistry.setActiveSourceId('orbis_dsp')
+                }}
+                aria-pressed={activeSourceId === 'orbis_dsp'}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10B981] ${
+                  activeSourceId === 'orbis_dsp'
+                    ? 'bg-[#10B981] text-white shadow-md'
+                    : 'text-[#94A3B8] hover:text-white'
+                }`}
+              >
+                <span>Coleta ORBIS DSP (Ativa)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSourceId('waze_for_cities')
+                  trafficAdapterRegistry.setActiveSourceId('waze_for_cities')
+                }}
+                aria-pressed={activeSourceId === 'waze_for_cities'}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
+                  activeSourceId === 'waze_for_cities'
+                    ? 'bg-[#3B82F6] text-white shadow-md'
+                    : 'text-[#94A3B8] hover:text-white'
+                }`}
+              >
+                <span>Waze for Cities (Externo)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Rótulo de Declaração Honesta da Fonte Ativa */}
+          <div className="pt-2 border-t border-[#1A2A5A]/60 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  activeSourceId === 'orbis_dsp' ? 'bg-[#10B981]' : 'bg-[#F59E0B]'
+                }`}
+              />
+              <span className="text-[#94A3B8]">
+                Declaração Oficial:{' '}
+                <b className="text-white">{TRAFFIC_SOURCES[activeSourceId].declaracaoFonte}</b>
+              </span>
+            </div>
+
+            <span className="text-[10px] font-mono text-[#38BDF8]">
+              {TRAFFIC_SOURCES[activeSourceId].tipoIntegracao === 'coleta_passiva'
+                ? 'Modo Padrão • Telemetria Municipal'
+                : 'Adaptador Pronto • Desativado por padrão'}
+            </span>
+          </div>
+
+          {/* Banner Explicativo se Waze for Cities for Selecionado */}
+          {isExternalAdapter && (
+            <div className="p-3.5 rounded-lg bg-[#15234A] border border-[#F59E0B]/50 text-xs text-[#CBD5E1] space-y-2">
+              <div className="flex items-center gap-2 text-[#F59E0B] font-bold">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Adaptador Externo Gratuito Pré-Configurado (Waze for Cities)</span>
+              </div>
+              <p className="leading-relaxed">{TRAFFIC_SOURCES.waze_for_cities.avisoStatus}</p>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-[#94A3B8]">
+                <span>
+                  Programa oficial sem custos para prefeituras e órgãos públicos gestores de
+                  trânsito.
+                </span>
+                <a
+                  href="https://www.waze.com/pt-BR/ccp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#38BDF8] hover:underline font-bold inline-flex items-center gap-1"
+                >
+                  Saiba mais sobre o Waze for Cities &rarr;
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* WCAG 2.2: Frase interpretativa obrigatória em linguagem plana do estado do tráfego */}
@@ -364,7 +472,8 @@ export function TrafficSpeedPanel({ onFocusCorridor }: TrafficSpeedPanelProps) {
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-[#38BDF8] shrink-0" />
             <span>
-              Fonte dos Dados: <b className="text-white">{overview.fonteDeclarada}</b>
+              Fonte Ativa Declarada:{' '}
+              <b className="text-white">{TRAFFIC_SOURCES[activeSourceId].declaracaoFonte}</b>
             </span>
           </div>
           <span className="text-[10px] font-mono text-[#64748B]">LGPD k-anonimato garantido</span>

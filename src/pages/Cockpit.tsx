@@ -43,9 +43,10 @@ import { IngestionTransmissionTab } from '@/components/IngestionTransmissionTab'
 import { NearMissesPanel } from '@/components/NearMissesPanel'
 import { NearMissReplayModal } from '@/components/NearMissReplayModal'
 import { TrafficSpeedPanel } from '@/components/TrafficSpeedPanel'
+import { PavementProjectionPanel } from '@/components/PavementProjectionPanel'
 import { NearMissEvent, listNearMissEvents } from '@/services/nearMisses'
 import { TrafficCorridorSegment, listTrafficCorridors } from '@/services/trafficSpeed'
-import { AlertTriangle, Gauge } from 'lucide-react'
+import { AlertTriangle, Gauge, TrendingDown } from 'lucide-react'
 import {
   listSinistros,
   listCamadasExposicao,
@@ -81,10 +82,11 @@ export default function Cockpit() {
   const [showNearMissesMapLayer, setShowNearMissesMapLayer] = useState<boolean>(true)
   const [showTrafficMapLayer, setShowTrafficMapLayer] = useState<boolean>(false)
 
-  // View Mode: 'gabinete' | 'tecnico' | 'quase_acidentes' | 'trafego_velocidade' | 'dados_externos' | 'ingestao'
+  // View Mode: 'gabinete' | 'tecnico' | 'projecao_pavimento' | 'quase_acidentes' | 'trafego_velocidade' | 'dados_externos' | 'ingestao'
   const [activeTab, setActiveTab] = useState<
     | 'gabinete'
     | 'tecnico'
+    | 'projecao_pavimento'
     | 'quase_acidentes'
     | 'trafego_velocidade'
     | 'dados_externos'
@@ -373,6 +375,18 @@ export default function Cockpit() {
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('projecao_pavimento')}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'projecao_pavimento'
+                    ? 'bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white shadow-md shadow-[#3B82F6]/30'
+                    : 'text-[#60A5FA] hover:text-white hover:bg-[#3B82F6]/20'
+                }`}
+              >
+                <TrendingDown className="w-3.5 h-3.5" />
+                <span>Projeção de Pavimento</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('quase_acidentes')}
                 className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'quase_acidentes'
@@ -495,9 +509,15 @@ export default function Cockpit() {
           </div>
         </div>
 
-        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS QUASE-ACIDENTES VS TRÁFEGO/VELOCIDADE VS DADOS EXTERNOS VS INGESTÃO */}
+        {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS PROJEÇÃO DE PAVIMENTO VS QUASE-ACIDENTES VS TRÁFEGO/VELOCIDADE VS DADOS EXTERNOS VS INGESTÃO */}
         {activeTab === 'ingestao' ? (
           <IngestionTransmissionTab />
+        ) : activeTab === 'projecao_pavimento' ? (
+          <PavementProjectionPanel
+            onFocusCorridor={(corridor) => {
+              setActiveTab('tecnico')
+            }}
+          />
         ) : activeTab === 'quase_acidentes' ? (
           <NearMissesPanel
             events={nearMisses}
