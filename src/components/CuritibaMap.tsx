@@ -16,6 +16,7 @@ interface CuritibaMapProps {
   fleet: FleetTelemetryRecord[]
   nearMisses?: NearMissEvent[]
   trafficCorridors?: TrafficCorridorSegment[]
+  trafficSourceLabel?: string
   selectedEventId?: string | null
   onSelectEvent?: (event: RoadEventRecord) => void
   onSelectNearMiss?: (event: NearMissEvent) => void
@@ -31,6 +32,7 @@ export function CuritibaMap({
   fleet,
   nearMisses = [],
   trafficCorridors = [],
+  trafficSourceLabel,
   selectedEventId,
   onSelectEvent,
   onSelectNearMiss,
@@ -479,7 +481,11 @@ export function CuritibaMap({
         {showTrafficLayer && trafficCorridors.length > 0 && (
           <div className="flex items-center gap-2 pt-1 border-t border-[#1A2A5A]/60">
             <span className="w-2.5 h-1 bg-[#10B981] rounded inline-block" />
-            <span className="text-[#38BDF8]">Tráfego em Tempo Real (Fluidez da Frota)</span>
+            <span className="text-[#38BDF8]">
+              {trafficSourceLabel
+                ? `Tráfego em Tempo Real (${trafficSourceLabel})`
+                : 'Tráfego em Tempo Real (Fluidez da Frota)'}
+            </span>
           </div>
         )}
       </div>

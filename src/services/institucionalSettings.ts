@@ -28,6 +28,12 @@ export interface InstitucionalSettingsRecord {
   cgu_last_sync?: string
   cgu_cache_payload?: any
   audit_trail?: AuditTrailEvent[] | string
+  traffic_source_active?: 'orbis_dsp' | 'waze_for_cities'
+  waze_feed_url?: string
+  waze_feed_active?: boolean
+  waze_last_tested_at?: string
+  waze_last_test_status?: 'nao_testado' | 'sucesso' | 'falha'
+  waze_last_test_details?: any
   created?: string
   updated?: string
 }

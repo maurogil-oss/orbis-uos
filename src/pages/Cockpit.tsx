@@ -45,7 +45,8 @@ import { NearMissReplayModal } from '@/components/NearMissReplayModal'
 import { TrafficSpeedPanel } from '@/components/TrafficSpeedPanel'
 import { PavementProjectionPanel } from '@/components/PavementProjectionPanel'
 import { NearMissEvent, listNearMissEvents } from '@/services/nearMisses'
-import { TrafficCorridorSegment, listTrafficCorridors } from '@/services/trafficSpeed'
+import { TrafficCorridorSegment } from '@/services/trafficSpeed'
+import { trafficAdapterRegistry } from '@/services/trafficAdapters'
 import { AlertTriangle, Gauge, TrendingDown } from 'lucide-react'
 import {
   listSinistros,
@@ -133,8 +134,13 @@ export default function Cockpit() {
       setEvents(eventsData)
       setFleet(fleetData)
       setNearMisses(nearMissData)
-      setTrafficCorridors(listTrafficCorridors())
       setInstitucionalSettings(settingsData)
+
+      if (settingsData) {
+        trafficAdapterRegistry.applySettings(settingsData)
+      }
+      const trafficExecution = await trafficAdapterRegistry.fetchTrafficData()
+      setTrafficCorridors(trafficExecution.corridors)
       setSinistros(sinistrosData)
       setExposicoes(exposicoesData)
 
@@ -533,6 +539,8 @@ export default function Cockpit() {
           />
         ) : activeTab === 'trafego_velocidade' ? (
           <TrafficSpeedPanel
+            institucionalSettings={institucionalSettings}
+            onSettingsChanged={loadData}
             onFocusCorridor={(corridor) => {
               setActiveTab('tecnico')
               setShowTrafficMapLayer(true)
@@ -714,6 +722,12 @@ export default function Cockpit() {
                     fleet={fleet}
                     nearMisses={nearMisses}
                     trafficCorridors={trafficCorridors}
+                    trafficSourceLabel={
+                      trafficAdapterRegistry.getActiveSourceId() === 'waze_for_cities' &&
+                      trafficAdapterRegistry.getWazeAdapter().isAvailable()
+                        ? 'Waze for Cities'
+                        : 'Coleta ORBIS DSP'
+                    }
                     selectedEventId={selectedEvent?.id}
                     onSelectEvent={(ev) => setSelectedEvent(ev)}
                     onSelectNearMiss={(nm) => {

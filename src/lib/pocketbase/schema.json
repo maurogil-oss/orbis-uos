@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-30T09:03:10.653Z",
+  "generatedAt": "2026-10-30T09:12:10.103Z",
   "collections": [
     {
       "name": "users",
@@ -817,6 +817,44 @@
         },
         {
           "name": "audit_trail",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "traffic_source_active",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["orbis_dsp", "waze_for_cities"]
+        },
+        {
+          "name": "waze_feed_url",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "waze_feed_active",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "waze_last_tested_at",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "waze_last_test_status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["nao_testado", "sucesso", "falha"]
+        },
+        {
+          "name": "waze_last_test_details",
           "type": "json",
           "required": false,
           "system": false
