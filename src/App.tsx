@@ -29,6 +29,7 @@ import Demo from './pages/Demo'
 import Plataforma from './pages/Plataforma'
 import FaqPage from './pages/Faq'
 import Acessibilidade from './pages/Acessibilidade'
+import ConfiguracoesPage from './pages/Configuracoes'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -84,6 +85,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Cockpit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <ConfiguracoesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cockpit/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <ConfiguracoesPage />
                 </ProtectedRoute>
               }
             />

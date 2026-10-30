@@ -32,11 +32,10 @@ import {
   trafficAdapterRegistry,
   TrafficSourceProviderId,
   TRAFFIC_SOURCES,
-  testWazeFeedUrl,
-  WazeFeedTestResult,
   TrafficExecutionResult,
 } from '@/services/trafficAdapters'
 import { InstitucionalSettingsRecord } from '@/services/institucionalSettings'
+import { TrafficIntegrationConfig } from '@/components/TrafficIntegrationConfig'
 
 interface TrafficSpeedPanelProps {
   onFocusCorridor?: (corridor: TrafficCorridorSegment) => void
@@ -61,42 +60,15 @@ export function TrafficSpeedPanel({
   const [executionResult, setExecutionResult] = useState<TrafficExecutionResult | null>(null)
   const [loadingData, setLoadingData] = useState<boolean>(false)
 
-  // Configuração do Waze for Cities
-  const [wazeUrl, setWazeUrl] = useState<string>(institucionalSettings?.waze_feed_url || '')
-  const [wazeActive, setWazeActive] = useState<boolean>(
-    Boolean(institucionalSettings?.waze_feed_active),
-  )
-
-  // Estados do teste do feed
-  const [testingFeed, setTestingFeed] = useState<boolean>(false)
-  const [testResult, setTestResult] = useState<WazeFeedTestResult | null>(
-    (institucionalSettings?.waze_last_test_details as WazeFeedTestResult) || null,
-  )
-  const [lastTestedAt, setLastTestedAt] = useState<string | null>(
-    institucionalSettings?.waze_last_tested_at || null,
-  )
-
-  // Feedback de salvamento e acessibilidade
-  const [savingConfig, setSavingConfig] = useState<boolean>(false)
+  // Feedback de acessibilidade
   const [statusAnnouncement, setStatusAnnouncement] = useState<string>('')
+  const wazeActive = Boolean(institucionalSettings?.waze_feed_active)
 
   // Sincronizar quando institucionalSettings mudar
   useEffect(() => {
     if (institucionalSettings) {
       trafficAdapterRegistry.applySettings(institucionalSettings)
       setActiveSourceId(trafficAdapterRegistry.getActiveSourceId())
-      if (institucionalSettings.waze_feed_url !== undefined) {
-        setWazeUrl(institucionalSettings.waze_feed_url || '')
-      }
-      if (institucionalSettings.waze_feed_active !== undefined) {
-        setWazeActive(Boolean(institucionalSettings.waze_feed_active))
-      }
-      if (institucionalSettings.waze_last_test_details) {
-        setTestResult(institucionalSettings.waze_last_test_details)
-      }
-      if (institucionalSettings.waze_last_tested_at) {
-        setLastTestedAt(institucionalSettings.waze_last_tested_at)
-      }
     }
   }, [institucionalSettings])
 
@@ -121,95 +93,6 @@ export function TrafficSpeedPanel({
   useEffect(() => {
     loadTrafficData()
   }, [activeSourceId, selectedWindow])
-
-  // Testar Feed do Waze
-  const handleTestFeed = async () => {
-    const clean = wazeUrl.trim()
-    if (!clean) {
-      setStatusAnnouncement('Erro: Por favor, informe uma URL válida para testar o feed.')
-      return
-    }
-
-    setTestingFeed(true)
-    setStatusAnnouncement('Iniciando teste real de conexão com o feed do Waze for Cities...')
-    try {
-      const res = await testWazeFeedUrl(clean)
-      setTestResult(res)
-      const now = new Date().toISOString()
-      setLastTestedAt(now)
-
-      if (res.ok) {
-        setStatusAnnouncement(
-          `Teste do feed bem-sucedido: O endereço respondeu com HTTP ${res.httpStatus} em ${res.elapsedMs} ms. Estrutura JSON válida. O interruptor de ativação foi liberado.`,
-        )
-      } else {
-        setStatusAnnouncement(
-          `Falha no teste do feed: ${res.message}. O interruptor de ativação permanece bloqueado até resposta válida.`,
-        )
-        // Se o teste falhar e estava ativo, desativa para segurança
-        if (wazeActive) {
-          setWazeActive(false)
-        }
-      }
-
-      // Persistir resultado do teste
-      await trafficAdapterRegistry.saveWazeConfiguration({
-        codigoIbge: institucionalSettings?.codigo_ibge || '4106902',
-        feedUrl: clean,
-        active: res.ok ? wazeActive : false,
-        testResult: res,
-      })
-      onSettingsChanged?.()
-    } catch (err: any) {
-      console.error('Erro ao testar feed:', err)
-      setStatusAnnouncement('Erro inesperado ao tentar validar o feed. Verifique a conexão.')
-    } finally {
-      setTestingFeed(false)
-    }
-  }
-
-  // Alternar ativação do Waze for Cities
-  const handleToggleWazeActivation = async (newActiveState: boolean) => {
-    if (newActiveState && (!testResult || !testResult.ok)) {
-      setStatusAnnouncement(
-        'Ação bloqueada: É obrigatório realizar um teste bem-sucedido do feed antes de ativar o Waze for Cities.',
-      )
-      return
-    }
-
-    setSavingConfig(true)
-    try {
-      await trafficAdapterRegistry.saveWazeConfiguration({
-        codigoIbge: institucionalSettings?.codigo_ibge || '4106902',
-        feedUrl: wazeUrl.trim(),
-        active: newActiveState,
-        testResult: testResult || undefined,
-      })
-
-      setWazeActive(newActiveState)
-      if (newActiveState) {
-        setActiveSourceId('waze_for_cities')
-        trafficAdapterRegistry.setActiveSourceId('waze_for_cities')
-        setStatusAnnouncement(
-          'Waze for Cities ativado com sucesso como fonte da camada de tráfego do Cockpit!',
-        )
-      } else {
-        setActiveSourceId('orbis_dsp')
-        trafficAdapterRegistry.setActiveSourceId('orbis_dsp')
-        setStatusAnnouncement(
-          'Waze for Cities desativado. Fonte da camada de tráfego retornada para Coleta ORBIS DSP.',
-        )
-      }
-
-      onSettingsChanged?.()
-      await loadTrafficData()
-    } catch (err: any) {
-      console.error('Erro ao salvar ativação:', err)
-      setStatusAnnouncement('Erro ao salvar alteração de ativação no backend.')
-    } finally {
-      setSavingConfig(false)
-    }
-  }
 
   // Selecionar fonte ativa manualmente
   const handleSelectSource = (id: TrafficSourceProviderId) => {
@@ -257,9 +140,6 @@ export function TrafficSpeedPanel({
       0,
     ) / (corridors.length || 1)
   ).toFixed(1)
-
-  const isWazeTestedSuccessfully = testResult?.ok === true
-  const isUrlProvided = Boolean(wazeUrl.trim())
 
   return (
     <div className="space-y-6">
@@ -401,219 +281,16 @@ export function TrafficSpeedPanel({
         {/* ------------------------------------------------------------- */}
         {/* BLOCO DEDICADO DE ATIVAÇÃO DO WAZE FOR CITIES                  */}
         {/* ------------------------------------------------------------- */}
-        <section
-          aria-labelledby="waze-config-heading"
-          className="p-4 sm:p-5 rounded-xl bg-[#0A1128] border border-[#1E293B] space-y-4"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1A2A5A]">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 border border-[#3B82F6]/40 flex items-center justify-center shrink-0">
-                <Radio className="w-4 h-4 text-[#60A5FA]" />
-              </div>
-              <div>
-                <h3 id="waze-config-heading" className="text-sm font-bold text-[#F8FAFC]">
-                  Configuração & Ativação: Waze for Cities
-                </h3>
-                <p className="text-xs text-[#94A3B8]">
-                  Programa governamental gratuito de compartilhamento bidirecional de dados viários
-                </p>
-              </div>
-            </div>
-
-            <a
-              href="https://www.waze.com/pt-BR/ccp"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Saiba mais sobre a adesão ao programa Waze for Cities (abre em nova aba)"
-              className="min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-semibold text-[#38BDF8] hover:text-[#60A5FA] hover:bg-[#38BDF8]/10 inline-flex items-center gap-1.5 transition-colors self-start sm:self-auto"
-            >
-              <span>Adesão ao Programa Waze</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          {/* Estado sem feed configurado (Aguardando convênio Waze for Cities) */}
-          {!isUrlProvided && (
-            <div className="p-4 rounded-xl bg-[#15234A]/80 border border-[#3B82F6]/30 text-xs space-y-2">
-              <div className="flex items-center gap-2 text-[#60A5FA] font-bold">
-                <Info className="w-4 h-4 shrink-0" />
-                <span>Aguardando convênio Waze for Cities — feed emitido após adesão</span>
-              </div>
-              <p className="text-[#CBD5E1] leading-relaxed">
-                O programa Waze for Cities é 100% gratuito para prefeituras e órgãos públicos de
-                trânsito (SMDT/URBS). O órgão solicita a adesão formal no portal do programa; ao
-                receber a URL do feed oficial de alertas e lentidão, basta colar no campo abaixo,
-                testar a conexão e ativar.
-              </p>
-              <div className="text-[11px] text-[#94A3B8] pt-1">
-                Passo 1: Solicitar adesão &rarr; Passo 2: Receber URL do feed &rarr; Passo 3: Colar
-                abaixo, testar e ligar.
-              </div>
-            </div>
-          )}
-
-          {/* Formulário de URL, Botão de Teste e Interruptor */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
-            {/* Campo de URL */}
-            <div className="lg:col-span-6 space-y-1.5">
-              <label
-                htmlFor="waze-feed-url-input"
-                className="text-xs font-bold text-[#CBD5E1] block"
-              >
-                URL do Feed Waze for Cities (JSON / GeoJSON Oficial)
-              </label>
-              <div className="relative">
-                <input
-                  id="waze-feed-url-input"
-                  type="url"
-                  placeholder="https://waze.com/row-partner-hub-api/..."
-                  value={wazeUrl}
-                  onChange={(e) => {
-                    setWazeUrl(e.target.value)
-                    // Reset do resultado do teste se a URL mudar
-                    if (testResult) {
-                      setTestResult(null)
-                    }
-                  }}
-                  className="w-full min-h-[44px] bg-[#101B3A] border border-[#1A2A5A] rounded-xl px-3.5 py-2.5 text-xs text-[#F8FAFC] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
-                />
-              </div>
-              <span className="text-[10px] text-[#94A3B8] block">
-                Insira o endereço emitido ao órgão no termo de adesão ao Waze for Cities.
-              </span>
-            </div>
-
-            {/* Botão Testar Feed */}
-            <div className="lg:col-span-3">
-              <button
-                type="button"
-                onClick={handleTestFeed}
-                disabled={testingFeed || !isUrlProvided}
-                className="w-full min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3B82F6] hover:bg-[#2563EB] disabled:bg-[#1E293B] disabled:text-[#64748B] disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
-                aria-label="Testar chamada real ao endereço de feed do Waze for Cities"
-              >
-                {testingFeed ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Testando conexão...</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4" />
-                    <span>Testar Feed</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Interruptor de Ativação */}
-            <div className="lg:col-span-3 space-y-1.5">
-              <label
-                htmlFor="waze-activation-switch"
-                className="text-xs font-bold text-[#CBD5E1] block"
-              >
-                Ativação no Cockpit
-              </label>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-[#101B3A] border border-[#1A2A5A] min-h-[44px]">
-                <span className="text-xs text-[#94A3B8] pl-1 font-medium">
-                  {wazeActive ? 'Adaptador Ativo' : 'Desativado'}
-                </span>
-
-                <button
-                  id="waze-activation-switch"
-                  type="button"
-                  role="switch"
-                  aria-checked={wazeActive}
-                  disabled={!isWazeTestedSuccessfully || savingConfig}
-                  onClick={() => handleToggleWazeActivation(!wazeActive)}
-                  aria-label={
-                    wazeActive
-                      ? 'Desativar adaptador Waze for Cities'
-                      : 'Ativar adaptador Waze for Cities (requer teste bem-sucedido)'
-                  }
-                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10B981] disabled:cursor-not-allowed disabled:opacity-40 ${
-                    wazeActive ? 'bg-[#10B981]' : 'bg-[#1E293B]'
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                      wazeActive ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Feedback Visual do Teste (Reporte Honesto) */}
-          {testResult && (
-            <div
-              className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
-                testResult.ok
-                  ? 'bg-[#064E3B]/30 border-[#10B981]/50 text-[#A7F3D0]'
-                  : 'bg-[#450A0A]/30 border-[#EF4444]/50 text-[#FECACA]'
-              }`}
-              role="region"
-              aria-label="Resultado do teste do feed"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 font-bold">
-                  {testResult.ok ? (
-                    <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-[#EF4444] shrink-0" />
-                  )}
-                  <span>
-                    {testResult.ok ? 'Feed Validado com Sucesso' : 'Falha na Validação do Feed'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-[11px] font-mono text-[#94A3B8]">
-                  <span>HTTP {testResult.httpStatus || 0}</span>
-                  <span>•</span>
-                  <span>{testResult.elapsedMs} ms</span>
-                </div>
-              </div>
-
-              <p className="leading-relaxed">{testResult.message}</p>
-
-              {testResult.details && (
-                <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-[#94A3B8] font-mono">
-                  {testResult.details.totalAlerts !== undefined && (
-                    <span>
-                      Alertas detectados: <b>{testResult.details.totalAlerts}</b>
-                    </span>
-                  )}
-                  {testResult.details.totalJams !== undefined && (
-                    <span>
-                      Retenções/Jams: <b>{testResult.details.totalJams}</b>
-                    </span>
-                  )}
-                  {testResult.details.isGeoJson && <span>Formato: GeoJSON FeatureCollection</span>}
-                </div>
-              )}
-
-              {lastTestedAt && (
-                <div className="text-[10px] text-[#94A3B8] pt-1">
-                  Última verificação: {new Date(lastTestedAt).toLocaleString('pt-BR')} • Persistido
-                  no backend
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Aviso se tentar ativar sem testar */}
-          {!isWazeTestedSuccessfully && isUrlProvided && (
-            <div className="text-[11px] text-[#F59E0B] flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>
-                O interruptor de ativação permanece desabilitado até que um teste confirme resposta
-                e formato JSON válido.
-              </span>
-            </div>
-          )}
-        </section>
+        <div className="p-4 sm:p-5 rounded-xl bg-[#0A1128] border border-[#1E293B]">
+          <TrafficIntegrationConfig
+            settings={institucionalSettings || null}
+            onSettingsUpdated={(updated) => {
+              onSettingsChanged?.()
+              loadTrafficData()
+            }}
+            showTitle={true}
+          />
+        </div>
 
         {/* WCAG 2.2: Frase interpretativa obrigatória em linguagem plana do estado do tráfego */}
         <div

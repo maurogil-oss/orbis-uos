@@ -324,16 +324,15 @@ export default function Cockpit() {
               <span className="sm:hidden">Senha</span>
             </button>
 
-            {/* Botão de Configurações Institucionais */}
-            <button
-              type="button"
-              onClick={() => setShowConfigModal(true)}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#CBD5E1] bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
-              title="Configurações do Município, Contas, Chaves de API & Auditoria"
+            {/* Botão de Configurações Institucionais & Link Direto */}
+            <Link
+              to="/configuracoes"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold text-[#CBD5E1] hover:text-white bg-[#101B3A] hover:bg-[#1A2A5A] border border-[#1A2A5A] hover:border-[#3B82F6] flex items-center gap-1.5 transition-all shadow-sm"
+              title="Acessar Configurações da Plataforma & Integração de Trânsito"
             >
               <Settings className="w-3.5 h-3.5 text-[#3B82F6]" />
-              <span>Configurações & Chaves</span>
-            </button>
+              <span>Configurações</span>
+            </Link>
 
             {/* Link para o Sandbox Público */}
             <Link

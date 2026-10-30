@@ -11,6 +11,7 @@ import {
   Loader2,
   Lock,
   Users,
+  Radio,
 } from 'lucide-react'
 import {
   InstitucionalSettingsRecord,
@@ -19,6 +20,7 @@ import {
 } from '@/services/institucionalSettings'
 import { UsersManagementTab } from './UsersManagementTab'
 import { ApiKeysManagementTab } from './ApiKeysManagementTab'
+import { TrafficIntegrationConfig } from './TrafficIntegrationConfig'
 import { Key } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -28,6 +30,7 @@ interface InstitutionalConfigModalProps {
   settings: InstitucionalSettingsRecord | null
   onSettingsUpdated: (updated: InstitucionalSettingsRecord) => void
   onOpenChangePassword?: () => void
+  initialTab?: 'geral' | 'traffic' | 'users' | 'keys'
 }
 
 export function InstitutionalConfigModal({
@@ -36,9 +39,16 @@ export function InstitutionalConfigModal({
   settings,
   onSettingsUpdated,
   onOpenChangePassword,
+  initialTab = 'geral',
 }: InstitutionalConfigModalProps) {
   const { isAdmin } = useAuth()
-  const [activeTab, setActiveTab] = useState<'geral' | 'users' | 'keys'>('geral')
+  const [activeTab, setActiveTab] = useState<'geral' | 'traffic' | 'users' | 'keys'>(initialTab)
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab)
+    }
+  }, [initialTab, isOpen])
 
   // Estado da Feature 2: Portal Público do Cidadão (Hooks incondicionais)
   const [portalAtivo, setPortalAtivo] = useState<boolean>(settings?.portal_publico_ativo === true)
@@ -180,7 +190,7 @@ export function InstitutionalConfigModal({
           <button
             type="button"
             onClick={() => setActiveTab('geral')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'geral'
                 ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/25'
                 : 'text-[#94A3B8] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
@@ -191,8 +201,23 @@ export function InstitutionalConfigModal({
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('traffic')}
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'traffic'
+                ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-md shadow-[#10B981]/25'
+                : 'text-[#34D399] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>Trânsito Tempo Real</span>
+            {settings?.waze_feed_active && (
+              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+            )}
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('users')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'users'
                 ? 'bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/25'
                 : 'text-[#94A3B8] hover:text-white bg-[#0A1128] border border-[#1A2A5A]'
@@ -237,7 +262,15 @@ export function InstitutionalConfigModal({
           </div>
         )}
 
-        {activeTab === 'keys' && isAdmin ? (
+        {activeTab === 'traffic' ? (
+          <div className="p-1 animate-in fade-in">
+            <TrafficIntegrationConfig
+              settings={settings}
+              onSettingsUpdated={onSettingsUpdated}
+              showTitle={true}
+            />
+          </div>
+        ) : activeTab === 'keys' && isAdmin ? (
           <ApiKeysManagementTab
             settings={settings}
             onAuditTrailUpdated={(updated) => onSettingsUpdated(updated)}

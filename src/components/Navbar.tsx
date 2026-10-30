@@ -77,6 +77,14 @@ export function Navbar() {
   // Links de aprofundamento reunidos no dropdown institucional "Recursos"
   const baseInstitutionalLinks = [
     {
+      label: 'Configurações da Plataforma',
+      desc: 'Integração de trânsito em tempo real, portal e parâmetros',
+      href: '/configuracoes',
+      icon: SlidersHorizontal,
+      badge: 'Governo',
+      highlight: true,
+    },
+    {
       label: 'Plataforma & Arquitetura',
       desc: 'Benefícios, comparativo, integrações e Onda 2',
       href: '/plataforma',
@@ -341,22 +349,33 @@ export function Navbar() {
                 Acessos Rápidos
               </DropdownMenuLabel>
 
-              <div className="grid grid-cols-2 gap-1 p-1">
+              <div className="grid grid-cols-3 gap-1 p-1">
+                <Link
+                  to="/configuracoes"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#38BDF8] hover:bg-[#101B3A] font-semibold truncate"
+                  title="Configurações & Integração de Trânsito"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Ajustes</span>
+                </Link>
                 <Link
                   to="/cidadao"
                   onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#10B981] hover:bg-[#101B3A] font-semibold"
+                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#10B981] hover:bg-[#101B3A] font-semibold truncate"
+                  title="Portal do Cidadão"
                 >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Portal Cidadão</span>
+                  <Users className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Cidadão</span>
                 </Link>
                 <Link
                   to="/campo"
                   onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#38BDF8] hover:bg-[#101B3A] font-semibold"
+                  className="flex items-center gap-1.5 p-1.5 rounded-md text-xs text-[#60A5FA] hover:bg-[#101B3A] font-semibold truncate"
+                  title="Modo Campo Mobile"
                 >
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span>Modo Campo</span>
+                  <Smartphone className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Campo</span>
                 </Link>
               </div>
             </DropdownMenuContent>
@@ -527,8 +546,8 @@ export function Navbar() {
                 </Link>
               </div>
 
-              {/* Acessos Operacionais: Cockpit, Modo Campo e Cidadão */}
-              <div className="grid grid-cols-3 gap-2 pt-1">
+              {/* Acessos Operacionais: Cockpit, Configurações, Campo e Cidadão */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   to="/cockpit"
                   onClick={() => setMobileMenuOpen(false)}
@@ -539,12 +558,23 @@ export function Navbar() {
                 </Link>
 
                 <Link
+                  to="/configuracoes"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-[#38BDF8] hover:border-[#38BDF8] transition-colors"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#38BDF8]" />
+                  <span>Configurações</span>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Link
                   to="/campo"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-white hover:border-[#38BDF8] transition-colors"
                 >
                   <Smartphone className="w-3.5 h-3.5 text-[#38BDF8]" />
-                  <span>Campo</span>
+                  <span>Modo Campo</span>
                 </Link>
 
                 <Link
@@ -553,7 +583,7 @@ export function Navbar() {
                   className="flex items-center justify-center gap-1.5 min-h-[44px] p-2 rounded-lg bg-[#101B3A]/80 border border-[#1A2A5A] text-xs font-semibold text-[#10B981] hover:border-[#10B981] transition-colors"
                 >
                   <Users className="w-3.5 h-3.5" />
-                  <span>Cidadão</span>
+                  <span>Portal Cidadão</span>
                 </Link>
               </div>
 
