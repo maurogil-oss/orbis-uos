@@ -205,8 +205,8 @@ export function ContactSection() {
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-[#3B82F6] shrink-0" />
             <span>
-              <strong className="text-white">Sede Institucional:</strong> Setor Comercial Sul,
-              Quadra 4, Bloco A, Edifício Capital, 7º Andar — Brasília, DF — CEP 70304-900
+              <strong className="text-white">Sede Institucional:</strong> Rua Coronel Francisco de
+              Paula Moura Brito, 426 Bacacheri - Curitiba, PR - CEP 80.520-570
             </span>
           </div>
           <span className="text-xs text-[#64748B] shrink-0">Governança B2G • LC 182/2021</span>

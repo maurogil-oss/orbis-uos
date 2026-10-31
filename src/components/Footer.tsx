@@ -211,8 +211,8 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#3B82F6] shrink-0 mt-0.5" />
                 <span className="text-sm leading-relaxed">
-                  Setor Comercial Sul, Quadra 4, Bloco A, Edifício Capital, 7º Andar — Brasília, DF
-                  — CEP 70304-900
+                  Rua Coronel Francisco de Paula Moura Brito, 426 Bacacheri - Curitiba, PR - CEP
+                  80.520-570
                 </span>
               </li>
               <li className="pt-1">

@@ -264,7 +264,7 @@ export function PilotForm() {
                   <span>Dúvidas Gerais ou Imprensa?</span>
                 </span>
                 <span className="text-[11px] font-mono text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/30">
-                  SLA 2 dias
+                  SLA P3
                 </span>
               </div>
 
@@ -273,26 +273,39 @@ export function PilotForm() {
                 formalização de piloto, utilize o canal oficial unificado:
               </p>
 
-              <div className="p-2.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] flex items-center justify-between gap-2">
-                <a
-                  href="mailto:contato@orbis-uos.com.br"
-                  className="font-mono text-xs font-bold text-[#38BDF8] hover:underline break-all"
-                >
-                  contato@orbis-uos.com.br
-                </a>
-                <button
-                  type="button"
-                  onClick={handleCopyEmail}
-                  className="p-1.5 rounded-lg bg-[#0A1128] hover:bg-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors shrink-0"
-                  title="Copiar e-mail institucional"
-                  aria-label="Copiar e-mail institucional"
-                >
-                  {copiedEmail ? (
-                    <Check className="w-3.5 h-3.5 text-[#10B981]" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
+              <div className="p-2.5 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <a
+                    href="mailto:contato@orbis-uos.com.br"
+                    className="font-mono text-xs font-bold text-[#38BDF8] hover:underline break-all"
+                  >
+                    contato@orbis-uos.com.br
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleCopyEmail}
+                    className="p-1.5 rounded-lg bg-[#0A1128] hover:bg-[#1A2A5A] text-[#94A3B8] hover:text-white transition-colors shrink-0"
+                    title="Copiar e-mail institucional"
+                    aria-label="Copiar e-mail institucional"
+                  >
+                    {copiedEmail ? (
+                      <Check className="w-3.5 h-3.5 text-[#10B981]" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+                <span className="block text-[11px] text-[#94A3B8]">
+                  Resposta em até 2 dias úteis (SLA P3)
+                </span>
+              </div>
+
+              <div className="flex items-start gap-2 text-[11px] text-[#94A3B8]">
+                <MapPin className="w-3.5 h-3.5 text-[#3B82F6] shrink-0 mt-0.5" />
+                <span className="leading-snug">
+                  Rua Coronel Francisco de Paula Moura Brito, 426 Bacacheri - Curitiba, PR - CEP
+                  80.520-570
+                </span>
               </div>
 
               <div className="flex items-center gap-2 text-[11px] text-[#94A3B8]">
