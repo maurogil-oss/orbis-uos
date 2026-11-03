@@ -37,6 +37,7 @@ import {
 } from '@/lib/diagnostics/exportDemoPresentation'
 import { ExpressDiagnostic } from '@/components/ExpressDiagnostic'
 import { Simulator } from '@/components/Simulator'
+import { IecSimulator } from '@/components/IecSimulator'
 import { CityTier } from '@/components/Hero'
 import { CuritibaMap } from '@/components/CuritibaMap'
 import { listRoadEvents, RoadEventRecord } from '@/services/roadEvents'
@@ -719,9 +720,14 @@ export default function Demo() {
                 </button>
               </div>
 
-              {/* Render do simulador interativo */}
+              {/* Render do simulador interativo de economicidade */}
               <div className="rounded-2xl overflow-hidden border border-[#1A2A5A]">
                 <Simulator selectedTier={selectedTier} onSelectTier={setSelectedTier} />
+              </div>
+
+              {/* Simulador Oficial IEC — Índice de Estresse Cinemático (Prescrito) */}
+              <div id="simulador-iec-demo" className="scroll-mt-24">
+                <IecSimulator showTitle={true} initialScenario="Normal" />
               </div>
             </div>
           )}

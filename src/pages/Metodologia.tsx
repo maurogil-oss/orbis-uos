@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Shield,
+  ShieldCheck,
   BookOpen,
   ArrowLeft,
   CheckCircle2,
@@ -1332,6 +1333,234 @@ export default function Metodologia() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* NOVA SEÇÃO METODOLÓGICA: IEC — Índice de Estresse Cinemático (Índice Irmão do IMV/IMA) */}
+        <div
+          id="secao-iec-metodologia"
+          className="p-6 sm:p-8 rounded-2xl bg-[#0A1128] border-2 border-[#0284C7]/60 space-y-6"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1A2A5A]">
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-xl bg-[#0284C7]/20 text-[#38BDF8]">
+                <Activity className="w-5 h-5" />
+              </span>
+              <div>
+                <h2 className="text-xl font-bold text-[#F8FAFC]">
+                  6. IEC — Índice de Estresse Cinemático (Índice Irmão do IMV/IMA)
+                </h2>
+                <p className="text-xs text-[#94A3B8]">
+                  Tagline institucional:{' '}
+                  <b>"IMV mede a via; IEC mede o comportamento sobre a via."</b>
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-mono font-bold text-[#10B981] bg-[#10B981]/15 px-2.5 py-1 rounded border border-[#10B981]/30">
+                LGPD: Art. 12 (Dado Físico)
+              </span>
+              <span className="text-[10px] font-mono text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/30">
+                hipótese a validar em campo
+              </span>
+            </div>
+          </div>
+
+          {/* Conceito do Produto e Tripé Físico */}
+          <div className="space-y-3 text-xs sm:text-sm text-[#CBD5E1] leading-relaxed">
+            <p>
+              O <b>IEC (Índice de Estresse Cinemático)</b> quantifica a tensão mecânica e inercial
+              da condução automotiva em cada segmento métrico da malha municipal. A premissa de
+              engenharia de tráfego é estritamente física e comportamental: motoristas calmos e em
+              fluxo regular praticam desacelerações progressivas e mantêm velocidade de cruzeiro
+              estável. Por outro lado, condutores sob estresse, pressa, retenção inesperada ou
+              distração praticam condução reativa — caracterizada por aproximações rápidas,
+              acelerações fortes e frenagens repentinas.
+            </p>
+            <p>
+              <b>Por que mede estresse sem medir a pessoa:</b> O sistema{' '}
+              <u>não adivinha o cérebro</u> nem coleta biometria. Toda a aferição decorre da
+              telemetria passiva de acelerômetro e velocidade escalar já coletada pelo Motor ORBIS
+              DSP embarcado. Não há microfones, câmeras, sensores neurofisiológicos ou gravação de
+              imagem. É uma medição de mecânica newtoniana do veículo sobre o pavimento.
+            </p>
+          </div>
+
+          {/* Tripé Físico da Condução */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-[10px] font-mono uppercase text-[#EF4444] font-bold block">
+                1. Eixo de Desaceleração
+              </span>
+              <h4 className="font-bold text-white text-sm">Frenagens Bruscas</h4>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Frequência e intensidade de desacelerações longitudinais superiores ao limiar de
+                conforto (acima de 0,35g). Ponderado em 40% na formulação física do IEC.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-[10px] font-mono uppercase text-[#38BDF8] font-bold block">
+                2. Eixo de Aceleração
+              </span>
+              <h4 className="font-bold text-white text-sm">Arrancadas & Retomadas Súbitas</h4>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Surtos de aceleração positiva (&gt;0,25g) indicativos de ultrapassagens forçadas,
+                impaciência ou arrancadas nervosas pós-retenção semafórica. Ponderado em 25%.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-1.5">
+              <span className="text-[10px] font-mono uppercase text-[#10B981] font-bold block">
+                3. Eixo de Fluidez
+              </span>
+              <h4 className="font-bold text-white text-sm">
+                Oscilação de Velocidade & Aproximação
+              </h4>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Desvio-padrão da velocidade escalar em regime de cruzeiro e taxa de aproximações
+                rápidas (fechamento abrupto de gap veicular). Ponderados em 20% e 15%.
+              </p>
+            </div>
+          </div>
+
+          {/* Tabela da Escala Oficial de 4 Níveis (Faixas Exatas) */}
+          <div className="space-y-3">
+            <h3 className="font-bold text-white text-sm">
+              Escala Oficial de 4 Níveis do IEC (0 a 100) e Padrões Físicos Observados:
+            </h3>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border border-[#1A2A5A] rounded-xl overflow-hidden">
+                <thead className="bg-[#0A1128] text-[10px] uppercase font-mono text-[#94A3B8]">
+                  <tr>
+                    <th className="py-2.5 px-3">Faixa IEC</th>
+                    <th className="py-2.5 px-3">Cor / Nível</th>
+                    <th className="py-2.5 px-3">Denominação Institucional</th>
+                    <th className="py-2.5 px-3">Padrão Físico Observado</th>
+                    <th className="py-2.5 px-3">Risco de Colisão Traseira</th>
+                    <th className="py-2.5 px-3">Ação Recomendada Municipal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1A2A5A]">
+                  <tr>
+                    <td className="py-3 px-3 font-mono font-bold text-[#10B981]">0 a 24</td>
+                    <td className="py-3 px-3 font-bold text-[#10B981]">Verde</td>
+                    <td className="py-3 px-3 font-semibold text-white">
+                      Condução Fluida{' '}
+                      <span className="text-[10px] text-[#94A3B8] font-normal font-mono block">
+                        ("Zen" apenas em gamificação)
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-[#CBD5E1]">
+                      Velocidade de cruzeiro estável, desacelerações progressivas e suaves.
+                    </td>
+                    <td className="py-3 px-3 text-[#10B981]">
+                      Risco quase nulo de colisão traseira.
+                    </td>
+                    <td className="py-3 px-3 text-[#94A3B8]">
+                      Manter padrão de sinalização e ciclo semafórico de onda verde.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-3 font-mono font-bold text-[#06B6D4]">25 a 49</td>
+                    <td className="py-3 px-3 font-bold text-[#06B6D4]">Ciano</td>
+                    <td className="py-3 px-3 font-semibold text-white">Condução Estável</td>
+                    <td className="py-3 px-3 text-[#CBD5E1]">
+                      Reduções normais de fluxo e tráfego habitual urbano desimpedido.
+                    </td>
+                    <td className="py-3 px-3 text-[#06B6D4]">Risco residual baixo de colisão.</td>
+                    <td className="py-3 px-3 text-[#94A3B8]">
+                      Monitoramento passivo de rotina pelas frotas municipais.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-3 font-mono font-bold text-[#F59E0B]">50 a 74</td>
+                    <td className="py-3 px-3 font-bold text-[#F59E0B]">Âmbar</td>
+                    <td className="py-3 px-3 font-semibold text-white">Tensão Elevada</td>
+                    <td className="py-3 px-3 text-[#CBD5E1]">
+                      Oscilação constante de velocidade, aproximações rápidas e freadas moderadas
+                      repetidas.
+                    </td>
+                    <td className="py-3 px-3 text-[#F59E0B]">
+                      Alerta preventivo: trânsito nervoso, retenção repentina ou pista escorregadia.
+                    </td>
+                    <td className="py-3 px-3 text-[#CBD5E1]">
+                      Vistoria de engenharia de tráfego municipal: checar visibilidade de placas e
+                      tempos semafóricos.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-3 font-mono font-bold text-[#EF4444]">75 a 100</td>
+                    <td className="py-3 px-3 font-bold text-[#EF4444]">Vermelho</td>
+                    <td className="py-3 px-3 font-semibold text-white">Estresse Crítico</td>
+                    <td className="py-3 px-3 text-[#CBD5E1]">
+                      Freadas violentas consecutivas e acelerações súbitas sucessivas.
+                    </td>
+                    <td className="py-3 px-3 text-[#EF4444] font-bold">
+                      Alerta máximo (hotspot): risco iminente de colisão traseira.
+                    </td>
+                    <td className="py-3 px-3 text-[#EF4444]">
+                      Despacho de agentes municipais de trânsito para vistoria do trecho, reforço
+                      emergencial de sinalização e checagem de obstáculos ou buracos.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Fechamento do Círculo com o IMV e Conformidade LGPD */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <span className="font-bold text-white text-sm flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                O Nexo Causal: IEC Aponta o Defeito da Via
+              </span>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                A leitura-chave incorporada na engenharia da plataforma demonstra que quando
+                múltiplos veículos acumulam Tensão Elevada ou Estresse Crítico no{' '}
+                <b>mesmo segmento de 100m</b>, a causa primária quase sempre decorre de falha de
+                engenharia (falta de visibilidade semafórica, buraco oculto, lombada desgastada ou
+                afunilamento abrupto). Deste modo, o IEC aponta o defeito da via e fecha o círculo
+                diagnóstico e probatório com o IMV.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-2">
+              <span className="font-bold text-white text-sm flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#38BDF8]" />
+                Conformidade LGPD & Agregação k-Anônima
+              </span>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                Em consonância com o Art. 12 da LGPD, os dados cinemáticos medem o deslocamento
+                físico da máquina, não a identidade do condutor. Para o painel do órgão municipal, a
+                entrega é 100% agregada sob critério estrito de k-anonimato (k ≥ 3 veículos no
+                trecho). Nenhuma placa, matrícula ou perfil de condutor é exibido. Feedback
+                individual ocorre exclusivamente no aplicativo próprio do frotista sob seu
+                consentimento operacional prévio.
+              </p>
+            </div>
+          </div>
+
+          {/* Enquadramento de Rodovias Federais e Estaduais: Em Estudo de Conformidade */}
+          <div className="p-4 rounded-xl bg-[#0A1128] border border-[#38BDF8]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="space-y-1">
+              <span className="font-bold text-white flex items-center gap-1.5">
+                <span>Enquadramento Territorial & Rodovias:</span>
+              </span>
+              <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                As ações e despachos operacionais do IEC são de competência estrita dos{' '}
+                <b>órgãos municipais de trânsito e obras</b> (agentes municipais, Setran, engenharia
+                de tráfego urbano). A aplicação do IEC em{' '}
+                <b>rodovias federais e estaduais (ex.: PRF, BR-101, DER)</b> encontra-se
+                expressamente <u>em estudo de conformidade</u> e fora do escopo operacional
+                municipal.
+              </p>
+            </div>
+            <span className="text-xs font-mono font-bold text-[#38BDF8] bg-[#38BDF8]/15 px-3 py-1 rounded border border-[#38BDF8]/30 shrink-0">
+              Rodovias: em estudo de conformidade
+            </span>
           </div>
         </div>
 

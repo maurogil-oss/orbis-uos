@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import { RoadEventRecord } from '@/services/roadEvents'
 import { FleetTelemetryRecord } from '@/services/fleet'
+import {
+  calculateKineticStressIndex,
+  DEMO_IEC_SEGMENTS,
+  IEC_NIVEIS,
+} from '@/lib/diagnostics/iecEngine'
 
 interface TceDossierModalProps {
   isOpen: boolean
@@ -255,10 +260,89 @@ export function TceDossierModal({
             </p>
           </div>
 
-          {/* 3. Conclusão e Assinatura Técnica */}
+          {/* 3. Bloco Protocolável: Índice de Estresse Cinemático (IEC) por Segmento */}
+          <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#F8FAFC]">
+                <ShieldCheck className="w-4 h-4 text-[#38BDF8]" />
+                <span>3. Índice de Estresse Cinemático (IEC) por Segmento Viário</span>
+              </div>
+              <span className="text-[10px] font-mono text-[#F59E0B] bg-[#F59E0B]/10 px-2 py-0.5 rounded border border-[#F59E0B]/30">
+                hipótese a validar em campo
+              </span>
+            </div>
+
+            <p className="text-[#CBD5E1] leading-relaxed">
+              O IEC mede a tensão mecânica e inercial da condução (desacelerações bruscas,
+              acelerações súbitas e oscilação de velocidade) calculada pela função canônica oficial{' '}
+              <code className="text-[#38BDF8] font-mono">calculateKineticStressIndex</code>.
+              Amparado no Art. 12 da LGPD (dado estritamente físico de dinâmica veicular, agregado
+              k-anônimo sem identificação de condutor ou placa). O agrupamento de tensão elevada ou
+              estresse crítico no mesmo ponto métrico atesta o nexo causal com defeito de engenharia
+              da via (visibilidade deficiente, buraco ou retenção abrupta), legitimando intervenção
+              municipal imediata com amparo no Art. 320 do CTB.
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border border-[#1A2A5A] rounded-lg overflow-hidden">
+                <thead className="bg-[#0A1128] text-[10px] uppercase font-mono text-[#94A3B8]">
+                  <tr>
+                    <th className="p-2">Segmento / Logradouro</th>
+                    <th className="p-2">Amostragem (k)</th>
+                    <th className="p-2">Score IEC</th>
+                    <th className="p-2">Nível & Classificação</th>
+                    <th className="p-2">Causa Provável da Via</th>
+                    <th className="p-2">Ação Recomendada Municipal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1A2A5A]">
+                  {DEMO_IEC_SEGMENTS.map((seg) => {
+                    const nivel = seg.iecNivel
+                    return (
+                      <tr key={seg.segmentoId} className="hover:bg-[#101B3A]">
+                        <td className="p-2 font-medium text-[#F8FAFC]">
+                          <div>{seg.via}</div>
+                          <span className="text-[10px] text-[#94A3B8]">
+                            {seg.bairro} • {seg.extensaoMetros}m
+                          </span>
+                        </td>
+                        <td className="p-2 font-mono text-[#38BDF8]">
+                          k = {seg.totalVeiculosAmostrados}
+                        </td>
+                        <td className="p-2 font-mono font-bold" style={{ color: nivel.corHex }}>
+                          {seg.iecScore}/100
+                        </td>
+                        <td className="p-2">
+                          <span
+                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${nivel.corTailwindBadge}`}
+                          >
+                            {nivel.nome}
+                          </span>
+                        </td>
+                        <td className="p-2 text-[#CBD5E1] text-[11px] max-w-[200px]">
+                          {seg.causaProvavelTrecho}
+                        </td>
+                        <td className="p-2 text-[#10B981] text-[11px] max-w-[200px]">
+                          {seg.acaoRecomendadaMunicipal}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-[#94A3B8] italic">
+              * Escala oficial: 0–24 (Condução Fluida), 25–49 (Condução Estável), 50–74 (Tensão
+              Elevada), 75–100 (Estresse Crítico). Rodovias federais e estaduais encontram-se em
+              estudo de conformidade e não integram este parecer municipal.
+            </p>
+          </div>
+
+          {/* 4. Conclusão e Assinatura Técnica */}
           <div className="p-4 rounded-xl bg-[#101B3A] border border-[#1A2A5A] space-y-3 text-xs">
             <span className="text-sm font-bold text-[#F8FAFC] block">
-              3. Conclusão Técnica e Rastreabilidade
+              4. Conclusão Técnica e Rastreabilidade Criptográfica
             </span>
             <p className="text-[#CBD5E1] leading-relaxed">
               Conclui-se pela <b>plena conformidade material e formal</b> para custeio via receitas

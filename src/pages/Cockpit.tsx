@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import { CamadasDadosExternosTab } from '@/components/CamadasDadosExternosTab'
 import { IngestionTransmissionTab } from '@/components/IngestionTransmissionTab'
+import { KineticStressPanel } from '@/components/KineticStressPanel'
 import { NearMissesPanel } from '@/components/NearMissesPanel'
 import { NearMissReplayModal } from '@/components/NearMissReplayModal'
 import { TrafficSpeedPanel } from '@/components/TrafficSpeedPanel'
@@ -90,6 +91,7 @@ export default function Cockpit() {
     | 'projecao_pavimento'
     | 'quase_acidentes'
     | 'trafego_velocidade'
+    | 'comportamento_risco'
     | 'dados_externos'
     | 'ingestao'
   >('gabinete')
@@ -419,6 +421,18 @@ export default function Cockpit() {
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab('comportamento_risco')}
+                className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'comportamento_risco'
+                    ? 'bg-gradient-to-r from-[#38BDF8] to-[#0284C7] text-white shadow-md shadow-[#38BDF8]/30'
+                    : 'text-[#38BDF8] hover:text-white hover:bg-[#38BDF8]/20'
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>Comportamento & Risco (IEC)</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('dados_externos')}
                 className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'dados_externos'
@@ -517,6 +531,8 @@ export default function Cockpit() {
         {/* CONDITIONAL RENDERING: GABINETE VS TÉCNICO VS PROJEÇÃO DE PAVIMENTO VS QUASE-ACIDENTES VS TRÁFEGO/VELOCIDADE VS DADOS EXTERNOS VS INGESTÃO */}
         {activeTab === 'ingestao' ? (
           <IngestionTransmissionTab />
+        ) : activeTab === 'comportamento_risco' ? (
+          <KineticStressPanel cityName="Curitiba / PR" />
         ) : activeTab === 'projecao_pavimento' ? (
           <PavementProjectionPanel
             onFocusCorridor={(corridor) => {
