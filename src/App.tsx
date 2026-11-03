@@ -30,6 +30,7 @@ import Plataforma from './pages/Plataforma'
 import FaqPage from './pages/Faq'
 import Acessibilidade from './pages/Acessibilidade'
 import ConfiguracoesPage from './pages/Configuracoes'
+import AlertasPage from './pages/Alertas'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -52,6 +53,9 @@ const App = () => (
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/duvidas" element={<FaqPage />} />
             <Route path="/perguntas-frequentes" element={<FaqPage />} />
+            <Route path="/alertas" element={<AlertasPage />} />
+            <Route path="/boletim-iec" element={<AlertasPage />} />
+            <Route path="/boletim" element={<AlertasPage />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/demonstracao" element={<Demo />} />
             <Route path="/metodologia" element={<Metodologia />} />

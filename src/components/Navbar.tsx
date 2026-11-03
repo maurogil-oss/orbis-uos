@@ -77,6 +77,14 @@ export function Navbar() {
   // Links de aprofundamento reunidos no dropdown institucional "Recursos"
   const baseInstitutionalLinks = [
     {
+      label: 'Boletim IEC & Alertas',
+      desc: 'Camada pública de estresse cinemático, zonas escolares e pico',
+      href: '/alertas',
+      icon: Activity,
+      badge: 'Público',
+      highlight: true,
+    },
+    {
       label: 'Configurações da Plataforma',
       desc: 'Integração de trânsito em tempo real, portal e parâmetros',
       href: '/configuracoes',
@@ -271,6 +279,20 @@ export function Navbar() {
             title="Perguntas Frequentes de Gestores e Procuradorias"
           >
             FAQ
+          </Link>
+
+          {/* 4b. Intenção: Boletim IEC & Alertas Públicos */}
+          <Link
+            to="/alertas"
+            className={`text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors shrink-0 flex items-center gap-1 ${
+              location.pathname === '/alertas' || location.pathname === '/boletim-iec'
+                ? 'text-white bg-[#101B3A] border border-[#38BDF8]/60 text-[#38BDF8]'
+                : 'text-[#CBD5E1] hover:text-white hover:bg-[#101B3A]/60'
+            }`}
+            title="Boletim IEC do Dia, Zonas Escolares e Alertas de Pico"
+          >
+            <Activity className="w-3.5 h-3.5 text-[#38BDF8]" />
+            <span>Alertas</span>
           </Link>
 
           {/* 5. Dropdown de Recursos Institucionais & Acessos Operacionais */}
@@ -507,8 +529,22 @@ export function Navbar() {
                 Navegação por Intenção
               </span>
 
-              {/* Grid 2x2 com as 4 intenções principais: Simulador, Plataforma, Como Contratar, FAQ */}
+              {/* Grid com as intenções principais: Simulador, Plataforma, Alertas IEC, Como Contratar, FAQ */}
               <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/alertas"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="col-span-2 flex items-center justify-between min-h-[44px] p-2.5 rounded-lg bg-[#101B3A] border border-[#38BDF8]/40 text-xs font-bold text-white hover:border-[#38BDF8] transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-[#38BDF8]" />
+                    <span>Boletim IEC & Alertas (/alertas)</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#38BDF8]/15 text-[#38BDF8]">
+                    Público
+                  </span>
+                </Link>
+
                 <a
                   href="/#simulador"
                   onClick={(e) => handleLinkClick(e, '/#simulador')}

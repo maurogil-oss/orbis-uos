@@ -45,6 +45,15 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
+                  to="/alertas"
+                  className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#38BDF8] font-semibold"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#38BDF8]" />
+                  <span>Boletim IEC & Alertas de Trânsito (/alertas)</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/demo"
                   className="hover:text-[#F8FAFC] transition-colors inline-flex items-center gap-1.5 text-[#60A5FA] font-semibold"
                 >
